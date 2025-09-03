@@ -1,6 +1,10 @@
 # Gumnut Go API Library
 
+<!-- x-release-please-start-version -->
+
 <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go"><img src="https://pkg.go.dev/badge/github.com/stainless-sdks/photos-go.svg" alt="Go Reference"></a>
+
+<!-- x-release-please-end -->
 
 The Gumnut Go library provides convenient access to the [Gumnut REST API](https://api.gumnut.ai/redoc)
 from applications written in Go.

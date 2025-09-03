@@ -85,6 +85,8 @@ type SearchSearchParams struct {
 	CapturedAfter param.Opt[time.Time] `query:"captured_after,omitzero" format:"date-time" json:"-"`
 	// Filter to only include assets captured before this date (ISO format).
 	CapturedBefore param.Opt[time.Time] `query:"captured_before,omitzero" format:"date-time" json:"-"`
+	// Library to search assets from (optional)
+	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
 	// The text query to search for. If you want to search for a specific person or set
 	// of people, use the person_ids parameter instead.If you want to search for a
 	// photos taken during a specific date range, use the captured_before and

@@ -30,6 +30,7 @@ func TestSearchSearchWithOptionalParams(t *testing.T) {
 	_, err := client.Search.Search(context.TODO(), photos.SearchSearchParams{
 		CapturedAfter:  photos.Time(time.Now()),
 		CapturedBefore: photos.Time(time.Now()),
+		LibraryID:      photos.String("library_id"),
 		Limit:          photos.Int(1),
 		Page:           photos.Int(1),
 		PersonIDs:      []string{"string"},

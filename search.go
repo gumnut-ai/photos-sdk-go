@@ -3,11 +3,15 @@
 package photos
 
 import (
+	"bytes"
 	"context"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"time"
 
+	"github.com/stainless-sdks/photos-go/internal/apiform"
 	"github.com/stainless-sdks/photos-go/internal/apijson"
 	"github.com/stainless-sdks/photos-go/internal/apiquery"
 	"github.com/stainless-sdks/photos-go/internal/requestconfig"
@@ -44,6 +48,16 @@ func (r *SearchService) Search(ctx context.Context, query SearchSearchParams, op
 	opts = append(r.Options[:], opts...)
 	path := "api/search"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return
+}
+
+// Searches for assets using semantic similarity and/or metadata filters. Results
+// include asset metadata, faces, and people. At least one search criterion must be
+// provided. Can search by text query, uploaded image, or both combined.
+func (r *SearchService) SearchAssets(ctx context.Context, body SearchSearchAssetsParams, opts ...option.RequestOption) (res *SearchResponse, err error) {
+	opts = append(r.Options[:], opts...)
+	path := "api/search"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
 }
 
@@ -113,4 +127,49 @@ func (r SearchSearchParams) URLQuery() (v url.Values, err error) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type SearchSearchAssetsParams struct {
+	// Filter to only include assets captured after this date (ISO format).
+	CapturedAfter param.Opt[time.Time] `json:"captured_after,omitzero" format:"date-time"`
+	// Filter to only include assets captured before this date (ISO format).
+	CapturedBefore param.Opt[time.Time] `json:"captured_before,omitzero" format:"date-time"`
+	// Library to search assets from (optional)
+	LibraryID param.Opt[string] `json:"library_id,omitzero"`
+	// The text query to search for. If you want to search for a specific person or set
+	// of people, use the person_ids parameter instead.If you want to search for a
+	// photos taken during a specific date range, use the captured_before and
+	// captured_after parameters instead.
+	Query param.Opt[string] `json:"query,omitzero"`
+	// Number of results per page
+	Limit param.Opt[int64] `json:"limit,omitzero"`
+	// Page number
+	Page param.Opt[int64] `json:"page,omitzero"`
+	// Similarity threshold (lower means more similar)
+	Threshold param.Opt[float64] `json:"threshold,omitzero"`
+	// Image file to search for similar assets. Can be combined with text query.
+	Image io.Reader `json:"image,omitzero" format:"binary"`
+	// Filter to only include assets containing ALL of these person IDs. Can be
+	// comma-delimited string (e.g. 'person_123,person_abc') or multiple query
+	// parameters.
+	PersonIDs []string `json:"person_ids,omitzero"`
+	paramObj
+}
+
+func (r SearchSearchAssetsParams) MarshalMultipart() (data []byte, contentType string, err error) {
+	buf := bytes.NewBuffer(nil)
+	writer := multipart.NewWriter(buf)
+	err = apiform.MarshalRoot(r, writer)
+	if err == nil {
+		err = apiform.WriteExtras(writer, r.ExtraFields())
+	}
+	if err != nil {
+		writer.Close()
+		return nil, "", err
+	}
+	err = writer.Close()
+	if err != nil {
+		return nil, "", err
+	}
+	return buf.Bytes(), writer.FormDataContentType(), nil
 }

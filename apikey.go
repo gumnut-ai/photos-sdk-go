@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/stainless-sdks/photos-go/internal/apijson"
@@ -37,7 +38,7 @@ func NewAPIKeyService(opts ...option.RequestOption) (r APIKeyService) {
 
 // Creates a new API key for the current user
 func (r *APIKeyService) New(ctx context.Context, body APIKeyNewParams, opts ...option.RequestOption) (res *APIKeyNewResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "api-keys/"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -45,7 +46,7 @@ func (r *APIKeyService) New(ctx context.Context, body APIKeyNewParams, opts ...o
 
 // Updates the name of a specific API key
 func (r *APIKeyService) Update(ctx context.Context, keyID string, body APIKeyUpdateParams, opts ...option.RequestOption) (res *APIKeyResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if keyID == "" {
 		err = errors.New("missing required key_id parameter")
 		return
@@ -57,7 +58,7 @@ func (r *APIKeyService) Update(ctx context.Context, keyID string, body APIKeyUpd
 
 // Retrieves a list of all API keys for the current user
 func (r *APIKeyService) List(ctx context.Context, opts ...option.RequestOption) (res *[]APIKeyResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "api-keys/"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
@@ -65,7 +66,7 @@ func (r *APIKeyService) List(ctx context.Context, opts ...option.RequestOption) 
 
 // Deletes a specific API key
 func (r *APIKeyService) Delete(ctx context.Context, keyID string, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if keyID == "" {
 		err = errors.New("missing required key_id parameter")

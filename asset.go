@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/stainless-sdks/photos-go/internal/apiform"
@@ -47,7 +48,7 @@ func NewAssetService(opts ...option.RequestOption) (r AssetService) {
 // library, uses that library. If the user has multiple libraries, library_id is
 // required.
 func (r *AssetService) New(ctx context.Context, body AssetNewParams, opts ...option.RequestOption) (res *AssetResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "api/assets"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -56,7 +57,7 @@ func (r *AssetService) New(ctx context.Context, body AssetNewParams, opts ...opt
 // Retrieves detailed metadata for a specific asset, including EXIF information,
 // asset metrics, faces, and people.
 func (r *AssetService) Get(ctx context.Context, assetID string, opts ...option.RequestOption) (res *AssetResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
 		return
@@ -71,7 +72,7 @@ func (r *AssetService) Get(ctx context.Context, assetID string, opts ...option.R
 // people. Assets are ordered by local creation time, descending.
 func (r *AssetService) List(ctx context.Context, query AssetListParams, opts ...option.RequestOption) (res *pagination.CursorPage[AssetResponse], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "api/assets"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -96,7 +97,7 @@ func (r *AssetService) ListAutoPaging(ctx context.Context, query AssetListParams
 // Deletes a specific asset and its associated data (including the file from
 // storage).
 func (r *AssetService) Delete(ctx context.Context, assetID string, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
@@ -109,7 +110,7 @@ func (r *AssetService) Delete(ctx context.Context, assetID string, opts ...optio
 
 // Downloads the original file for a specific asset.
 func (r *AssetService) Download(ctx context.Context, assetID string, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
@@ -123,7 +124,7 @@ func (r *AssetService) Download(ctx context.Context, assetID string, opts ...opt
 // Downloads a thumbnail for a specific asset. The exact thumbnail returned depends
 // on availability and the optional `size` parameter.
 func (r *AssetService) DownloadThumbnail(ctx context.Context, assetID string, query AssetDownloadThumbnailParams, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")

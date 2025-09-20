@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/stainless-sdks/photos-go/internal/apijson"
@@ -37,7 +38,7 @@ func NewLibraryService(opts ...option.RequestOption) (r LibraryService) {
 
 // Creates a new library for the authenticated user.
 func (r *LibraryService) New(ctx context.Context, body LibraryNewParams, opts ...option.RequestOption) (res *LibraryResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "api/libraries"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -45,7 +46,7 @@ func (r *LibraryService) New(ctx context.Context, body LibraryNewParams, opts ..
 
 // Returns details of a specific library owned by the authenticated user.
 func (r *LibraryService) Get(ctx context.Context, libraryID string, opts ...option.RequestOption) (res *LibraryResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
 		err = errors.New("missing required library_id parameter")
 		return
@@ -58,7 +59,7 @@ func (r *LibraryService) Get(ctx context.Context, libraryID string, opts ...opti
 // Updates the name and/or description of a library owned by the authenticated
 // user.
 func (r *LibraryService) Update(ctx context.Context, libraryID string, body LibraryUpdateParams, opts ...option.RequestOption) (res *LibraryResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
 		err = errors.New("missing required library_id parameter")
 		return
@@ -70,7 +71,7 @@ func (r *LibraryService) Update(ctx context.Context, libraryID string, body Libr
 
 // Returns all libraries owned by the authenticated user.
 func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption) (res *[]LibraryResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "api/libraries"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
@@ -79,7 +80,7 @@ func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption)
 // Deletes a library and all its associated data (assets, albums, people, faces).
 // Cannot delete the user's only library.
 func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if libraryID == "" {
 		err = errors.New("missing required library_id parameter")

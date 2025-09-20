@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 
 	"github.com/stainless-sdks/photos-go/internal/apijson"
 	shimjson "github.com/stainless-sdks/photos-go/internal/encoding/json"
@@ -39,7 +40,7 @@ func NewAlbumAssetService(opts ...option.RequestOption) (r AlbumAssetService) {
 // Retrieves a list of all assets contained within a specific album, along with
 // their associated metrics, EXIF data, faces, and people.
 func (r *AlbumAssetService) List(ctx context.Context, albumID string, opts ...option.RequestOption) (res *[]AssetResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
 		return
@@ -52,7 +53,7 @@ func (r *AlbumAssetService) List(ctx context.Context, albumID string, opts ...op
 // Adds one or more existing assets to a specific album. Assets must be in the same
 // library as the album. Duplicate assets are ignored.
 func (r *AlbumAssetService) Add(ctx context.Context, albumID string, body AlbumAssetAddParams, opts ...option.RequestOption) (res *AlbumAssetAddResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
 		return
@@ -65,7 +66,7 @@ func (r *AlbumAssetService) Add(ctx context.Context, albumID string, body AlbumA
 // Removes one or more assets from a specific album. Note: This does not delete the
 // assets themselves.
 func (r *AlbumAssetService) Remove(ctx context.Context, albumID string, body AlbumAssetRemoveParams, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")

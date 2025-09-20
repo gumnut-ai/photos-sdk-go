@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/stainless-sdks/photos-go/internal/apijson"
@@ -40,7 +41,7 @@ func NewPersonService(opts ...option.RequestOption) (r PersonService) {
 
 // Creates a new person entry.
 func (r *PersonService) New(ctx context.Context, body PersonNewParams, opts ...option.RequestOption) (res *PersonResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "api/people"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -48,7 +49,7 @@ func (r *PersonService) New(ctx context.Context, body PersonNewParams, opts ...o
 
 // Retrieves details for a specific person.
 func (r *PersonService) Get(ctx context.Context, personID string, opts ...option.RequestOption) (res *PersonResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if personID == "" {
 		err = errors.New("missing required person_id parameter")
 		return
@@ -60,7 +61,7 @@ func (r *PersonService) Get(ctx context.Context, personID string, opts ...option
 
 // Updates the details of a specific person.
 func (r *PersonService) Update(ctx context.Context, personID string, body PersonUpdateParams, opts ...option.RequestOption) (res *PersonResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if personID == "" {
 		err = errors.New("missing required person_id parameter")
 		return
@@ -73,7 +74,7 @@ func (r *PersonService) Update(ctx context.Context, personID string, body Person
 // Retrieves a paginated list of people, ordered by creation time, descending.
 func (r *PersonService) List(ctx context.Context, query PersonListParams, opts ...option.RequestOption) (res *pagination.CursorPage[PersonResponse], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "api/people"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -96,7 +97,7 @@ func (r *PersonService) ListAutoPaging(ctx context.Context, query PersonListPara
 // Deletes a specific person. Associated faces will have their person_id set to the
 // closest matching person, or null if no one matches.
 func (r *PersonService) Delete(ctx context.Context, personID string, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if personID == "" {
 		err = errors.New("missing required person_id parameter")

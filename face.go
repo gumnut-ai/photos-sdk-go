@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/stainless-sdks/photos-go/internal/apijson"
@@ -40,7 +41,7 @@ func NewFaceService(opts ...option.RequestOption) (r FaceService) {
 
 // Retrieves details for a specific face.
 func (r *FaceService) Get(ctx context.Context, faceID string, query FaceGetParams, opts ...option.RequestOption) (res *FaceResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if faceID == "" {
 		err = errors.New("missing required face_id parameter")
 		return
@@ -53,7 +54,7 @@ func (r *FaceService) Get(ctx context.Context, faceID string, query FaceGetParam
 // Updates the details of a specific face, currently only supporting
 // associating/disassociating with a person.
 func (r *FaceService) Update(ctx context.Context, faceID string, params FaceUpdateParams, opts ...option.RequestOption) (res *FaceResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if faceID == "" {
 		err = errors.New("missing required face_id parameter")
 		return
@@ -67,7 +68,7 @@ func (r *FaceService) Update(ctx context.Context, faceID string, params FaceUpda
 // ordered by creation time, descending.
 func (r *FaceService) List(ctx context.Context, query FaceListParams, opts ...option.RequestOption) (res *pagination.CursorPage[FaceResponse], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "api/faces"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -91,7 +92,7 @@ func (r *FaceService) ListAutoPaging(ctx context.Context, query FaceListParams, 
 // Deletes a specific face entry. This does not delete the associated asset or
 // person.
 func (r *FaceService) Delete(ctx context.Context, faceID string, body FaceDeleteParams, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if faceID == "" {
 		err = errors.New("missing required face_id parameter")
@@ -104,7 +105,7 @@ func (r *FaceService) Delete(ctx context.Context, faceID string, body FaceDelete
 
 // Retrieves a thumbnail for a specific face.
 func (r *FaceService) DownloadThumbnail(ctx context.Context, faceID string, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
 	if faceID == "" {
 		err = errors.New("missing required face_id parameter")

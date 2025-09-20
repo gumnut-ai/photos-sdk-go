@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/stainless-sdks/photos-go/internal/apijson"
@@ -43,7 +44,7 @@ func NewAlbumService(opts ...option.RequestOption) (r AlbumService) {
 // Creates a new, empty album with optional name and description in the specified
 // library.
 func (r *AlbumService) New(ctx context.Context, body AlbumNewParams, opts ...option.RequestOption) (res *AlbumResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "api/albums"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return
@@ -51,7 +52,7 @@ func (r *AlbumService) New(ctx context.Context, body AlbumNewParams, opts ...opt
 
 // Retrieves details for a specific album.
 func (r *AlbumService) Get(ctx context.Context, albumID string, opts ...option.RequestOption) (res *AlbumResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
 		return
@@ -63,7 +64,7 @@ func (r *AlbumService) Get(ctx context.Context, albumID string, opts ...option.R
 
 // Updates the name and/or description of a specific album.
 func (r *AlbumService) Update(ctx context.Context, albumID string, body AlbumUpdateParams, opts ...option.RequestOption) (res *AlbumResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
 		return
@@ -77,7 +78,7 @@ func (r *AlbumService) Update(ctx context.Context, albumID string, body AlbumUpd
 // creation time, descending.
 func (r *AlbumService) List(ctx context.Context, query AlbumListParams, opts ...option.RequestOption) (res *pagination.CursorPage[AlbumResponse], err error) {
 	var raw *http.Response
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
 	path := "api/albums"
 	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
@@ -101,7 +102,7 @@ func (r *AlbumService) ListAutoPaging(ctx context.Context, query AlbumListParams
 // Deletes a specific album. Note: This does not delete the assets within the
 // album.
 func (r *AlbumService) Delete(ctx context.Context, albumID string, opts ...option.RequestOption) (err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")

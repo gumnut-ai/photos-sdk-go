@@ -9,6 +9,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"slices"
 	"time"
 
 	"github.com/stainless-sdks/photos-go/internal/apiform"
@@ -45,7 +46,7 @@ func NewSearchService(opts ...option.RequestOption) (r SearchService) {
 //
 // Deprecated: deprecated
 func (r *SearchService) Search(ctx context.Context, query SearchSearchParams, opts ...option.RequestOption) (res *SearchResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "api/search"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
@@ -55,7 +56,7 @@ func (r *SearchService) Search(ctx context.Context, query SearchSearchParams, op
 // include asset metadata, faces, and people. At least one search criterion must be
 // provided. Can search by text query, uploaded image, or both combined.
 func (r *SearchService) SearchAssets(ctx context.Context, body SearchSearchAssetsParams, opts ...option.RequestOption) (res *SearchResponse, err error) {
-	opts = append(r.Options[:], opts...)
+	opts = slices.Concat(r.Options, opts)
 	path := "api/search"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
 	return

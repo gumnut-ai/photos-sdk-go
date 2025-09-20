@@ -27,7 +27,7 @@ go get -u 'github.com/stainless-sdks/photos-go@v0.0.1'
 
 ## Requirements
 
-This library requires Go 1.18+.
+This library requires Go 1.22+.
 
 ## Usage
 

@@ -166,6 +166,10 @@ type AssetResponse struct {
 	Exif AssetResponseExif `json:"exif,nullable"`
 	// All faces detected in this asset
 	Faces []FaceResponse `json:"faces"`
+	// File size of the asset in bytes
+	FileSizeBytes int64 `json:"file_size_bytes"`
+	// Height of the asset in pixels
+	Height int64 `json:"height"`
 	// ML-generated quality scores and other metrics
 	Metrics map[string]float64 `json:"metrics,nullable"`
 	// All unique people identified in this asset (deduplicated from faces)
@@ -173,6 +177,8 @@ type AssetResponse struct {
 	// Use this URL to display the asset. Never download the full asset unless you
 	// absolutely have to; prefer the thumbnail instead.
 	ThumbnailURL string `json:"thumbnail_url,nullable"`
+	// Width of the asset in pixels
+	Width int64 `json:"width"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
@@ -189,9 +195,12 @@ type AssetResponse struct {
 		DownloadURL      respjson.Field
 		Exif             respjson.Field
 		Faces            respjson.Field
+		FileSizeBytes    respjson.Field
+		Height           respjson.Field
 		Metrics          respjson.Field
 		People           respjson.Field
 		ThumbnailURL     respjson.Field
+		Width            respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
 	} `json:"-"`

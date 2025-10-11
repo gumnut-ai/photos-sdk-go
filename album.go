@@ -117,6 +117,8 @@ func (r *AlbumService) Delete(ctx context.Context, albumID string, opts ...optio
 type AlbumResponse struct {
 	// Unique album identifier with 'album\_' prefix
 	ID string `json:"id,required"`
+	// Total number of assets in this album
+	AssetCount int64 `json:"asset_count,required"`
 	// When this album was created
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
 	// Display name of the album
@@ -128,6 +130,7 @@ type AlbumResponse struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
+		AssetCount  respjson.Field
 		CreatedAt   respjson.Field
 		Name        respjson.Field
 		UpdatedAt   respjson.Field

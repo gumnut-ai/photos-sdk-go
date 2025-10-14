@@ -75,7 +75,7 @@ func (r *AlbumService) Update(ctx context.Context, albumID string, body AlbumUpd
 }
 
 // Retrieves a paginated list of albums from the specified library, ordered by
-// creation time, descending.
+// creation time, descending. Can be filtered by asset_id.
 func (r *AlbumService) List(ctx context.Context, query AlbumListParams, opts ...option.RequestOption) (res *pagination.CursorPage[AlbumResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -94,7 +94,7 @@ func (r *AlbumService) List(ctx context.Context, query AlbumListParams, opts ...
 }
 
 // Retrieves a paginated list of albums from the specified library, ordered by
-// creation time, descending.
+// creation time, descending. Can be filtered by asset_id.
 func (r *AlbumService) ListAutoPaging(ctx context.Context, query AlbumListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[AlbumResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
@@ -176,11 +176,14 @@ func (r *AlbumUpdateParams) UnmarshalJSON(data []byte) error {
 }
 
 type AlbumListParams struct {
+	// Filter albums containing this asset ID (optional)
+	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
 	// Library to list albums from (optional)
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
 	// Album ID to start listing albums after
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
-	Limit           param.Opt[int64]  `query:"limit,omitzero" json:"-"`
+	// Max number of albums to return
+	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	paramObj
 }
 

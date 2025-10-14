@@ -107,6 +107,7 @@ func TestAlbumListWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Albums.List(context.TODO(), photos.AlbumListParams{
+		AssetID:         photos.String("asset_id"),
 		LibraryID:       photos.String("library_id"),
 		Limit:           photos.Int(1),
 		StartingAfterID: photos.String("starting_after_id"),

@@ -125,18 +125,21 @@ type AlbumResponse struct {
 	Name string `json:"name,required"`
 	// When this album was last updated
 	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	// ID of the asset used as the album cover
+	AlbumCoverAssetID string `json:"album_cover_asset_id,nullable"`
 	// Optional description text for the album
 	Description string `json:"description,nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID          respjson.Field
-		AssetCount  respjson.Field
-		CreatedAt   respjson.Field
-		Name        respjson.Field
-		UpdatedAt   respjson.Field
-		Description respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		ID                respjson.Field
+		AssetCount        respjson.Field
+		CreatedAt         respjson.Field
+		Name              respjson.Field
+		UpdatedAt         respjson.Field
+		AlbumCoverAssetID respjson.Field
+		Description       respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
 	} `json:"-"`
 }
 

@@ -1,0 +1,69 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+package photos_test
+
+import (
+	"context"
+	"errors"
+	"os"
+	"testing"
+
+	"github.com/stainless-sdks/photos-go"
+	"github.com/stainless-sdks/photos-go/internal/testutil"
+	"github.com/stainless-sdks/photos-go/option"
+)
+
+func TestOAuthAuthURLWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := photos.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	_, err := client.OAuth.AuthURL(context.TODO(), photos.OAuthAuthURLParams{
+		RedirectUri:         "redirect_uri",
+		CodeChallenge:       photos.String("code_challenge"),
+		CodeChallengeMethod: photos.String("code_challenge_method"),
+	})
+	if err != nil {
+		var apierr *photos.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestOAuthExhangeWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := photos.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	_, err := client.OAuth.Exhange(context.TODO(), photos.OAuthExhangeParams{
+		Code:         photos.String("code"),
+		CodeVerifier: photos.String("code_verifier"),
+		Error:        photos.String("error"),
+		State:        photos.String("state"),
+	})
+	if err != nil {
+		var apierr *photos.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}

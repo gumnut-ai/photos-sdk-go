@@ -47,7 +47,7 @@ func (r *OAuthService) AuthURL(ctx context.Context, query OAuthAuthURLParams, op
 // Exchange OAuth authorization code for application JWT after validating state,
 // nonce, and ID token signature. User is retrieved from or created in the database
 // and details added to the JWT.
-func (r *OAuthService) Exhange(ctx context.Context, body OAuthExhangeParams, opts ...option.RequestOption) (res *ExhchangeResponse, err error) {
+func (r *OAuthService) Exhange(ctx context.Context, body OAuthExhangeParams, opts ...option.RequestOption) (res *ExchangeResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/oauth/exchange"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -72,10 +72,10 @@ func (r *AuthURLResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Response containing JWT and user info
-type ExhchangeResponse struct {
+type ExchangeResponse struct {
 	AccessToken string `json:"access_token,required"`
 	// User information in token exchange response
-	User ExhchangeResponseUser `json:"user,required"`
+	User ExchangeResponseUser `json:"user,required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		AccessToken respjson.Field
@@ -86,13 +86,13 @@ type ExhchangeResponse struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r ExhchangeResponse) RawJSON() string { return r.JSON.raw }
-func (r *ExhchangeResponse) UnmarshalJSON(data []byte) error {
+func (r ExchangeResponse) RawJSON() string { return r.JSON.raw }
+func (r *ExchangeResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
 // User information in token exchange response
-type ExhchangeResponseUser struct {
+type ExchangeResponseUser struct {
 	ID          string `json:"id,required"`
 	ClerkUserID string `json:"clerk_user_id,required"`
 	Email       string `json:"email,required"`
@@ -115,8 +115,8 @@ type ExhchangeResponseUser struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r ExhchangeResponseUser) RawJSON() string { return r.JSON.raw }
-func (r *ExhchangeResponseUser) UnmarshalJSON(data []byte) error {
+func (r ExchangeResponseUser) RawJSON() string { return r.JSON.raw }
+func (r *ExchangeResponseUser) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

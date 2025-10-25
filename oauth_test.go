@@ -40,7 +40,7 @@ func TestOAuthAuthURLWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestOAuthExhangeWithOptionalParams(t *testing.T) {
+func TestOAuthExchangeWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -53,7 +53,7 @@ func TestOAuthExhangeWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.OAuth.Exhange(context.TODO(), photos.OAuthExhangeParams{
+	_, err := client.OAuth.Exchange(context.TODO(), photos.OAuthExchangeParams{
 		Code:         photos.String("code"),
 		CodeVerifier: photos.String("code_verifier"),
 		Error:        photos.String("error"),

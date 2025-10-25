@@ -47,7 +47,7 @@ func (r *OAuthService) AuthURL(ctx context.Context, query OAuthAuthURLParams, op
 // Exchange OAuth authorization code for application JWT after validating state,
 // nonce, and ID token signature. User is retrieved from or created in the database
 // and details added to the JWT.
-func (r *OAuthService) Exhange(ctx context.Context, body OAuthExhangeParams, opts ...option.RequestOption) (res *ExchangeResponse, err error) {
+func (r *OAuthService) Exchange(ctx context.Context, body OAuthExchangeParams, opts ...option.RequestOption) (res *ExchangeResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/oauth/exchange"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
@@ -141,7 +141,7 @@ func (r OAuthAuthURLParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-type OAuthExhangeParams struct {
+type OAuthExchangeParams struct {
 	// Authorization code returned by the OAuth provider after user consent
 	Code param.Opt[string] `json:"code,omitzero"`
 	// PKCE code verifier that corresponds to the code_challenge sent in the
@@ -154,10 +154,10 @@ type OAuthExhangeParams struct {
 	paramObj
 }
 
-func (r OAuthExhangeParams) MarshalJSON() (data []byte, err error) {
-	type shadow OAuthExhangeParams
+func (r OAuthExchangeParams) MarshalJSON() (data []byte, err error) {
+	type shadow OAuthExchangeParams
 	return param.MarshalObject(r, (*shadow)(&r))
 }
-func (r *OAuthExhangeParams) UnmarshalJSON(data []byte) error {
+func (r *OAuthExchangeParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }

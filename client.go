@@ -25,6 +25,7 @@ type Client struct {
 	OAuth     OAuthService
 	People    PersonService
 	Search    SearchService
+	Users     UserService
 }
 
 // DefaultClientOptions read from the environment (GUMNUT_API_KEY,
@@ -57,6 +58,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.OAuth = NewOAuthService(opts...)
 	r.People = NewPersonService(opts...)
 	r.Search = NewSearchService(opts...)
+	r.Users = NewUserService(opts...)
 
 	return
 }

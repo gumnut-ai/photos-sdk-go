@@ -121,3 +121,13 @@ Methods:
 
 - <code title="get /api/search">client.Search.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#SearchService.Search">Search</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#SearchSearchParams">SearchSearchParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#SearchResponse">SearchResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /api/search">client.Search.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#SearchService.SearchAssets">SearchAssets</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#SearchSearchAssetsParams">SearchSearchAssetsParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#SearchResponse">SearchResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+# Users
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#UserResponse">UserResponse</a>
+
+Methods:
+
+- <code title="get /api/users/me">client.Users.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#UserService.Me">Me</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#UserResponse">UserResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>

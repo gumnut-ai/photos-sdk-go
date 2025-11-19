@@ -98,7 +98,7 @@ func (r *AssetService) ListAutoPaging(ctx context.Context, query AssetListParams
 // storage).
 func (r *AssetService) Delete(ctx context.Context, assetID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
 		return

@@ -67,7 +67,7 @@ func (r *AlbumAssetService) Add(ctx context.Context, albumID string, body AlbumA
 // assets themselves.
 func (r *AlbumAssetService) Remove(ctx context.Context, albumID string, body AlbumAssetRemoveParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
 		return

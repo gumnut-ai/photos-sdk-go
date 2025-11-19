@@ -98,7 +98,7 @@ func (r *PersonService) ListAutoPaging(ctx context.Context, query PersonListPara
 // closest matching person, or null if no one matches.
 func (r *PersonService) Delete(ctx context.Context, personID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if personID == "" {
 		err = errors.New("missing required person_id parameter")
 		return

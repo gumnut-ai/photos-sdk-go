@@ -67,7 +67,7 @@ func (r *APIKeyService) List(ctx context.Context, opts ...option.RequestOption) 
 // Deletes a specific API key
 func (r *APIKeyService) Delete(ctx context.Context, keyID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if keyID == "" {
 		err = errors.New("missing required key_id parameter")
 		return

@@ -93,7 +93,7 @@ func (r *FaceService) ListAutoPaging(ctx context.Context, query FaceListParams, 
 // person.
 func (r *FaceService) Delete(ctx context.Context, faceID string, body FaceDeleteParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if faceID == "" {
 		err = errors.New("missing required face_id parameter")
 		return

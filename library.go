@@ -81,7 +81,7 @@ func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption)
 // Cannot delete the user's only library.
 func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "")}, opts...)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if libraryID == "" {
 		err = errors.New("missing required library_id parameter")
 		return

@@ -54,6 +54,16 @@ func (r *OAuthService) Exchange(ctx context.Context, body OAuthExchangeParams, o
 	return
 }
 
+// Returns the OAuth provider's logout endpoint URL from OIDC discovery. This can
+// be used to redirect users to logout from the OAuth provider after logging out
+// locally.
+func (r *OAuthService) LogoutEndpoint(ctx context.Context, opts ...option.RequestOption) (res *LogoutEndpointResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "api/oauth/logout-endpoint"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
 // Response containing OAuth authorization URL
 type AuthURLResponse struct {
 	URL string `json:"url,required" format:"uri"`
@@ -117,6 +127,23 @@ type ExchangeResponseUser struct {
 // Returns the unmodified JSON received from the API
 func (r ExchangeResponseUser) RawJSON() string { return r.JSON.raw }
 func (r *ExchangeResponseUser) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Response containing OAuth provider logout endpoint
+type LogoutEndpointResponse struct {
+	LogoutEndpoint string `json:"logout_endpoint,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		LogoutEndpoint respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r LogoutEndpointResponse) RawJSON() string { return r.JSON.raw }
+func (r *LogoutEndpointResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

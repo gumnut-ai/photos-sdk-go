@@ -108,6 +108,16 @@ func (r *AssetService) Delete(ctx context.Context, assetID string, opts ...optio
 	return
 }
 
+// Checks which assets exist in the user's library based on checksums or device
+// identifiers. Provide exactly one of: checksums, checksum_sha1s, or (deviceId AND
+// deviceAssetIds). List parameters are limited to 5000 items.
+func (r *AssetService) CheckExistence(ctx context.Context, params AssetCheckExistenceParams, opts ...option.RequestOption) (res *AssetExistenceResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "api/assets/exist"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return
+}
+
 // Downloads the original file for a specific asset.
 func (r *AssetService) Download(ctx context.Context, assetID string, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -133,6 +143,56 @@ func (r *AssetService) DownloadThumbnail(ctx context.Context, assetID string, qu
 	path := fmt.Sprintf("api/assets/%s/thumbnail", assetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
+}
+
+// Response for asset existence check endpoint.
+type AssetExistenceResponse struct {
+	// List of assets matching the query criteria
+	Assets []AssetExistenceResponseAsset `json:"assets,required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Assets      respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AssetExistenceResponse) RawJSON() string { return r.JSON.raw }
+func (r *AssetExistenceResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Lightweight asset response for existence checks.
+type AssetExistenceResponseAsset struct {
+	// Unique asset identifier with 'asset\_' prefix
+	ID string `json:"id,required"`
+	// Base64-encoded SHA-256 hash of the asset contents for duplicate detection and
+	// integrity
+	Checksum string `json:"checksum,required"`
+	// Original asset identifier from the device that uploaded this asset
+	DeviceAssetID string `json:"device_asset_id,required"`
+	// Identifier of the device that uploaded this asset
+	DeviceID string `json:"device_id,required"`
+	// Base64-encoded SHA-1 hash for Immich client compatibility. May be null for older
+	// assets.
+	ChecksumSha1 string `json:"checksum_sha1,nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID            respjson.Field
+		Checksum      respjson.Field
+		DeviceAssetID respjson.Field
+		DeviceID      respjson.Field
+		ChecksumSha1  respjson.Field
+		ExtraFields   map[string]respjson.Field
+		raw           string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AssetExistenceResponseAsset) RawJSON() string { return r.JSON.raw }
+func (r *AssetExistenceResponseAsset) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // Represents a photo or video asset with metadata and access URLs.
@@ -353,6 +413,38 @@ type AssetListParams struct {
 
 // URLQuery serializes [AssetListParams]'s query parameters as `url.Values`.
 func (r AssetListParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type AssetCheckExistenceParams struct {
+	// Library to check assets in (optional)
+	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
+	// Device ID to filter assets by (required with deviceAssetIds)
+	DeviceID param.Opt[string] `json:"deviceId,omitzero"`
+	// List of base64-encoded SHA-1 checksums to check for existence (for Immich
+	// compatibility)
+	ChecksumSha1s []string `json:"checksum_sha1s,omitzero"`
+	// List of base64-encoded SHA-256 checksums to check for existence
+	Checksums []string `json:"checksums,omitzero"`
+	// List of device asset IDs to check for existence (requires deviceId)
+	DeviceAssetIDs []string `json:"deviceAssetIds,omitzero"`
+	paramObj
+}
+
+func (r AssetCheckExistenceParams) MarshalJSON() (data []byte, err error) {
+	type shadow AssetCheckExistenceParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AssetCheckExistenceParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// URLQuery serializes [AssetCheckExistenceParams]'s query parameters as
+// `url.Values`.
+func (r AssetCheckExistenceParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

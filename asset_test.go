@@ -123,6 +123,35 @@ func TestAssetDelete(t *testing.T) {
 	}
 }
 
+func TestAssetCheckExistenceWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := photos.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	_, err := client.Assets.CheckExistence(context.TODO(), photos.AssetCheckExistenceParams{
+		LibraryID:      photos.String("library_id"),
+		ChecksumSha1s:  []string{"string"},
+		Checksums:      []string{"string"},
+		DeviceAssetIDs: []string{"string"},
+		DeviceID:       photos.String("deviceId"),
+	})
+	if err != nil {
+		var apierr *photos.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
 func TestAssetDownload(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)

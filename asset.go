@@ -139,7 +139,8 @@ func (r *AssetService) DownloadThumbnail(ctx context.Context, assetID string, qu
 type AssetResponse struct {
 	// Unique asset identifier with 'asset\_' prefix
 	ID string `json:"id,required"`
-	// Base64-encoded hash of the asset contents for duplicate detection and integrity
+	// Base64-encoded SHA-256 hash of the asset contents for duplicate detection and
+	// integrity
 	Checksum string `json:"checksum,required"`
 	// When this asset record was created in the database
 	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
@@ -159,6 +160,9 @@ type AssetResponse struct {
 	OriginalFileName string `json:"original_file_name,required"`
 	// When this asset record was last updated
 	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	// Base64-encoded SHA-1 hash for Immich client compatibility. May be null for older
+	// assets.
+	ChecksumSha1 string `json:"checksum_sha1,nullable"`
 	// If you need to download the full asset, use this URL. Otherwise, use the
 	// thumbnail_url.
 	DownloadURL string `json:"download_url,nullable"`
@@ -192,6 +196,7 @@ type AssetResponse struct {
 		MimeType         respjson.Field
 		OriginalFileName respjson.Field
 		UpdatedAt        respjson.Field
+		ChecksumSha1     respjson.Field
 		DownloadURL      respjson.Field
 		Exif             respjson.Field
 		Faces            respjson.Field

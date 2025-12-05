@@ -17,6 +17,7 @@ Methods:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AssetExistenceResponse">AssetExistenceResponse</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AssetLiteResponse">AssetLiteResponse</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AssetResponse">AssetResponse</a>
 
 Methods:

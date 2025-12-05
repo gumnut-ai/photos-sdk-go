@@ -148,7 +148,7 @@ func (r *AssetService) DownloadThumbnail(ctx context.Context, assetID string, qu
 // Response for asset existence check endpoint.
 type AssetExistenceResponse struct {
 	// List of assets matching the query criteria
-	Assets []AssetExistenceResponseAsset `json:"assets,required"`
+	Assets []AssetLiteResponse `json:"assets,required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Assets      respjson.Field
@@ -164,7 +164,7 @@ func (r *AssetExistenceResponse) UnmarshalJSON(data []byte) error {
 }
 
 // Lightweight asset response for existence checks.
-type AssetExistenceResponseAsset struct {
+type AssetLiteResponse struct {
 	// Unique asset identifier with 'asset\_' prefix
 	ID string `json:"id,required"`
 	// Base64-encoded SHA-256 hash of the asset contents for duplicate detection and
@@ -190,8 +190,8 @@ type AssetExistenceResponseAsset struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r AssetExistenceResponseAsset) RawJSON() string { return r.JSON.raw }
-func (r *AssetExistenceResponseAsset) UnmarshalJSON(data []byte) error {
+func (r AssetLiteResponse) RawJSON() string { return r.JSON.raw }
+func (r *AssetLiteResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

@@ -129,6 +129,10 @@ type AlbumResponse struct {
 	AlbumCoverAssetID string `json:"album_cover_asset_id,nullable"`
 	// Optional description text for the album
 	Description string `json:"description,nullable"`
+	// The newest asset date (local_datetime) in the album, or null if empty
+	EndDate time.Time `json:"end_date,nullable" format:"date-time"`
+	// The oldest asset date (local_datetime) in the album, or null if empty
+	StartDate time.Time `json:"start_date,nullable" format:"date-time"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID                respjson.Field
@@ -138,6 +142,8 @@ type AlbumResponse struct {
 		UpdatedAt         respjson.Field
 		AlbumCoverAssetID respjson.Field
 		Description       respjson.Field
+		EndDate           respjson.Field
+		StartDate         respjson.Field
 		ExtraFields       map[string]respjson.Field
 		raw               string
 	} `json:"-"`

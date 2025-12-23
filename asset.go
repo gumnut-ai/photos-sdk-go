@@ -279,6 +279,12 @@ func (r *AssetResponse) UnmarshalJSON(data []byte) error {
 
 // EXIF metadata extracted from image and video files.
 type AssetResponseExif struct {
+	// ID of the asset this EXIF data belongs to
+	AssetID string `json:"asset_id,required"`
+	// When this EXIF record was created
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// When this EXIF record was last updated
+	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
 	// GPS altitude in meters
 	Altitude float64 `json:"altitude,nullable"`
 	// Identifier for automatic photo stacking
@@ -333,6 +339,9 @@ type AssetResponseExif struct {
 	State string `json:"state,nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
+		AssetID            respjson.Field
+		CreatedAt          respjson.Field
+		UpdatedAt          respjson.Field
 		Altitude           respjson.Field
 		AutoStackID        respjson.Field
 		City               respjson.Field

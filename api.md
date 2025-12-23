@@ -60,6 +60,16 @@ Methods:
 - <code title="post /api/albums/{album_id}/assets">client.Albums.Assets.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetService.Add">Add</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, albumID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetAddParams">AlbumAssetAddParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetAddResponse">AlbumAssetAddResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="delete /api/albums/{album_id}/assets">client.Albums.Assets.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetService.Remove">Remove</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, albumID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetRemoveParams">AlbumAssetRemoveParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
 
+# Events
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventsResponse">EventsResponse</a>
+
+Methods:
+
+- <code title="get /api/events">client.Events.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventGetParams">EventGetParams</a>) (<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventsResponse">EventsResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 # Faces
 
 Response Types:

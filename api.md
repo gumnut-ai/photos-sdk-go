@@ -64,9 +64,15 @@ Methods:
 
 Response Types:
 
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetEventPayload">AlbumAssetEventPayload</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetResponse">AlbumAssetResponse</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumEventPayload">AlbumEventPayload</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AssetEventPayload">AssetEventPayload</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventsResponse">EventsResponse</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#ExifEventPayload">ExifEventPayload</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#ExifResponse">ExifResponse</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#FaceEventPayload">FaceEventPayload</a>
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#PersonEventPayload">PersonEventPayload</a>
 
 Methods:
 

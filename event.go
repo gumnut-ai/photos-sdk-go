@@ -65,6 +65,33 @@ func (r *EventService) Get(ctx context.Context, query EventGetParams, opts ...op
 	return
 }
 
+// Event payload for album_asset entities.
+type AlbumAssetEventPayload struct {
+	// Full album_asset data
+	Data AlbumAssetResponse `json:"data,required"`
+	// Any of "album_asset".
+	EntityType AlbumAssetEventPayloadEntityType `json:"entity_type"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		EntityType  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AlbumAssetEventPayload) RawJSON() string { return r.JSON.raw }
+func (r *AlbumAssetEventPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type AlbumAssetEventPayloadEntityType string
+
+const (
+	AlbumAssetEventPayloadEntityTypeAlbumAsset AlbumAssetEventPayloadEntityType = "album_asset"
+)
+
 // Represents a link between an album and an asset.
 type AlbumAssetResponse struct {
 	// Unique album*asset identifier with 'album_asset*' prefix
@@ -95,6 +122,60 @@ func (r *AlbumAssetResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Event payload for album entities.
+type AlbumEventPayload struct {
+	// Full album data
+	Data AlbumResponse `json:"data,required"`
+	// Any of "album".
+	EntityType AlbumEventPayloadEntityType `json:"entity_type"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		EntityType  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AlbumEventPayload) RawJSON() string { return r.JSON.raw }
+func (r *AlbumEventPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type AlbumEventPayloadEntityType string
+
+const (
+	AlbumEventPayloadEntityTypeAlbum AlbumEventPayloadEntityType = "album"
+)
+
+// Event payload for asset entities.
+type AssetEventPayload struct {
+	// Full asset data
+	Data AssetResponse `json:"data,required"`
+	// Any of "asset".
+	EntityType AssetEventPayloadEntityType `json:"entity_type"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		EntityType  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AssetEventPayload) RawJSON() string { return r.JSON.raw }
+func (r *AssetEventPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type AssetEventPayloadEntityType string
+
+const (
+	AssetEventPayloadEntityTypeAsset AssetEventPayloadEntityType = "asset"
+)
+
 // Response containing events.
 type EventsResponse struct {
 	// List of events, ordered by entity type priority, then updated_at, then entity_id
@@ -114,9 +195,8 @@ func (r *EventsResponse) UnmarshalJSON(data []byte) error {
 }
 
 // EventsResponseDataUnion contains all possible properties and values from
-// [EventsResponseDataAsset], [EventsResponseDataAlbum],
-// [EventsResponseDataPerson], [EventsResponseDataFace],
-// [EventsResponseDataAlbumAsset], [EventsResponseDataExif].
+// [AssetEventPayload], [AlbumEventPayload], [PersonEventPayload],
+// [FaceEventPayload], [AlbumAssetEventPayload], [ExifEventPayload].
 //
 // Use the [EventsResponseDataUnion.AsAny] method to switch on the variant.
 //
@@ -141,22 +221,22 @@ type anyEventsResponseData interface {
 	implEventsResponseDataUnion()
 }
 
-func (EventsResponseDataAsset) implEventsResponseDataUnion()      {}
-func (EventsResponseDataAlbum) implEventsResponseDataUnion()      {}
-func (EventsResponseDataPerson) implEventsResponseDataUnion()     {}
-func (EventsResponseDataFace) implEventsResponseDataUnion()       {}
-func (EventsResponseDataAlbumAsset) implEventsResponseDataUnion() {}
-func (EventsResponseDataExif) implEventsResponseDataUnion()       {}
+func (AssetEventPayload) implEventsResponseDataUnion()      {}
+func (AlbumEventPayload) implEventsResponseDataUnion()      {}
+func (PersonEventPayload) implEventsResponseDataUnion()     {}
+func (FaceEventPayload) implEventsResponseDataUnion()       {}
+func (AlbumAssetEventPayload) implEventsResponseDataUnion() {}
+func (ExifEventPayload) implEventsResponseDataUnion()       {}
 
 // Use the following switch statement to find the correct variant
 //
 //	switch variant := EventsResponseDataUnion.AsAny().(type) {
-//	case photos.EventsResponseDataAsset:
-//	case photos.EventsResponseDataAlbum:
-//	case photos.EventsResponseDataPerson:
-//	case photos.EventsResponseDataFace:
-//	case photos.EventsResponseDataAlbumAsset:
-//	case photos.EventsResponseDataExif:
+//	case photos.AssetEventPayload:
+//	case photos.AlbumEventPayload:
+//	case photos.PersonEventPayload:
+//	case photos.FaceEventPayload:
+//	case photos.AlbumAssetEventPayload:
+//	case photos.ExifEventPayload:
 //	default:
 //	  fmt.Errorf("no variant present")
 //	}
@@ -178,32 +258,32 @@ func (u EventsResponseDataUnion) AsAny() anyEventsResponseData {
 	return nil
 }
 
-func (u EventsResponseDataUnion) AsAsset() (v EventsResponseDataAsset) {
+func (u EventsResponseDataUnion) AsAsset() (v AssetEventPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u EventsResponseDataUnion) AsAlbum() (v EventsResponseDataAlbum) {
+func (u EventsResponseDataUnion) AsAlbum() (v AlbumEventPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u EventsResponseDataUnion) AsPerson() (v EventsResponseDataPerson) {
+func (u EventsResponseDataUnion) AsPerson() (v PersonEventPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u EventsResponseDataUnion) AsFace() (v EventsResponseDataFace) {
+func (u EventsResponseDataUnion) AsFace() (v FaceEventPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u EventsResponseDataUnion) AsAlbumAsset() (v EventsResponseDataAlbumAsset) {
+func (u EventsResponseDataUnion) AsAlbumAsset() (v AlbumAssetEventPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
 
-func (u EventsResponseDataUnion) AsExif() (v EventsResponseDataExif) {
+func (u EventsResponseDataUnion) AsExif() (v ExifEventPayload) {
 	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
 	return
 }
@@ -407,117 +487,12 @@ func (r *EventsResponseDataUnionData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Event payload for asset entities.
-type EventsResponseDataAsset struct {
-	// Full asset data
-	Data AssetResponse `json:"data,required"`
-	// Any of "asset".
-	EntityType string `json:"entity_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		EntityType  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EventsResponseDataAsset) RawJSON() string { return r.JSON.raw }
-func (r *EventsResponseDataAsset) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Event payload for album entities.
-type EventsResponseDataAlbum struct {
-	// Full album data
-	Data AlbumResponse `json:"data,required"`
-	// Any of "album".
-	EntityType string `json:"entity_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		EntityType  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EventsResponseDataAlbum) RawJSON() string { return r.JSON.raw }
-func (r *EventsResponseDataAlbum) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Event payload for person entities.
-type EventsResponseDataPerson struct {
-	// Full person data
-	Data PersonResponse `json:"data,required"`
-	// Any of "person".
-	EntityType string `json:"entity_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		EntityType  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EventsResponseDataPerson) RawJSON() string { return r.JSON.raw }
-func (r *EventsResponseDataPerson) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Event payload for face entities.
-type EventsResponseDataFace struct {
-	// Full face data
-	Data FaceResponse `json:"data,required"`
-	// Any of "face".
-	EntityType string `json:"entity_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		EntityType  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EventsResponseDataFace) RawJSON() string { return r.JSON.raw }
-func (r *EventsResponseDataFace) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Event payload for album_asset entities.
-type EventsResponseDataAlbumAsset struct {
-	// Full album_asset data
-	Data AlbumAssetResponse `json:"data,required"`
-	// Any of "album_asset".
-	EntityType string `json:"entity_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		EntityType  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EventsResponseDataAlbumAsset) RawJSON() string { return r.JSON.raw }
-func (r *EventsResponseDataAlbumAsset) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Event payload for exif entities.
-type EventsResponseDataExif struct {
+type ExifEventPayload struct {
 	// Full exif data
 	Data ExifResponse `json:"data,required"`
 	// Any of "exif".
-	EntityType string `json:"entity_type"`
+	EntityType ExifEventPayloadEntityType `json:"entity_type"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -528,10 +503,16 @@ type EventsResponseDataExif struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r EventsResponseDataExif) RawJSON() string { return r.JSON.raw }
-func (r *EventsResponseDataExif) UnmarshalJSON(data []byte) error {
+func (r ExifEventPayload) RawJSON() string { return r.JSON.raw }
+func (r *ExifEventPayload) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type ExifEventPayloadEntityType string
+
+const (
+	ExifEventPayloadEntityTypeExif ExifEventPayloadEntityType = "exif"
+)
 
 // EXIF metadata extracted from image and video files.
 type ExifResponse struct {
@@ -633,6 +614,60 @@ func (r ExifResponse) RawJSON() string { return r.JSON.raw }
 func (r *ExifResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+// Event payload for face entities.
+type FaceEventPayload struct {
+	// Full face data
+	Data FaceResponse `json:"data,required"`
+	// Any of "face".
+	EntityType FaceEventPayloadEntityType `json:"entity_type"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		EntityType  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r FaceEventPayload) RawJSON() string { return r.JSON.raw }
+func (r *FaceEventPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type FaceEventPayloadEntityType string
+
+const (
+	FaceEventPayloadEntityTypeFace FaceEventPayloadEntityType = "face"
+)
+
+// Event payload for person entities.
+type PersonEventPayload struct {
+	// Full person data
+	Data PersonResponse `json:"data,required"`
+	// Any of "person".
+	EntityType PersonEventPayloadEntityType `json:"entity_type"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		EntityType  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PersonEventPayload) RawJSON() string { return r.JSON.raw }
+func (r *PersonEventPayload) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type PersonEventPayloadEntityType string
+
+const (
+	PersonEventPayloadEntityTypePerson PersonEventPayloadEntityType = "person"
+)
 
 type EventGetParams struct {
 	// Comma-separated list of entity types to include (e.g., 'asset,album'). Valid

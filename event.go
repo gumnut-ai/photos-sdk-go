@@ -93,7 +93,7 @@ func (r *EventsResponse) UnmarshalJSON(data []byte) error {
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type EventsResponseDataUnion struct {
 	// This field is a union of [AssetResponse], [AlbumResponse], [PersonResponse],
-	// [FaceResponse], [EventsResponseDataAlbumAssetData], [EventsResponseDataExifData]
+	// [FaceResponse], [EventsResponseDataAlbumAssetData], [ExifResponse]
 	Data EventsResponseDataUnionData `json:"data"`
 	// Any of "asset", "album", "person", "face", "album_asset", "exif".
 	EntityType string `json:"entity_type"`
@@ -216,7 +216,7 @@ type EventsResponseDataUnionData struct {
 	// This field is from variant [AssetResponse].
 	DownloadURL string `json:"download_url"`
 	// This field is from variant [AssetResponse].
-	Exif AssetResponseExif `json:"exif"`
+	Exif ExifResponse `json:"exif"`
 	// This field is from variant [AssetResponse].
 	Faces []FaceResponse `json:"faces"`
 	// This field is from variant [AssetResponse].
@@ -259,53 +259,53 @@ type EventsResponseDataUnionData struct {
 	TimestampMs int64 `json:"timestamp_ms"`
 	// This field is from variant [EventsResponseDataAlbumAssetData].
 	AlbumID string `json:"album_id"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	Altitude float64 `json:"altitude"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	AutoStackID string `json:"auto_stack_id"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	City string `json:"city"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	Country string `json:"country"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	DigitizedDatetime time.Time `json:"digitized_datetime"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	ExposureBias float64 `json:"exposure_bias"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	ExposureTime float64 `json:"exposure_time"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	FNumber float64 `json:"f_number"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	FocalLength float64 `json:"focal_length"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	Fps float64 `json:"fps"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	ISO int64 `json:"iso"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	Latitude float64 `json:"latitude"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	LensModel string `json:"lens_model"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	LivePhotoCid string `json:"live_photo_cid"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	Longitude float64 `json:"longitude"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	Make string `json:"make"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	Model string `json:"model"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	ModifiedDatetime time.Time `json:"modified_datetime"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	Orientation int64 `json:"orientation"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	OriginalDatetime time.Time `json:"original_datetime"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	ProfileDescription string `json:"profile_description"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	ProjectionType string `json:"projection_type"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	Rating int64 `json:"rating"`
-	// This field is from variant [EventsResponseDataExifData].
+	// This field is from variant [ExifResponse].
 	State string `json:"state"`
 	JSON  struct {
 		ID                 respjson.Field
@@ -515,7 +515,7 @@ func (r *EventsResponseDataAlbumAssetData) UnmarshalJSON(data []byte) error {
 // Event payload for exif entities.
 type EventsResponseDataExif struct {
 	// Full exif data
-	Data EventsResponseDataExifData `json:"data,required"`
+	Data ExifResponse `json:"data,required"`
 	// Any of "exif".
 	EntityType string `json:"entity_type"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -533,8 +533,8 @@ func (r *EventsResponseDataExif) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Full exif data
-type EventsResponseDataExifData struct {
+// EXIF metadata extracted from image and video files.
+type ExifResponse struct {
 	// ID of the asset this EXIF data belongs to
 	AssetID string `json:"asset_id,required"`
 	// When this EXIF record was created
@@ -629,8 +629,8 @@ type EventsResponseDataExifData struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r EventsResponseDataExifData) RawJSON() string { return r.JSON.raw }
-func (r *EventsResponseDataExifData) UnmarshalJSON(data []byte) error {
+func (r ExifResponse) RawJSON() string { return r.JSON.raw }
+func (r *ExifResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

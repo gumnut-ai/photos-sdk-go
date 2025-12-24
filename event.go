@@ -65,6 +65,36 @@ func (r *EventService) Get(ctx context.Context, query EventGetParams, opts ...op
 	return
 }
 
+// Represents a link between an album and an asset.
+type AlbumAssetResponse struct {
+	// Unique album*asset identifier with 'album_asset*' prefix
+	ID string `json:"id,required"`
+	// ID of the album
+	AlbumID string `json:"album_id,required"`
+	// ID of the asset
+	AssetID string `json:"asset_id,required"`
+	// When this link was created
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// When this link was last updated
+	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		ID          respjson.Field
+		AlbumID     respjson.Field
+		AssetID     respjson.Field
+		CreatedAt   respjson.Field
+		UpdatedAt   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AlbumAssetResponse) RawJSON() string { return r.JSON.raw }
+func (r *AlbumAssetResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Response containing events.
 type EventsResponse struct {
 	// List of events, ordered by entity type priority, then updated_at, then entity_id
@@ -93,7 +123,7 @@ func (r *EventsResponse) UnmarshalJSON(data []byte) error {
 // Use the methods beginning with 'As' to cast the union to one of its variants.
 type EventsResponseDataUnion struct {
 	// This field is a union of [AssetResponse], [AlbumResponse], [PersonResponse],
-	// [FaceResponse], [EventsResponseDataAlbumAssetData], [ExifResponse]
+	// [FaceResponse], [AlbumAssetResponse], [ExifResponse]
 	Data EventsResponseDataUnionData `json:"data"`
 	// Any of "asset", "album", "person", "face", "album_asset", "exif".
 	EntityType string `json:"entity_type"`
@@ -257,7 +287,7 @@ type EventsResponseDataUnionData struct {
 	PersonID string `json:"person_id"`
 	// This field is from variant [FaceResponse].
 	TimestampMs int64 `json:"timestamp_ms"`
-	// This field is from variant [EventsResponseDataAlbumAssetData].
+	// This field is from variant [AlbumAssetResponse].
 	AlbumID string `json:"album_id"`
 	// This field is from variant [ExifResponse].
 	Altitude float64 `json:"altitude"`
@@ -464,7 +494,7 @@ func (r *EventsResponseDataFace) UnmarshalJSON(data []byte) error {
 // Event payload for album_asset entities.
 type EventsResponseDataAlbumAsset struct {
 	// Full album_asset data
-	Data EventsResponseDataAlbumAssetData `json:"data,required"`
+	Data AlbumAssetResponse `json:"data,required"`
 	// Any of "album_asset".
 	EntityType string `json:"entity_type"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -479,36 +509,6 @@ type EventsResponseDataAlbumAsset struct {
 // Returns the unmodified JSON received from the API
 func (r EventsResponseDataAlbumAsset) RawJSON() string { return r.JSON.raw }
 func (r *EventsResponseDataAlbumAsset) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Full album_asset data
-type EventsResponseDataAlbumAssetData struct {
-	// Unique album*asset identifier with 'album_asset*' prefix
-	ID string `json:"id,required"`
-	// ID of the album
-	AlbumID string `json:"album_id,required"`
-	// ID of the asset
-	AssetID string `json:"asset_id,required"`
-	// When this link was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
-	// When this link was last updated
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		AlbumID     respjson.Field
-		AssetID     respjson.Field
-		CreatedAt   respjson.Field
-		UpdatedAt   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r EventsResponseDataAlbumAssetData) RawJSON() string { return r.JSON.raw }
-func (r *EventsResponseDataAlbumAssetData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

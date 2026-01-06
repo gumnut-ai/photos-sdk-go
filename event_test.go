@@ -28,11 +28,12 @@ func TestEventGetWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Events.Get(context.TODO(), photos.EventGetParams{
-		EntityTypes:  photos.String("entity_types"),
-		LibraryID:    photos.String("library_id"),
-		Limit:        photos.Int(1),
-		UpdatedAtGte: photos.Time(time.Now()),
-		UpdatedAtLt:  photos.Time(time.Now()),
+		EntityTypes:     photos.String("entity_types"),
+		LibraryID:       photos.String("library_id"),
+		Limit:           photos.Int(1),
+		StartingAfterID: photos.String("starting_after_id"),
+		UpdatedAtGte:    photos.Time(time.Now()),
+		UpdatedAtLt:     photos.Time(time.Now()),
 	})
 	if err != nil {
 		var apierr *photos.Error

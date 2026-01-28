@@ -43,8 +43,6 @@ func NewSearchService(opts ...option.RequestOption) (r SearchService) {
 // Searches for assets using semantic similarity and/or metadata filters. Results
 // include asset metadata, faces, and people. At least one search criterion must be
 // provided.
-//
-// Deprecated: deprecated
 func (r *SearchService) Search(ctx context.Context, query SearchSearchParams, opts ...option.RequestOption) (res *SearchResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/search"

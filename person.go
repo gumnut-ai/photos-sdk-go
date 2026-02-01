@@ -120,6 +120,8 @@ type PersonResponse struct {
 	IsHidden bool `json:"is_hidden,required"`
 	// When this person record was last updated
 	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	// Number of unique photos this person appears in, or null if not computed
+	AssetCount int64 `json:"asset_count,nullable"`
 	// Optional birth date of this person
 	BirthDate time.Time `json:"birth_date,nullable" format:"date"`
 	// Optional name assigned to this person
@@ -135,6 +137,7 @@ type PersonResponse struct {
 		IsFavorite       respjson.Field
 		IsHidden         respjson.Field
 		UpdatedAt        respjson.Field
+		AssetCount       respjson.Field
 		BirthDate        respjson.Field
 		Name             respjson.Field
 		ThumbnailFaceID  respjson.Field

@@ -348,8 +348,7 @@ type EventsResponseDataUnionData struct {
 	People       []PersonResponse `json:"people"`
 	ThumbnailURL string           `json:"thumbnail_url"`
 	// This field is from variant [AssetResponse].
-	Width int64 `json:"width"`
-	// This field is from variant [AlbumResponse].
+	Width      int64  `json:"width"`
 	AssetCount int64  `json:"asset_count"`
 	Name       string `json:"name"`
 	// This field is from variant [AlbumResponse].

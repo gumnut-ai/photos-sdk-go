@@ -91,6 +91,7 @@ func TestFaceListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Faces.List(context.TODO(), photos.FaceListParams{
 		AssetID:         photos.String("asset_id"),
+		IDs:             []string{"string"},
 		LibraryID:       photos.String("library_id"),
 		Limit:           photos.Int(1),
 		PersonID:        photos.String("person_id"),

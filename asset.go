@@ -68,8 +68,9 @@ func (r *AssetService) Get(ctx context.Context, assetID string, opts ...option.R
 }
 
 // Retrieves a paginated list of assets from the specified library, optionally
-// filtered by album or person. Asset data includes metrics, EXIF data, faces, and
-// people. Assets are ordered by local creation time, descending.
+// filtered by album, person, or specific asset IDs. Asset data includes metrics,
+// EXIF data, faces, and people. Assets are ordered by local creation time,
+// descending.
 func (r *AssetService) List(ctx context.Context, query AssetListParams, opts ...option.RequestOption) (res *pagination.CursorPage[AssetResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -88,8 +89,9 @@ func (r *AssetService) List(ctx context.Context, query AssetListParams, opts ...
 }
 
 // Retrieves a paginated list of assets from the specified library, optionally
-// filtered by album or person. Asset data includes metrics, EXIF data, faces, and
-// people. Assets are ordered by local creation time, descending.
+// filtered by album, person, or specific asset IDs. Asset data includes metrics,
+// EXIF data, faces, and people. Assets are ordered by local creation time,
+// descending.
 func (r *AssetService) ListAutoPaging(ctx context.Context, query AssetListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[AssetResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
@@ -316,6 +318,8 @@ type AssetListParams struct {
 	// Asset ID to start listing assets after
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	Limit           param.Opt[int64]  `query:"limit,omitzero" json:"-"`
+	// Filter by specific asset IDs (max 100)
+	IDs []string `query:"ids,omitzero" json:"-"`
 	paramObj
 }
 

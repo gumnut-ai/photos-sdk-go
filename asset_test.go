@@ -86,6 +86,7 @@ func TestAssetListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Assets.List(context.TODO(), photos.AssetListParams{
 		AlbumID:         photos.String("album_id"),
+		IDs:             []string{"string"},
 		LibraryID:       photos.String("library_id"),
 		Limit:           photos.Int(1),
 		PersonID:        photos.String("person_id"),

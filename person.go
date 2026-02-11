@@ -71,7 +71,8 @@ func (r *PersonService) Update(ctx context.Context, personID string, body Person
 	return
 }
 
-// Retrieves a paginated list of people, ordered by creation time, descending.
+// Retrieves a paginated list of people, ordered by creation time, descending. Can
+// be filtered by specific person IDs.
 func (r *PersonService) List(ctx context.Context, query PersonListParams, opts ...option.RequestOption) (res *pagination.CursorPage[PersonResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -89,7 +90,8 @@ func (r *PersonService) List(ctx context.Context, query PersonListParams, opts .
 	return res, nil
 }
 
-// Retrieves a paginated list of people, ordered by creation time, descending.
+// Retrieves a paginated list of people, ordered by creation time, descending. Can
+// be filtered by specific person IDs.
 func (r *PersonService) ListAutoPaging(ctx context.Context, query PersonListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[PersonResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
@@ -198,6 +200,8 @@ type PersonListParams struct {
 	// Person ID to start listing people after
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	Limit           param.Opt[int64]  `query:"limit,omitzero" json:"-"`
+	// Filter by specific person IDs (max 100)
+	IDs []string `query:"ids,omitzero" json:"-"`
 	paramObj
 }
 

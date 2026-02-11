@@ -64,8 +64,8 @@ func (r *FaceService) Update(ctx context.Context, faceID string, params FaceUpda
 	return
 }
 
-// Retrieves a paginated list of faces, optionally filtered by asset or person,
-// ordered by creation time, descending.
+// Retrieves a paginated list of faces, optionally filtered by asset, person, or
+// specific face IDs, ordered by creation time, descending.
 func (r *FaceService) List(ctx context.Context, query FaceListParams, opts ...option.RequestOption) (res *pagination.CursorPage[FaceResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -83,8 +83,8 @@ func (r *FaceService) List(ctx context.Context, query FaceListParams, opts ...op
 	return res, nil
 }
 
-// Retrieves a paginated list of faces, optionally filtered by asset or person,
-// ordered by creation time, descending.
+// Retrieves a paginated list of faces, optionally filtered by asset, person, or
+// specific face IDs, ordered by creation time, descending.
 func (r *FaceService) ListAutoPaging(ctx context.Context, query FaceListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[FaceResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
@@ -202,6 +202,8 @@ type FaceListParams struct {
 	// Face ID to start listing faces after
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	Limit           param.Opt[int64]  `query:"limit,omitzero" json:"-"`
+	// Filter by specific face IDs (max 100)
+	IDs []string `query:"ids,omitzero" json:"-"`
 	paramObj
 }
 

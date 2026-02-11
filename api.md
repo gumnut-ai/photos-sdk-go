@@ -134,6 +134,12 @@ Methods:
 - <code title="get /api/people">client.People.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#PersonService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#PersonListParams">PersonListParams</a>) (\*<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go/packages/pagination">pagination</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go/packages/pagination#CursorPage">CursorPage</a>[<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#PersonResponse">PersonResponse</a>], <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="delete /api/people/{person_id}">client.People.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#PersonService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, personID <a href="https://pkg.go.dev/builtin#string">string</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
 
+# Ping
+
+Methods:
+
+- <code title="get /api/server/ping">client.Ping.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#PingService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>) (\*<a href="https://pkg.go.dev/builtin#string">string</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 # Search
 
 Response Types:

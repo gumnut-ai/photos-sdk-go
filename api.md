@@ -78,6 +78,16 @@ Methods:
 
 - <code title="get /api/events">client.Events.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventGetParams">EventGetParams</a>) (\*<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventsResponse">EventsResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
+# EventsV2
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventsV2Response">EventsV2Response</a>
+
+Methods:
+
+- <code title="get /api/v2/events">client.EventsV2.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventsV2Service.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventsV2GetParams">EventsV2GetParams</a>) (\*<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventsV2Response">EventsV2Response</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 # Faces
 
 Response Types:

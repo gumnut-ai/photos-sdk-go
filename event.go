@@ -101,36 +101,6 @@ const (
 	AlbumAssetEventPayloadEntityTypeAlbumAsset AlbumAssetEventPayloadEntityType = "album_asset"
 )
 
-// Represents a link between an album and an asset.
-type AlbumAssetResponse struct {
-	// Unique album*asset identifier with 'album_asset*' prefix
-	ID string `json:"id,required"`
-	// ID of the album
-	AlbumID string `json:"album_id,required"`
-	// ID of the asset
-	AssetID string `json:"asset_id,required"`
-	// When this link was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
-	// When this link was last updated
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		ID          respjson.Field
-		AlbumID     respjson.Field
-		AssetID     respjson.Field
-		CreatedAt   respjson.Field
-		UpdatedAt   respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AlbumAssetResponse) RawJSON() string { return r.JSON.raw }
-func (r *AlbumAssetResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Event payload for album entities.
 type AlbumEventPayload struct {
 	// Full album data

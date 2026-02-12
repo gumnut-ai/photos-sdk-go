@@ -60,12 +60,22 @@ Methods:
 - <code title="post /api/albums/{album_id}/assets">client.Albums.Assets.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetService.Add">Add</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, albumID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetAddParams">AlbumAssetAddParams</a>) (\*<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetAddResponse">AlbumAssetAddResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="delete /api/albums/{album_id}/assets">client.Albums.Assets.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetService.Remove">Remove</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, albumID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetRemoveParams">AlbumAssetRemoveParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
 
+# AlbumAssets
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetResponse">AlbumAssetResponse</a>
+
+Methods:
+
+- <code title="get /api/album-assets">client.AlbumAssets.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetListParams">AlbumAssetListParams</a>) (\*<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go/packages/pagination">pagination</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go/packages/pagination#CursorPage">CursorPage</a>[<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetResponse">AlbumAssetResponse</a>], <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /api/album-assets/{album_asset_id}">client.AlbumAssets.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, albumAssetID <a href="https://pkg.go.dev/builtin#string">string</a>) (\*<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetResponse">AlbumAssetResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
 # Events
 
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetEventPayload">AlbumAssetEventPayload</a>
-- <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumAssetResponse">AlbumAssetResponse</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AlbumEventPayload">AlbumEventPayload</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#AssetEventPayload">AssetEventPayload</a>
 - <a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go">photos</a>.<a href="https://pkg.go.dev/github.com/stainless-sdks/photos-go#EventsResponse">EventsResponse</a>

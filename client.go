@@ -16,19 +16,20 @@ import (
 // interacting with the Gumnut API. You should not instantiate this client
 // directly, and instead use the [NewClient] method instead.
 type Client struct {
-	Options   []option.RequestOption
-	APIKeys   APIKeyService
-	Assets    AssetService
-	Albums    AlbumService
-	Events    EventService
-	EventsV2  EventsV2Service
-	Faces     FaceService
-	Libraries LibraryService
-	OAuth     OAuthService
-	People    PersonService
-	Ping      PingService
-	Search    SearchService
-	Users     UserService
+	Options     []option.RequestOption
+	APIKeys     APIKeyService
+	Assets      AssetService
+	Albums      AlbumService
+	AlbumAssets AlbumAssetService
+	Events      EventService
+	EventsV2    EventsV2Service
+	Faces       FaceService
+	Libraries   LibraryService
+	OAuth       OAuthService
+	People      PersonService
+	Ping        PingService
+	Search      SearchService
+	Users       UserService
 }
 
 // DefaultClientOptions read from the environment (GUMNUT_API_KEY,
@@ -56,6 +57,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.APIKeys = NewAPIKeyService(opts...)
 	r.Assets = NewAssetService(opts...)
 	r.Albums = NewAlbumService(opts...)
+	r.AlbumAssets = NewAlbumAssetService(opts...)
 	r.Events = NewEventService(opts...)
 	r.EventsV2 = NewEventsV2Service(opts...)
 	r.Faces = NewFaceService(opts...)

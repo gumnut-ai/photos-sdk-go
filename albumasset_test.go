@@ -13,7 +13,7 @@ import (
 	"github.com/stainless-sdks/photos-go/option"
 )
 
-func TestAlbumAssetList(t *testing.T) {
+func TestAlbumAssetListWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -26,7 +26,14 @@ func TestAlbumAssetList(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Albums.Assets.List(context.TODO(), "album_id")
+	_, err := client.AlbumAssets.List(context.TODO(), photos.AlbumAssetListParams{
+		AlbumID:         photos.String("album_id"),
+		AssetID:         photos.String("asset_id"),
+		IDs:             []string{"string"},
+		LibraryID:       photos.String("library_id"),
+		Limit:           photos.Int(1),
+		StartingAfterID: photos.String("starting_after_id"),
+	})
 	if err != nil {
 		var apierr *photos.Error
 		if errors.As(err, &apierr) {
@@ -36,7 +43,7 @@ func TestAlbumAssetList(t *testing.T) {
 	}
 }
 
-func TestAlbumAssetAdd(t *testing.T) {
+func TestAlbumAssetGet(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -49,46 +56,7 @@ func TestAlbumAssetAdd(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Albums.Assets.Add(
-		context.TODO(),
-		"album_id",
-		photos.AlbumAssetAddParams{
-			AlbumAssetAssociation: photos.AlbumAssetAssociationParam{
-				AssetIDs: []string{"string"},
-			},
-		},
-	)
-	if err != nil {
-		var apierr *photos.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestAlbumAssetRemove(t *testing.T) {
-	t.Skip("Prism tests are disabled")
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := photos.NewClient(
-		option.WithBaseURL(baseURL),
-		option.WithAPIKey("My API Key"),
-	)
-	err := client.Albums.Assets.Remove(
-		context.TODO(),
-		"album_id",
-		photos.AlbumAssetRemoveParams{
-			AlbumAssetAssociation: photos.AlbumAssetAssociationParam{
-				AssetIDs: []string{"string"},
-			},
-		},
-	)
+	_, err := client.AlbumAssets.Get(context.TODO(), "album_asset_id")
 	if err != nil {
 		var apierr *photos.Error
 		if errors.As(err, &apierr) {

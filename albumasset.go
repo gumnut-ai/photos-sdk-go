@@ -4,16 +4,18 @@ package photos
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
+	"time"
 
 	"github.com/stainless-sdks/photos-go/internal/apijson"
-	shimjson "github.com/stainless-sdks/photos-go/internal/encoding/json"
+	"github.com/stainless-sdks/photos-go/internal/apiquery"
 	"github.com/stainless-sdks/photos-go/internal/requestconfig"
 	"github.com/stainless-sdks/photos-go/option"
+	"github.com/stainless-sdks/photos-go/packages/pagination"
 	"github.com/stainless-sdks/photos-go/packages/param"
 	"github.com/stainless-sdks/photos-go/packages/respjson"
 )
@@ -37,98 +39,93 @@ func NewAlbumAssetService(opts ...option.RequestOption) (r AlbumAssetService) {
 	return
 }
 
-// Retrieves a list of all assets contained within a specific album, along with
-// their associated metrics, EXIF data, faces, and people.
-func (r *AlbumAssetService) List(ctx context.Context, albumID string, opts ...option.RequestOption) (res *[]AssetResponse, err error) {
+// Retrieves a paginated list of album-asset links, ordered by creation time,
+// descending. Can be filtered by album_id, asset_id, or specific album-asset IDs.
+func (r *AlbumAssetService) List(ctx context.Context, query AlbumAssetListParams, opts ...option.RequestOption) (res *pagination.CursorPage[AlbumAssetResponse], err error) {
+	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
-	if albumID == "" {
-		err = errors.New("missing required album_id parameter")
+	opts = append([]option.RequestOption{option.WithResponseInto(&raw)}, opts...)
+	path := "api/album-assets"
+	cfg, err := requestconfig.NewRequestConfig(ctx, http.MethodGet, path, query, &res, opts...)
+	if err != nil {
+		return nil, err
+	}
+	err = cfg.Execute()
+	if err != nil {
+		return nil, err
+	}
+	res.SetPageConfig(cfg, raw)
+	return res, nil
+}
+
+// Retrieves a paginated list of album-asset links, ordered by creation time,
+// descending. Can be filtered by album_id, asset_id, or specific album-asset IDs.
+func (r *AlbumAssetService) ListAutoPaging(ctx context.Context, query AlbumAssetListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[AlbumAssetResponse] {
+	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
+}
+
+// Retrieves details for a specific album-asset link.
+func (r *AlbumAssetService) Get(ctx context.Context, albumAssetID string, opts ...option.RequestOption) (res *AlbumAssetResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if albumAssetID == "" {
+		err = errors.New("missing required album_asset_id parameter")
 		return
 	}
-	path := fmt.Sprintf("api/albums/%s/assets", albumID)
+	path := fmt.Sprintf("api/album-assets/%s", albumAssetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
 }
 
-// Adds one or more existing assets to a specific album. Assets must be in the same
-// library as the album. Duplicate assets are ignored.
-func (r *AlbumAssetService) Add(ctx context.Context, albumID string, body AlbumAssetAddParams, opts ...option.RequestOption) (res *AlbumAssetAddResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	if albumID == "" {
-		err = errors.New("missing required album_id parameter")
-		return
-	}
-	path := fmt.Sprintf("api/albums/%s/assets", albumID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
-}
-
-// Removes one or more assets from a specific album. Note: This does not delete the
-// assets themselves.
-func (r *AlbumAssetService) Remove(ctx context.Context, albumID string, body AlbumAssetRemoveParams, opts ...option.RequestOption) (err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
-	if albumID == "" {
-		err = errors.New("missing required album_id parameter")
-		return
-	}
-	path := fmt.Sprintf("api/albums/%s/assets", albumID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, nil, opts...)
-	return
-}
-
-// The property AssetIDs is required.
-type AlbumAssetAssociationParam struct {
-	AssetIDs []string `json:"asset_ids,omitzero,required"`
-	paramObj
-}
-
-func (r AlbumAssetAssociationParam) MarshalJSON() (data []byte, err error) {
-	type shadow AlbumAssetAssociationParam
-	return param.MarshalObject(r, (*shadow)(&r))
-}
-func (r *AlbumAssetAssociationParam) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AlbumAssetAddResponse struct {
-	AddedAssets     []string `json:"added_assets,required"`
-	DuplicateAssets []string `json:"duplicate_assets,required"`
+// Represents a link between an album and an asset.
+type AlbumAssetResponse struct {
+	// Unique album*asset identifier with 'album_asset*' prefix
+	ID string `json:"id,required"`
+	// ID of the album
+	AlbumID string `json:"album_id,required"`
+	// ID of the asset
+	AssetID string `json:"asset_id,required"`
+	// When this link was created
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// When this link was last updated
+	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		AddedAssets     respjson.Field
-		DuplicateAssets respjson.Field
-		ExtraFields     map[string]respjson.Field
-		raw             string
+		ID          respjson.Field
+		AlbumID     respjson.Field
+		AssetID     respjson.Field
+		CreatedAt   respjson.Field
+		UpdatedAt   respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
 	} `json:"-"`
 }
 
 // Returns the unmodified JSON received from the API
-func (r AlbumAssetAddResponse) RawJSON() string { return r.JSON.raw }
-func (r *AlbumAssetAddResponse) UnmarshalJSON(data []byte) error {
+func (r AlbumAssetResponse) RawJSON() string { return r.JSON.raw }
+func (r *AlbumAssetResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type AlbumAssetAddParams struct {
-	AlbumAssetAssociation AlbumAssetAssociationParam
+type AlbumAssetListParams struct {
+	// Filter by album ID
+	AlbumID param.Opt[string] `query:"album_id,omitzero" json:"-"`
+	// Filter by asset ID
+	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
+	// Library ID (required if user has multiple libraries)
+	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
+	// Album-asset ID to start listing after
+	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
+	// Max number of results to return
+	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
+	// Filter by specific album-asset IDs (max 100)
+	IDs []string `query:"ids,omitzero" json:"-"`
 	paramObj
 }
 
-func (r AlbumAssetAddParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.AlbumAssetAssociation)
-}
-func (r *AlbumAssetAddParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.AlbumAssetAssociation)
-}
-
-type AlbumAssetRemoveParams struct {
-	AlbumAssetAssociation AlbumAssetAssociationParam
-	paramObj
-}
-
-func (r AlbumAssetRemoveParams) MarshalJSON() (data []byte, err error) {
-	return shimjson.Marshal(r.AlbumAssetAssociation)
-}
-func (r *AlbumAssetRemoveParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.AlbumAssetAssociation)
+// URLQuery serializes [AlbumAssetListParams]'s query parameters as `url.Values`.
+func (r AlbumAssetListParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

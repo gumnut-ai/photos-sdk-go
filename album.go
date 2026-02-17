@@ -27,8 +27,8 @@ import (
 // automatically. You should not instantiate this service directly, and instead use
 // the [NewAlbumService] method instead.
 type AlbumService struct {
-	Options []option.RequestOption
-	Assets  AlbumAssetService
+	Options            []option.RequestOption
+	AssetsAssociations AlbumAssetsAssociationService
 }
 
 // NewAlbumService generates a new service that applies the given options to each
@@ -37,7 +37,7 @@ type AlbumService struct {
 func NewAlbumService(opts ...option.RequestOption) (r AlbumService) {
 	r = AlbumService{}
 	r.Options = opts
-	r.Assets = NewAlbumAssetService(opts...)
+	r.AssetsAssociations = NewAlbumAssetsAssociationService(opts...)
 	return
 }
 

@@ -164,7 +164,7 @@ type FaceGetParams struct {
 // URLQuery serializes [FaceGetParams]'s query parameters as `url.Values`.
 func (r FaceGetParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }
@@ -187,7 +187,7 @@ func (r *FaceUpdateParams) UnmarshalJSON(data []byte) error {
 // URLQuery serializes [FaceUpdateParams]'s query parameters as `url.Values`.
 func (r FaceUpdateParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }
@@ -210,7 +210,7 @@ type FaceListParams struct {
 // URLQuery serializes [FaceListParams]'s query parameters as `url.Values`.
 func (r FaceListParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }
@@ -224,7 +224,7 @@ type FaceDeleteParams struct {
 // URLQuery serializes [FaceDeleteParams]'s query parameters as `url.Values`.
 func (r FaceDeleteParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }

@@ -123,7 +123,7 @@ type SearchSearchParams struct {
 // URLQuery serializes [SearchSearchParams]'s query parameters as `url.Values`.
 func (r SearchSearchParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }

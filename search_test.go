@@ -35,7 +35,7 @@ func TestSearchSearchWithOptionalParams(t *testing.T) {
 		LibraryID:      photos.String("library_id"),
 		Limit:          photos.Int(1),
 		Page:           photos.Int(1),
-		PersonIDs:      []string{"string"},
+		PersonIDs:      []string{"string", "string"},
 		Query:          photos.String("query"),
 		Threshold:      photos.Float(0),
 	})

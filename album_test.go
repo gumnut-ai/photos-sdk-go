@@ -108,7 +108,7 @@ func TestAlbumListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Albums.List(context.TODO(), photos.AlbumListParams{
 		AssetID:         photos.String("asset_id"),
-		IDs:             []string{"string"},
+		IDs:             []string{"string", "string"},
 		LibraryID:       photos.String("library_id"),
 		Limit:           photos.Int(1),
 		StartingAfterID: photos.String("starting_after_id"),

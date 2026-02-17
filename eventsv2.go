@@ -148,7 +148,7 @@ type EventsV2GetParams struct {
 // URLQuery serializes [EventsV2GetParams]'s query parameters as `url.Values`.
 func (r EventsV2GetParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }

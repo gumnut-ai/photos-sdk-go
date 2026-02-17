@@ -204,7 +204,7 @@ type AlbumListParams struct {
 // URLQuery serializes [AlbumListParams]'s query parameters as `url.Values`.
 func (r AlbumListParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }

@@ -56,8 +56,11 @@ func NewEventsV2Service(opts ...option.RequestOption) (r EventsV2Service) {
 // 5. For each event, fetch the entity data from the appropriate endpoint if needed
 // 6. Store `sync_end` as checkpoint for next sync
 //
-// **Handling deletions:** When `event_type` ends with "\_deleted", the entity no
-// longer exists. Remove it from your local cache/database.
+// **Handling deletions:** When `event_type` ends with "\_deleted" or "\_removed",
+// the entity no longer exists. Remove it from your local cache/database. Some
+// deletion events include a `payload` field with additional context (e.g.,
+// `album_asset_removed` includes `album_id` and `asset_id` since the junction
+// record is deleted).
 //
 // **Event types:**
 //
@@ -108,6 +111,9 @@ type EventsV2ResponseData struct {
 	EntityType string `json:"entity_type,required"`
 	// Semantic event type (e.g., 'asset_created', 'album_deleted')
 	EventType string `json:"event_type,required"`
+	// Optional extra context for the event (e.g., foreign keys for junction table
+	// deletions)
+	Payload map[string]any `json:"payload,nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		CreatedAt   respjson.Field
@@ -115,6 +121,7 @@ type EventsV2ResponseData struct {
 		EntityID    respjson.Field
 		EntityType  respjson.Field
 		EventType   respjson.Field
+		Payload     respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`

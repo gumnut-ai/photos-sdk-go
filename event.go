@@ -4,7 +4,6 @@ package photos
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/url"
 	"slices"
@@ -39,34 +38,38 @@ func NewEventService(opts ...option.RequestOption) (r EventService) {
 
 // Retrieves a list of entity change events for syncing.
 //
-// Events are returned in order of entity type priority (assets first, then exif,
-// albums, etc.), then by `updated_at` timestamp (oldest first), then by entity ID
-// for tie-breaking.
+// Events are lightweight records indicating that entities have changed. Each event
+// contains the entity type, entity ID, and event type (e.g., "asset_created",
+// "album_deleted"). Clients should fetch full entity data from the appropriate
+// endpoints if needed.
 //
-// **Pagination:** Use `updated_at_gte` with the timestamp of the last received
-// event to fetch the next page. When multiple entities share the same timestamp,
-// also provide `starting_after_id` with the last entity's ID to avoid duplicates.
-// Use `updated_at_lt` to bound the sync window and prevent infinite loops when new
-// events are created during sync.
+// **Pagination:** Use the `after_cursor` parameter with the `cursor` value from
+// the last event to fetch the next page. The `has_more` field indicates if more
+// events exist.
 //
-// **Important:** When using `starting_after_id`, you must specify exactly one
-// `entity_types` value. This ensures the cursor ID is unambiguous. To sync all
-// entity types with cursor support, query each entity type separately.
+// **Recommended sync pattern:**
 //
-// **Recommended sync pattern (per entity type):**
+// 1. Capture current time as `sync_end`
+// 2. Fetch events with `created_at_lt=sync_end`
+// 3. For subsequent pages, use `after_cursor={last.cursor}&created_at_lt=sync_end`
+// 4. Continue until `has_more=false`
+// 5. For each event, fetch the entity data from the appropriate endpoint if needed
+// 6. Store `sync_end` as checkpoint for next sync
 //
-//  1. Capture current time as `sync_started_at`
-//  2. For each entity type, fetch events with
-//     `entity_types={type}&updated_at_lt=sync_started_at`
-//  3. For subsequent pages, use
-//     `entity_types={type}&updated_at_gte={last.updated_at}&starting_after_id={last.id}&updated_at_lt=sync_started_at`
-//  4. Continue until an empty result set is returned
-//  5. Store `sync_started_at` as checkpoint for next sync
+// **Handling deletions:** When `event_type` ends with "\_deleted" or "\_removed",
+// the entity no longer exists. Remove it from your local cache/database. Some
+// deletion events include a `payload` field with additional context (e.g.,
+// `album_asset_removed` includes `album_id` and `asset_id` since the junction
+// record is deleted).
 //
-// **Entity ID field by type:**
+// **Event types:**
 //
-// - Most entities: use the `id` field from the response
-// - Exif: use the `asset_id` field (exif has no separate id)
+// - `asset_created`, `asset_updated`, `asset_deleted`
+// - `album_created`, `album_updated`, `album_deleted`
+// - `person_created`, `person_updated`, `person_deleted`
+// - `face_created`, `face_updated`, `face_deleted`
+// - `album_asset_added`, `album_asset_removed`
+// - `exif_created`, `exif_updated`
 func (r *EventService) Get(ctx context.Context, query EventGetParams, opts ...option.RequestOption) (res *EventsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/events"
@@ -74,94 +77,17 @@ func (r *EventService) Get(ctx context.Context, query EventGetParams, opts ...op
 	return
 }
 
-// Event payload for album_asset entities.
-type AlbumAssetEventPayload struct {
-	// Full album_asset data
-	Data AlbumAssetResponse `json:"data,required"`
-	// Any of "album_asset".
-	EntityType AlbumAssetEventPayloadEntityType `json:"entity_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		EntityType  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AlbumAssetEventPayload) RawJSON() string { return r.JSON.raw }
-func (r *AlbumAssetEventPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AlbumAssetEventPayloadEntityType string
-
-const (
-	AlbumAssetEventPayloadEntityTypeAlbumAsset AlbumAssetEventPayloadEntityType = "album_asset"
-)
-
-// Event payload for album entities.
-type AlbumEventPayload struct {
-	// Full album data
-	Data AlbumResponse `json:"data,required"`
-	// Any of "album".
-	EntityType AlbumEventPayloadEntityType `json:"entity_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		EntityType  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AlbumEventPayload) RawJSON() string { return r.JSON.raw }
-func (r *AlbumEventPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AlbumEventPayloadEntityType string
-
-const (
-	AlbumEventPayloadEntityTypeAlbum AlbumEventPayloadEntityType = "album"
-)
-
-// Event payload for asset entities.
-type AssetEventPayload struct {
-	// Full asset data
-	Data AssetResponse `json:"data,required"`
-	// Any of "asset".
-	EntityType AssetEventPayloadEntityType `json:"entity_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		EntityType  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AssetEventPayload) RawJSON() string { return r.JSON.raw }
-func (r *AssetEventPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type AssetEventPayloadEntityType string
-
-const (
-	AssetEventPayloadEntityTypeAsset AssetEventPayloadEntityType = "asset"
-)
-
-// Response containing events.
+// Response containing a page of events.
 type EventsResponse struct {
-	// List of events, ordered by entity type priority, then updated_at, then entity_id
-	Data []EventsResponseDataUnion `json:"data,required"`
+	// List of events, ordered by event ID (monotonically increasing)
+	Data []EventsResponseData `json:"data,required"`
+	// True if there are more events after this page. Use the last event's cursor to
+	// fetch the next page.
+	HasMore bool `json:"has_more,required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
+		HasMore     respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
@@ -173,327 +99,39 @@ func (r *EventsResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// EventsResponseDataUnion contains all possible properties and values from
-// [AssetEventPayload], [AlbumEventPayload], [PersonEventPayload],
-// [FaceEventPayload], [AlbumAssetEventPayload], [ExifEventPayload].
-//
-// Use the [EventsResponseDataUnion.AsAny] method to switch on the variant.
-//
-// Use the methods beginning with 'As' to cast the union to one of its variants.
-type EventsResponseDataUnion struct {
-	// This field is a union of [AssetResponse], [AlbumResponse], [PersonResponse],
-	// [FaceResponse], [AlbumAssetResponse], [ExifResponse]
-	Data EventsResponseDataUnionData `json:"data"`
-	// Any of "asset", "album", "person", "face", "album_asset", "exif".
-	EntityType string `json:"entity_type"`
-	JSON       struct {
-		Data       respjson.Field
-		EntityType respjson.Field
-		raw        string
-	} `json:"-"`
-}
-
-// anyEventsResponseData is implemented by each variant of
-// [EventsResponseDataUnion] to add type safety for the return type of
-// [EventsResponseDataUnion.AsAny]
-type anyEventsResponseData interface {
-	implEventsResponseDataUnion()
-}
-
-func (AssetEventPayload) implEventsResponseDataUnion()      {}
-func (AlbumEventPayload) implEventsResponseDataUnion()      {}
-func (PersonEventPayload) implEventsResponseDataUnion()     {}
-func (FaceEventPayload) implEventsResponseDataUnion()       {}
-func (AlbumAssetEventPayload) implEventsResponseDataUnion() {}
-func (ExifEventPayload) implEventsResponseDataUnion()       {}
-
-// Use the following switch statement to find the correct variant
-//
-//	switch variant := EventsResponseDataUnion.AsAny().(type) {
-//	case photos.AssetEventPayload:
-//	case photos.AlbumEventPayload:
-//	case photos.PersonEventPayload:
-//	case photos.FaceEventPayload:
-//	case photos.AlbumAssetEventPayload:
-//	case photos.ExifEventPayload:
-//	default:
-//	  fmt.Errorf("no variant present")
-//	}
-func (u EventsResponseDataUnion) AsAny() anyEventsResponseData {
-	switch u.EntityType {
-	case "asset":
-		return u.AsAsset()
-	case "album":
-		return u.AsAlbum()
-	case "person":
-		return u.AsPerson()
-	case "face":
-		return u.AsFace()
-	case "album_asset":
-		return u.AsAlbumAsset()
-	case "exif":
-		return u.AsExif()
-	}
-	return nil
-}
-
-func (u EventsResponseDataUnion) AsAsset() (v AssetEventPayload) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u EventsResponseDataUnion) AsAlbum() (v AlbumEventPayload) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u EventsResponseDataUnion) AsPerson() (v PersonEventPayload) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u EventsResponseDataUnion) AsFace() (v FaceEventPayload) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u EventsResponseDataUnion) AsAlbumAsset() (v AlbumAssetEventPayload) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-func (u EventsResponseDataUnion) AsExif() (v ExifEventPayload) {
-	apijson.UnmarshalRoot(json.RawMessage(u.JSON.raw), &v)
-	return
-}
-
-// Returns the unmodified JSON received from the API
-func (u EventsResponseDataUnion) RawJSON() string { return u.JSON.raw }
-
-func (r *EventsResponseDataUnion) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// EventsResponseDataUnionData is an implicit subunion of
-// [EventsResponseDataUnion]. EventsResponseDataUnionData provides convenient
-// access to the sub-properties of the union.
-//
-// For type safety it is recommended to directly use a variant of the
-// [EventsResponseDataUnion].
-type EventsResponseDataUnionData struct {
-	ID string `json:"id"`
-	// This field is from variant [AssetResponse].
-	Checksum  string    `json:"checksum"`
-	CreatedAt time.Time `json:"created_at"`
-	// This field is from variant [AssetResponse].
-	DeviceAssetID string `json:"device_asset_id"`
-	// This field is from variant [AssetResponse].
-	DeviceID string `json:"device_id"`
-	// This field is from variant [AssetResponse].
-	FileCreatedAt time.Time `json:"file_created_at"`
-	// This field is from variant [AssetResponse].
-	FileModifiedAt time.Time `json:"file_modified_at"`
-	// This field is from variant [AssetResponse].
-	LocalDatetime time.Time `json:"local_datetime"`
-	// This field is from variant [AssetResponse].
-	MimeType string `json:"mime_type"`
-	// This field is from variant [AssetResponse].
-	OriginalFileName string    `json:"original_file_name"`
-	UpdatedAt        time.Time `json:"updated_at"`
-	// This field is from variant [AssetResponse].
-	ChecksumSha1 string `json:"checksum_sha1"`
-	// This field is from variant [AssetResponse].
-	DownloadURL string `json:"download_url"`
-	// This field is from variant [AssetResponse].
-	Exif ExifResponse `json:"exif"`
-	// This field is from variant [AssetResponse].
-	Faces []FaceResponse `json:"faces"`
-	// This field is from variant [AssetResponse].
-	FileSizeBytes int64 `json:"file_size_bytes"`
-	// This field is from variant [AssetResponse].
-	Height int64 `json:"height"`
-	// This field is from variant [AssetResponse].
-	Metrics map[string]float64 `json:"metrics"`
-	// This field is from variant [AssetResponse].
-	People       []PersonResponse `json:"people"`
-	ThumbnailURL string           `json:"thumbnail_url"`
-	// This field is from variant [AssetResponse].
-	Width      int64  `json:"width"`
-	AssetCount int64  `json:"asset_count"`
-	Name       string `json:"name"`
-	// This field is from variant [AlbumResponse].
-	AlbumCoverAssetID string `json:"album_cover_asset_id"`
-	// This field is from variant [AlbumResponse].
-	AlbumCoverThumbnailURL string `json:"album_cover_thumbnail_url"`
-	Description            string `json:"description"`
-	// This field is from variant [AlbumResponse].
-	EndDate time.Time `json:"end_date"`
-	// This field is from variant [AlbumResponse].
-	StartDate time.Time `json:"start_date"`
-	// This field is from variant [PersonResponse].
-	IsFavorite bool `json:"is_favorite"`
-	// This field is from variant [PersonResponse].
-	IsHidden bool `json:"is_hidden"`
-	// This field is from variant [PersonResponse].
-	BirthDate time.Time `json:"birth_date"`
-	// This field is from variant [PersonResponse].
-	ThumbnailFaceID string `json:"thumbnail_face_id"`
-	// This field is from variant [PersonResponse].
-	ThumbnailFaceURL string `json:"thumbnail_face_url"`
-	AssetID          string `json:"asset_id"`
-	// This field is from variant [FaceResponse].
-	BoundingBox map[string]int64 `json:"bounding_box"`
-	// This field is from variant [FaceResponse].
-	PersonID string `json:"person_id"`
-	// This field is from variant [FaceResponse].
-	TimestampMs int64 `json:"timestamp_ms"`
-	// This field is from variant [AlbumAssetResponse].
-	AlbumID string `json:"album_id"`
-	// This field is from variant [ExifResponse].
-	Altitude float64 `json:"altitude"`
-	// This field is from variant [ExifResponse].
-	AutoStackID string `json:"auto_stack_id"`
-	// This field is from variant [ExifResponse].
-	City string `json:"city"`
-	// This field is from variant [ExifResponse].
-	Country string `json:"country"`
-	// This field is from variant [ExifResponse].
-	DigitizedDatetime time.Time `json:"digitized_datetime"`
-	// This field is from variant [ExifResponse].
-	ExposureBias float64 `json:"exposure_bias"`
-	// This field is from variant [ExifResponse].
-	ExposureTime float64 `json:"exposure_time"`
-	// This field is from variant [ExifResponse].
-	FNumber float64 `json:"f_number"`
-	// This field is from variant [ExifResponse].
-	FocalLength float64 `json:"focal_length"`
-	// This field is from variant [ExifResponse].
-	Fps float64 `json:"fps"`
-	// This field is from variant [ExifResponse].
-	ISO int64 `json:"iso"`
-	// This field is from variant [ExifResponse].
-	Latitude float64 `json:"latitude"`
-	// This field is from variant [ExifResponse].
-	LensModel string `json:"lens_model"`
-	// This field is from variant [ExifResponse].
-	LivePhotoCid string `json:"live_photo_cid"`
-	// This field is from variant [ExifResponse].
-	Longitude float64 `json:"longitude"`
-	// This field is from variant [ExifResponse].
-	Make string `json:"make"`
-	// This field is from variant [ExifResponse].
-	Model string `json:"model"`
-	// This field is from variant [ExifResponse].
-	ModifiedDatetime time.Time `json:"modified_datetime"`
-	// This field is from variant [ExifResponse].
-	Orientation int64 `json:"orientation"`
-	// This field is from variant [ExifResponse].
-	OriginalDatetime time.Time `json:"original_datetime"`
-	// This field is from variant [ExifResponse].
-	ProfileDescription string `json:"profile_description"`
-	// This field is from variant [ExifResponse].
-	ProjectionType string `json:"projection_type"`
-	// This field is from variant [ExifResponse].
-	Rating int64 `json:"rating"`
-	// This field is from variant [ExifResponse].
-	State string `json:"state"`
-	JSON  struct {
-		ID                     respjson.Field
-		Checksum               respjson.Field
-		CreatedAt              respjson.Field
-		DeviceAssetID          respjson.Field
-		DeviceID               respjson.Field
-		FileCreatedAt          respjson.Field
-		FileModifiedAt         respjson.Field
-		LocalDatetime          respjson.Field
-		MimeType               respjson.Field
-		OriginalFileName       respjson.Field
-		UpdatedAt              respjson.Field
-		ChecksumSha1           respjson.Field
-		DownloadURL            respjson.Field
-		Exif                   respjson.Field
-		Faces                  respjson.Field
-		FileSizeBytes          respjson.Field
-		Height                 respjson.Field
-		Metrics                respjson.Field
-		People                 respjson.Field
-		ThumbnailURL           respjson.Field
-		Width                  respjson.Field
-		AssetCount             respjson.Field
-		Name                   respjson.Field
-		AlbumCoverAssetID      respjson.Field
-		AlbumCoverThumbnailURL respjson.Field
-		Description            respjson.Field
-		EndDate                respjson.Field
-		StartDate              respjson.Field
-		IsFavorite             respjson.Field
-		IsHidden               respjson.Field
-		BirthDate              respjson.Field
-		ThumbnailFaceID        respjson.Field
-		ThumbnailFaceURL       respjson.Field
-		AssetID                respjson.Field
-		BoundingBox            respjson.Field
-		PersonID               respjson.Field
-		TimestampMs            respjson.Field
-		AlbumID                respjson.Field
-		Altitude               respjson.Field
-		AutoStackID            respjson.Field
-		City                   respjson.Field
-		Country                respjson.Field
-		DigitizedDatetime      respjson.Field
-		ExposureBias           respjson.Field
-		ExposureTime           respjson.Field
-		FNumber                respjson.Field
-		FocalLength            respjson.Field
-		Fps                    respjson.Field
-		ISO                    respjson.Field
-		Latitude               respjson.Field
-		LensModel              respjson.Field
-		LivePhotoCid           respjson.Field
-		Longitude              respjson.Field
-		Make                   respjson.Field
-		Model                  respjson.Field
-		ModifiedDatetime       respjson.Field
-		Orientation            respjson.Field
-		OriginalDatetime       respjson.Field
-		ProfileDescription     respjson.Field
-		ProjectionType         respjson.Field
-		Rating                 respjson.Field
-		State                  respjson.Field
-		raw                    string
-	} `json:"-"`
-}
-
-func (r *EventsResponseDataUnionData) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Event payload for exif entities.
-type ExifEventPayload struct {
-	// Full exif data
-	Data ExifResponse `json:"data,required"`
-	// Any of "exif".
-	EntityType ExifEventPayloadEntityType `json:"entity_type"`
+// Lightweight event record for sync endpoint.
+type EventsResponseData struct {
+	// When the event was recorded
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// Opaque cursor for pagination. Pass as after_cursor to get the next page.
+	Cursor string `json:"cursor,required"`
+	// ID of the entity that changed
+	EntityID string `json:"entity_id,required"`
+	// Type of entity that changed (e.g., 'asset', 'album', 'person')
+	EntityType string `json:"entity_type,required"`
+	// Semantic event type (e.g., 'asset_created', 'album_deleted')
+	EventType string `json:"event_type,required"`
+	// Optional extra context for the event (e.g., foreign keys for junction table
+	// deletions)
+	Payload map[string]any `json:"payload,nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		Data        respjson.Field
+		CreatedAt   respjson.Field
+		Cursor      respjson.Field
+		EntityID    respjson.Field
 		EntityType  respjson.Field
+		EventType   respjson.Field
+		Payload     respjson.Field
 		ExtraFields map[string]respjson.Field
 		raw         string
 	} `json:"-"`
 }
 
 // Returns the unmodified JSON received from the API
-func (r ExifEventPayload) RawJSON() string { return r.JSON.raw }
-func (r *ExifEventPayload) UnmarshalJSON(data []byte) error {
+func (r EventsResponseData) RawJSON() string { return r.JSON.raw }
+func (r *EventsResponseData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
-
-type ExifEventPayloadEntityType string
-
-const (
-	ExifEventPayloadEntityTypeExif ExifEventPayloadEntityType = "exif"
-)
 
 // EXIF metadata extracted from image and video files.
 type ExifResponse struct {
@@ -596,75 +234,20 @@ func (r *ExifResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// Event payload for face entities.
-type FaceEventPayload struct {
-	// Full face data
-	Data FaceResponse `json:"data,required"`
-	// Any of "face".
-	EntityType FaceEventPayloadEntityType `json:"entity_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		EntityType  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FaceEventPayload) RawJSON() string { return r.JSON.raw }
-func (r *FaceEventPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type FaceEventPayloadEntityType string
-
-const (
-	FaceEventPayloadEntityTypeFace FaceEventPayloadEntityType = "face"
-)
-
-// Event payload for person entities.
-type PersonEventPayload struct {
-	// Full person data
-	Data PersonResponse `json:"data,required"`
-	// Any of "person".
-	EntityType PersonEventPayloadEntityType `json:"entity_type"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Data        respjson.Field
-		EntityType  respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PersonEventPayload) RawJSON() string { return r.JSON.raw }
-func (r *PersonEventPayload) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-type PersonEventPayloadEntityType string
-
-const (
-	PersonEventPayloadEntityTypePerson PersonEventPayloadEntityType = "person"
-)
-
 type EventGetParams struct {
+	// Cursor from the last event to paginate from. Pass the `cursor` field from the
+	// last event to get the next page.
+	AfterCursor param.Opt[string] `query:"after_cursor,omitzero" json:"-"`
+	// Only return events created at or after this timestamp (ISO 8601 format)
+	CreatedAtGte param.Opt[time.Time] `query:"created_at_gte,omitzero" format:"date-time" json:"-"`
+	// Only return events created before this timestamp (ISO 8601 format). Recommended
+	// for bounding sync operations.
+	CreatedAtLt param.Opt[time.Time] `query:"created_at_lt,omitzero" format:"date-time" json:"-"`
 	// Comma-separated list of entity types to include (e.g., 'asset,album'). Valid
 	// types: asset, album, person, face, album_asset, exif. Default: all types.
 	EntityTypes param.Opt[string] `query:"entity_types,omitzero" json:"-"`
 	// Library to list events from. If not provided, uses the user's default library.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
-	// Entity ID to start after for tie-breaking when paginating. Used with
-	// updated_at_gte for composite keyset pagination. Requires exactly one
-	// entity_types value. For exif entities, use asset_id.
-	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
-	// Only return events with updated_at >= this timestamp (ISO 8601 format)
-	UpdatedAtGte param.Opt[time.Time] `query:"updated_at_gte,omitzero" format:"date-time" json:"-"`
-	// Only return events with updated_at < this timestamp (ISO 8601 format).
-	// Recommended for bounding sync operations.
-	UpdatedAtLt param.Opt[time.Time] `query:"updated_at_lt,omitzero" format:"date-time" json:"-"`
 	// Maximum number of events to return (1-500)
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	paramObj

@@ -133,6 +133,107 @@ func (r *EventsResponseData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// EXIF metadata extracted from image and video files.
+type ExifResponse struct {
+	// ID of the asset this EXIF data belongs to
+	AssetID string `json:"asset_id,required"`
+	// When this EXIF record was created
+	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	// When this EXIF record was last updated
+	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	// GPS altitude in meters
+	Altitude float64 `json:"altitude,nullable"`
+	// Identifier for automatic photo stacking
+	AutoStackID string `json:"auto_stack_id,nullable"`
+	// City name from GPS/location data
+	City string `json:"city,nullable"`
+	// Country name from GPS/location data
+	Country string `json:"country,nullable"`
+	// Image description or caption
+	Description string `json:"description,nullable"`
+	// When the photo was digitized, with timezone info
+	DigitizedDatetime time.Time `json:"digitized_datetime,nullable" format:"date-time"`
+	// Exposure compensation in EV (e.g., -1.0, +0.5)
+	ExposureBias float64 `json:"exposure_bias,nullable"`
+	// Shutter speed in seconds (e.g., 0.001 for 1/1000s)
+	ExposureTime float64 `json:"exposure_time,nullable"`
+	// Aperture f-stop value (e.g., 2.8, 5.6)
+	FNumber float64 `json:"f_number,nullable"`
+	// Focal length in millimeters
+	FocalLength float64 `json:"focal_length,nullable"`
+	// Frame rate for video files
+	Fps float64 `json:"fps,nullable"`
+	// ISO sensitivity value (e.g., 100, 800, 3200)
+	ISO int64 `json:"iso,nullable"`
+	// GPS latitude in decimal degrees
+	Latitude float64 `json:"latitude,nullable"`
+	// Lens model used (e.g., 'EF 24-70mm f/2.8L II USM')
+	LensModel string `json:"lens_model,nullable"`
+	// Live photo content identifier
+	LivePhotoCid string `json:"live_photo_cid,nullable"`
+	// GPS longitude in decimal degrees
+	Longitude float64 `json:"longitude,nullable"`
+	// Camera manufacturer (e.g., 'Canon', 'Nikon')
+	Make string `json:"make,nullable"`
+	// Camera model (e.g., 'EOS 5D Mark IV')
+	Model string `json:"model,nullable"`
+	// When the file was last modified, with timezone info
+	ModifiedDatetime time.Time `json:"modified_datetime,nullable" format:"date-time"`
+	// Image orientation value (1-8) indicating rotation/flip: 1=normal, 2=mirror
+	// horizontal, 3=rotate 180°, 4=mirror vertical, 5=mirror horizontal+rotate 90° CW,
+	// 6=rotate 90° CW, 7=mirror horizontal+rotate 90° CCW, 8=rotate 90° CCW
+	Orientation int64 `json:"orientation,nullable"`
+	// When the photo was originally taken, with timezone info
+	OriginalDatetime time.Time `json:"original_datetime,nullable" format:"date-time"`
+	// Color profile description
+	ProfileDescription string `json:"profile_description,nullable"`
+	// Projection type (e.g., for 360° photos)
+	ProjectionType string `json:"projection_type,nullable"`
+	// User or camera rating (typically 1-5 stars)
+	Rating int64 `json:"rating,nullable"`
+	// State/province name from GPS/location data
+	State string `json:"state,nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AssetID            respjson.Field
+		CreatedAt          respjson.Field
+		UpdatedAt          respjson.Field
+		Altitude           respjson.Field
+		AutoStackID        respjson.Field
+		City               respjson.Field
+		Country            respjson.Field
+		Description        respjson.Field
+		DigitizedDatetime  respjson.Field
+		ExposureBias       respjson.Field
+		ExposureTime       respjson.Field
+		FNumber            respjson.Field
+		FocalLength        respjson.Field
+		Fps                respjson.Field
+		ISO                respjson.Field
+		Latitude           respjson.Field
+		LensModel          respjson.Field
+		LivePhotoCid       respjson.Field
+		Longitude          respjson.Field
+		Make               respjson.Field
+		Model              respjson.Field
+		ModifiedDatetime   respjson.Field
+		Orientation        respjson.Field
+		OriginalDatetime   respjson.Field
+		ProfileDescription respjson.Field
+		ProjectionType     respjson.Field
+		Rating             respjson.Field
+		State              respjson.Field
+		ExtraFields        map[string]respjson.Field
+		raw                string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ExifResponse) RawJSON() string { return r.JSON.raw }
+func (r *ExifResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type EventGetParams struct {
 	// Cursor from the last event to paginate from. Pass the `cursor` field from the
 	// last event to get the next page.

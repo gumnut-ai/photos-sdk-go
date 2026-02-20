@@ -27,7 +27,7 @@ func TestAutoPagination(t *testing.T) {
 	iter := client.Assets.ListAutoPaging(context.TODO(), photos.AssetListParams{
 		StartingAfterID: photos.String("asset_abc123"),
 	})
-	// Prism mock isn't going to give us real pagination
+	// The mock server isn't going to give us real pagination
 	for i := 0; i < 3 && iter.Next(); i++ {
 		asset := iter.Current()
 		t.Logf("%+v\n", asset.ID)

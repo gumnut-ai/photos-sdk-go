@@ -80,10 +80,10 @@ func (r *EventService) Get(ctx context.Context, query EventGetParams, opts ...op
 // Response containing a page of events.
 type EventsResponse struct {
 	// List of events, ordered by event ID (monotonically increasing)
-	Data []EventsResponseData `json:"data,required"`
+	Data []EventsResponseData `json:"data" api:"required"`
 	// True if there are more events after this page. Use the last event's cursor to
 	// fetch the next page.
-	HasMore bool `json:"has_more,required"`
+	HasMore bool `json:"has_more" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -102,18 +102,18 @@ func (r *EventsResponse) UnmarshalJSON(data []byte) error {
 // Lightweight event record for sync endpoint.
 type EventsResponseData struct {
 	// When the event was recorded
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Opaque cursor for pagination. Pass as after_cursor to get the next page.
-	Cursor string `json:"cursor,required"`
+	Cursor string `json:"cursor" api:"required"`
 	// ID of the entity that changed
-	EntityID string `json:"entity_id,required"`
+	EntityID string `json:"entity_id" api:"required"`
 	// Type of entity that changed (e.g., 'asset', 'album', 'person')
-	EntityType string `json:"entity_type,required"`
+	EntityType string `json:"entity_type" api:"required"`
 	// Semantic event type (e.g., 'asset_created', 'album_deleted')
-	EventType string `json:"event_type,required"`
+	EventType string `json:"event_type" api:"required"`
 	// Optional extra context for the event (e.g., foreign keys for junction table
 	// deletions)
-	Payload map[string]any `json:"payload,nullable"`
+	Payload map[string]any `json:"payload" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		CreatedAt   respjson.Field
@@ -136,63 +136,63 @@ func (r *EventsResponseData) UnmarshalJSON(data []byte) error {
 // EXIF metadata extracted from image and video files.
 type ExifResponse struct {
 	// ID of the asset this EXIF data belongs to
-	AssetID string `json:"asset_id,required"`
+	AssetID string `json:"asset_id" api:"required"`
 	// When this EXIF record was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// When this EXIF record was last updated
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// GPS altitude in meters
-	Altitude float64 `json:"altitude,nullable"`
+	Altitude float64 `json:"altitude" api:"nullable"`
 	// Identifier for automatic photo stacking
-	AutoStackID string `json:"auto_stack_id,nullable"`
+	AutoStackID string `json:"auto_stack_id" api:"nullable"`
 	// City name from GPS/location data
-	City string `json:"city,nullable"`
+	City string `json:"city" api:"nullable"`
 	// Country name from GPS/location data
-	Country string `json:"country,nullable"`
+	Country string `json:"country" api:"nullable"`
 	// Image description or caption
-	Description string `json:"description,nullable"`
+	Description string `json:"description" api:"nullable"`
 	// When the photo was digitized, with timezone info
-	DigitizedDatetime time.Time `json:"digitized_datetime,nullable" format:"date-time"`
+	DigitizedDatetime time.Time `json:"digitized_datetime" api:"nullable" format:"date-time"`
 	// Exposure compensation in EV (e.g., -1.0, +0.5)
-	ExposureBias float64 `json:"exposure_bias,nullable"`
+	ExposureBias float64 `json:"exposure_bias" api:"nullable"`
 	// Shutter speed in seconds (e.g., 0.001 for 1/1000s)
-	ExposureTime float64 `json:"exposure_time,nullable"`
+	ExposureTime float64 `json:"exposure_time" api:"nullable"`
 	// Aperture f-stop value (e.g., 2.8, 5.6)
-	FNumber float64 `json:"f_number,nullable"`
+	FNumber float64 `json:"f_number" api:"nullable"`
 	// Focal length in millimeters
-	FocalLength float64 `json:"focal_length,nullable"`
+	FocalLength float64 `json:"focal_length" api:"nullable"`
 	// Frame rate for video files
-	Fps float64 `json:"fps,nullable"`
+	Fps float64 `json:"fps" api:"nullable"`
 	// ISO sensitivity value (e.g., 100, 800, 3200)
-	ISO int64 `json:"iso,nullable"`
+	ISO int64 `json:"iso" api:"nullable"`
 	// GPS latitude in decimal degrees
-	Latitude float64 `json:"latitude,nullable"`
+	Latitude float64 `json:"latitude" api:"nullable"`
 	// Lens model used (e.g., 'EF 24-70mm f/2.8L II USM')
-	LensModel string `json:"lens_model,nullable"`
+	LensModel string `json:"lens_model" api:"nullable"`
 	// Live photo content identifier
-	LivePhotoCid string `json:"live_photo_cid,nullable"`
+	LivePhotoCid string `json:"live_photo_cid" api:"nullable"`
 	// GPS longitude in decimal degrees
-	Longitude float64 `json:"longitude,nullable"`
+	Longitude float64 `json:"longitude" api:"nullable"`
 	// Camera manufacturer (e.g., 'Canon', 'Nikon')
-	Make string `json:"make,nullable"`
+	Make string `json:"make" api:"nullable"`
 	// Camera model (e.g., 'EOS 5D Mark IV')
-	Model string `json:"model,nullable"`
+	Model string `json:"model" api:"nullable"`
 	// When the file was last modified, with timezone info
-	ModifiedDatetime time.Time `json:"modified_datetime,nullable" format:"date-time"`
+	ModifiedDatetime time.Time `json:"modified_datetime" api:"nullable" format:"date-time"`
 	// Image orientation value (1-8) indicating rotation/flip: 1=normal, 2=mirror
 	// horizontal, 3=rotate 180°, 4=mirror vertical, 5=mirror horizontal+rotate 90° CW,
 	// 6=rotate 90° CW, 7=mirror horizontal+rotate 90° CCW, 8=rotate 90° CCW
-	Orientation int64 `json:"orientation,nullable"`
+	Orientation int64 `json:"orientation" api:"nullable"`
 	// When the photo was originally taken, with timezone info
-	OriginalDatetime time.Time `json:"original_datetime,nullable" format:"date-time"`
+	OriginalDatetime time.Time `json:"original_datetime" api:"nullable" format:"date-time"`
 	// Color profile description
-	ProfileDescription string `json:"profile_description,nullable"`
+	ProfileDescription string `json:"profile_description" api:"nullable"`
 	// Projection type (e.g., for 360° photos)
-	ProjectionType string `json:"projection_type,nullable"`
+	ProjectionType string `json:"projection_type" api:"nullable"`
 	// User or camera rating (typically 1-5 stars)
-	Rating int64 `json:"rating,nullable"`
+	Rating int64 `json:"rating" api:"nullable"`
 	// State/province name from GPS/location data
-	State string `json:"state,nullable"`
+	State string `json:"state" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		AssetID            respjson.Field

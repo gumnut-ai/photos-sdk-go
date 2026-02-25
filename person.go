@@ -113,25 +113,25 @@ func (r *PersonService) Delete(ctx context.Context, personID string, opts ...opt
 // Represents a person identified through face clustering and recognition.
 type PersonResponse struct {
 	// Unique person identifier with 'person\_' prefix
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// When this person record was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Whether this person is marked as a favorite
-	IsFavorite bool `json:"is_favorite,required"`
+	IsFavorite bool `json:"is_favorite" api:"required"`
 	// Whether this person should be hidden from the UI
-	IsHidden bool `json:"is_hidden,required"`
+	IsHidden bool `json:"is_hidden" api:"required"`
 	// When this person record was last updated
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Number of unique photos this person appears in, or null if not computed
-	AssetCount int64 `json:"asset_count,nullable"`
+	AssetCount int64 `json:"asset_count" api:"nullable"`
 	// Optional birth date of this person
-	BirthDate time.Time `json:"birth_date,nullable" format:"date"`
+	BirthDate time.Time `json:"birth_date" api:"nullable" format:"date"`
 	// Optional name assigned to this person
-	Name string `json:"name,nullable"`
+	Name string `json:"name" api:"nullable"`
 	// ID of the face resource used as this person's thumbnail
-	ThumbnailFaceID string `json:"thumbnail_face_id,nullable"`
+	ThumbnailFaceID string `json:"thumbnail_face_id" api:"nullable"`
 	// URL for this person's profile thumbnail image
-	ThumbnailFaceURL string `json:"thumbnail_face_url,nullable"`
+	ThumbnailFaceURL string `json:"thumbnail_face_url" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field

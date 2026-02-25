@@ -79,15 +79,15 @@ func (r *AlbumAssetService) Get(ctx context.Context, albumAssetID string, opts .
 // Represents a link between an album and an asset.
 type AlbumAssetResponse struct {
 	// Unique album*asset identifier with 'album_asset*' prefix
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// ID of the album
-	AlbumID string `json:"album_id,required"`
+	AlbumID string `json:"album_id" api:"required"`
 	// ID of the asset
-	AssetID string `json:"asset_id,required"`
+	AssetID string `json:"asset_id" api:"required"`
 	// When this link was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// When this link was last updated
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field

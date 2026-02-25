@@ -85,12 +85,14 @@ func TestAssetListWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Assets.List(context.TODO(), photos.AssetListParams{
-		AlbumID:         photos.String("album_id"),
-		IDs:             []string{"string", "string"},
-		LibraryID:       photos.String("library_id"),
-		Limit:           photos.Int(1),
-		PersonID:        photos.String("person_id"),
-		StartingAfterID: photos.String("starting_after_id"),
+		AlbumID:             photos.String("album_id"),
+		IDs:                 []string{"string", "string"},
+		LibraryID:           photos.String("library_id"),
+		Limit:               photos.Int(1),
+		LocalDatetimeAfter:  photos.Time(time.Now()),
+		LocalDatetimeBefore: photos.Time(time.Now()),
+		PersonID:            photos.String("person_id"),
+		StartingAfterID:     photos.String("starting_after_id"),
 	})
 	if err != nil {
 		var apierr *photos.Error

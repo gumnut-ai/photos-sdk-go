@@ -313,6 +313,16 @@ type AssetListParams struct {
 	AlbumID param.Opt[string] `query:"album_id,omitzero" json:"-"`
 	// Library to list assets from (optional)
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
+	// Only include assets with local_datetime after this value (ISO 8601). Naive
+	// values compare directly against local_datetime; timezone-aware values are
+	// converted to UTC and compared against local_datetime adjusted by its stored
+	// offset.
+	LocalDatetimeAfter param.Opt[time.Time] `query:"local_datetime_after,omitzero" format:"date-time" json:"-"`
+	// Only include assets with local_datetime before this value (ISO 8601). Naive
+	// values compare directly against local_datetime; timezone-aware values are
+	// converted to UTC and compared against local_datetime adjusted by its stored
+	// offset.
+	LocalDatetimeBefore param.Opt[time.Time] `query:"local_datetime_before,omitzero" format:"date-time" json:"-"`
 	// Filter by assets associated with a specific person ID
 	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
 	// Asset ID to start listing assets after

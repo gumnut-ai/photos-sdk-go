@@ -94,17 +94,17 @@ func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...o
 // Represents a user's photo library.
 type LibraryResponse struct {
 	// Unique library identifier with 'lib\_' prefix
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// When this library was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Display name of the library
-	Name string `json:"name,required"`
+	Name string `json:"name" api:"required"`
 	// When this library was last updated
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// ID of the user who owns this library
-	UserID string `json:"user_id,required"`
+	UserID string `json:"user_id" api:"required"`
 	// Optional description text for the library
-	Description string `json:"description,nullable"`
+	Description string `json:"description" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -125,7 +125,7 @@ func (r *LibraryResponse) UnmarshalJSON(data []byte) error {
 }
 
 type LibraryNewParams struct {
-	Name        string            `json:"name,required"`
+	Name        string            `json:"name" api:"required"`
 	Description param.Opt[string] `json:"description,omitzero"`
 	paramObj
 }

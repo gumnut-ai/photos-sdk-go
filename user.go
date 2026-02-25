@@ -44,23 +44,23 @@ func (r *UserService) Me(ctx context.Context, opts ...option.RequestOption) (res
 // Represents a user account with profile information.
 type UserResponse struct {
 	// Unique user identifier with 'intuser\_' prefix
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// When this user account was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Whether this user account is currently active
-	IsActive bool `json:"is_active,required"`
+	IsActive bool `json:"is_active" api:"required"`
 	// Whether this user has superuser/admin privileges
-	IsSuperuser bool `json:"is_superuser,required"`
+	IsSuperuser bool `json:"is_superuser" api:"required"`
 	// Whether this user's email is verified
-	IsVerified bool `json:"is_verified,required"`
+	IsVerified bool `json:"is_verified" api:"required"`
 	// When this user account was last updated
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// User's email address
-	Email string `json:"email,nullable"`
+	Email string `json:"email" api:"nullable"`
 	// User's first name
-	FirstName string `json:"first_name,nullable"`
+	FirstName string `json:"first_name" api:"nullable"`
 	// User's last name
-	LastName string `json:"last_name,nullable"`
+	LastName string `json:"last_name" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field

@@ -80,15 +80,15 @@ func (r *APIKeyService) Delete(ctx context.Context, keyID string, opts ...option
 // Represents an API key for authentication (without exposing the actual key).
 type APIKeyResponse struct {
 	// Unique API key identifier with 'apikey\_' prefix
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// When this API key was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Whether this API key is currently valid and can be used
-	IsActive bool `json:"is_active,required"`
+	IsActive bool `json:"is_active" api:"required"`
 	// When this API key was last used for authentication
-	LastUsedAt time.Time `json:"last_used_at,nullable" format:"date-time"`
+	LastUsedAt time.Time `json:"last_used_at" api:"nullable" format:"date-time"`
 	// Optional descriptive name for this API key
-	Name string `json:"name,nullable"`
+	Name string `json:"name" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -113,17 +113,17 @@ func (r *APIKeyResponse) UnmarshalJSON(data []byte) error {
 // hashed version is stored and the raw key cannot be retrieved.
 type APIKeyNewResponse struct {
 	// Unique API key identifier with 'apikey\_' prefix
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// The actual API key value - store this securely as it cannot be retrieved later
-	APIKey string `json:"api_key,required"`
+	APIKey string `json:"api_key" api:"required"`
 	// When this API key was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Whether this API key is currently valid and can be used
-	IsActive bool `json:"is_active,required"`
+	IsActive bool `json:"is_active" api:"required"`
 	// When this API key was last used for authentication
-	LastUsedAt time.Time `json:"last_used_at,nullable" format:"date-time"`
+	LastUsedAt time.Time `json:"last_used_at" api:"nullable" format:"date-time"`
 	// Optional descriptive name for this API key
-	Name string `json:"name,nullable"`
+	Name string `json:"name" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -144,7 +144,7 @@ func (r *APIKeyNewResponse) UnmarshalJSON(data []byte) error {
 }
 
 type APIKeyNewParams struct {
-	Name string `json:"name,required"`
+	Name string `json:"name" api:"required"`
 	paramObj
 }
 
@@ -157,7 +157,7 @@ func (r *APIKeyNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type APIKeyUpdateParams struct {
-	Name string `json:"name,required"`
+	Name string `json:"name" api:"required"`
 	paramObj
 }
 

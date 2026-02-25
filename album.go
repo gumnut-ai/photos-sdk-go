@@ -116,25 +116,25 @@ func (r *AlbumService) Delete(ctx context.Context, albumID string, opts ...optio
 // Represents a collection of assets organized by the user.
 type AlbumResponse struct {
 	// Unique album identifier with 'album\_' prefix
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Total number of assets in this album
-	AssetCount int64 `json:"asset_count,required"`
+	AssetCount int64 `json:"asset_count" api:"required"`
 	// When this album was created
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Display name of the album
-	Name string `json:"name,required"`
+	Name string `json:"name" api:"required"`
 	// When this album was last updated
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// ID of the asset used as the album cover
-	AlbumCoverAssetID string `json:"album_cover_asset_id,nullable"`
+	AlbumCoverAssetID string `json:"album_cover_asset_id" api:"nullable"`
 	// URL to get the album cover thumbnail image
-	AlbumCoverThumbnailURL string `json:"album_cover_thumbnail_url,nullable"`
+	AlbumCoverThumbnailURL string `json:"album_cover_thumbnail_url" api:"nullable"`
 	// Optional description text for the album
-	Description string `json:"description,nullable"`
+	Description string `json:"description" api:"nullable"`
 	// The newest asset date (local_datetime) in the album, or null if empty
-	EndDate time.Time `json:"end_date,nullable" format:"date-time"`
+	EndDate time.Time `json:"end_date" api:"nullable" format:"date-time"`
 	// The oldest asset date (local_datetime) in the album, or null if empty
-	StartDate time.Time `json:"start_date,nullable" format:"date-time"`
+	StartDate time.Time `json:"start_date" api:"nullable" format:"date-time"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID                     respjson.Field

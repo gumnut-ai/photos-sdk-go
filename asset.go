@@ -150,7 +150,7 @@ func (r *AssetService) DownloadThumbnail(ctx context.Context, assetID string, qu
 // Response for asset existence check endpoint.
 type AssetExistenceResponse struct {
 	// List of assets matching the query criteria
-	Assets []AssetLiteResponse `json:"assets,required"`
+	Assets []AssetLiteResponse `json:"assets" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Assets      respjson.Field
@@ -168,17 +168,17 @@ func (r *AssetExistenceResponse) UnmarshalJSON(data []byte) error {
 // Lightweight asset response for existence checks.
 type AssetLiteResponse struct {
 	// Unique asset identifier with 'asset\_' prefix
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Base64-encoded SHA-256 hash of the asset contents for duplicate detection and
 	// integrity
-	Checksum string `json:"checksum,required"`
+	Checksum string `json:"checksum" api:"required"`
 	// Original asset identifier from the device that uploaded this asset
-	DeviceAssetID string `json:"device_asset_id,required"`
+	DeviceAssetID string `json:"device_asset_id" api:"required"`
 	// Identifier of the device that uploaded this asset
-	DeviceID string `json:"device_id,required"`
+	DeviceID string `json:"device_id" api:"required"`
 	// Base64-encoded SHA-1 hash for Immich client compatibility. May be null for older
 	// assets.
-	ChecksumSha1 string `json:"checksum_sha1,nullable"`
+	ChecksumSha1 string `json:"checksum_sha1" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID            respjson.Field
@@ -200,36 +200,36 @@ func (r *AssetLiteResponse) UnmarshalJSON(data []byte) error {
 // Represents a photo or video asset with metadata and access URLs.
 type AssetResponse struct {
 	// Unique asset identifier with 'asset\_' prefix
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// Base64-encoded SHA-256 hash of the asset contents for duplicate detection and
 	// integrity
-	Checksum string `json:"checksum,required"`
+	Checksum string `json:"checksum" api:"required"`
 	// When this asset record was created in the database
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Original asset identifier from the device that uploaded this asset
-	DeviceAssetID string `json:"device_asset_id,required"`
+	DeviceAssetID string `json:"device_asset_id" api:"required"`
 	// Identifier of the device that uploaded this asset
-	DeviceID string `json:"device_id,required"`
+	DeviceID string `json:"device_id" api:"required"`
 	// When the file was created on the uploading device
-	FileCreatedAt time.Time `json:"file_created_at,required" format:"date-time"`
+	FileCreatedAt time.Time `json:"file_created_at" api:"required" format:"date-time"`
 	// When the file was last modified on the uploading device
-	FileModifiedAt time.Time `json:"file_modified_at,required" format:"date-time"`
+	FileModifiedAt time.Time `json:"file_modified_at" api:"required" format:"date-time"`
 	// When the photo/video was taken, in the device's local timezone
-	LocalDatetime time.Time `json:"local_datetime,required" format:"date-time"`
+	LocalDatetime time.Time `json:"local_datetime" api:"required" format:"date-time"`
 	// MIME type of the file (e.g., 'image/jpeg', 'video/mp4')
-	MimeType string `json:"mime_type,required"`
+	MimeType string `json:"mime_type" api:"required"`
 	// Original filename when the asset was uploaded
-	OriginalFileName string `json:"original_file_name,required"`
+	OriginalFileName string `json:"original_file_name" api:"required"`
 	// When this asset record was last updated
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Base64-encoded SHA-1 hash for Immich client compatibility. May be null for older
 	// assets.
-	ChecksumSha1 string `json:"checksum_sha1,nullable"`
+	ChecksumSha1 string `json:"checksum_sha1" api:"nullable"`
 	// If you need to download the full asset, use this URL. Otherwise, use the
 	// thumbnail_url.
-	DownloadURL string `json:"download_url,nullable"`
+	DownloadURL string `json:"download_url" api:"nullable"`
 	// EXIF metadata extracted from image and video files.
-	Exif ExifResponse `json:"exif,nullable"`
+	Exif ExifResponse `json:"exif" api:"nullable"`
 	// All faces detected in this asset
 	Faces []FaceResponse `json:"faces"`
 	// File size of the asset in bytes
@@ -237,12 +237,12 @@ type AssetResponse struct {
 	// Height of the asset in pixels
 	Height int64 `json:"height"`
 	// ML-generated quality scores and other metrics
-	Metrics map[string]float64 `json:"metrics,nullable"`
+	Metrics map[string]float64 `json:"metrics" api:"nullable"`
 	// All unique people identified in this asset (deduplicated from faces)
 	People []PersonResponse `json:"people"`
 	// Use this URL to display the asset. Never download the full asset unless you
 	// absolutely have to; prefer the thumbnail instead.
-	ThumbnailURL string `json:"thumbnail_url,nullable"`
+	ThumbnailURL string `json:"thumbnail_url" api:"nullable"`
 	// Width of the asset in pixels
 	Width int64 `json:"width"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -280,11 +280,11 @@ func (r *AssetResponse) UnmarshalJSON(data []byte) error {
 }
 
 type AssetNewParams struct {
-	AssetData      io.Reader `json:"asset_data,omitzero,required" format:"binary"`
-	DeviceAssetID  string    `json:"device_asset_id,required"`
-	DeviceID       string    `json:"device_id,required"`
-	FileCreatedAt  time.Time `json:"file_created_at,required" format:"date-time"`
-	FileModifiedAt time.Time `json:"file_modified_at,required" format:"date-time"`
+	AssetData      io.Reader `json:"asset_data,omitzero" api:"required" format:"binary"`
+	DeviceAssetID  string    `json:"device_asset_id" api:"required"`
+	DeviceID       string    `json:"device_id" api:"required"`
+	FileCreatedAt  time.Time `json:"file_created_at" api:"required" format:"date-time"`
+	FileModifiedAt time.Time `json:"file_modified_at" api:"required" format:"date-time"`
 	// Library to upload asset to (optional)
 	LibraryID param.Opt[string] `json:"library_id,omitzero"`
 	paramObj

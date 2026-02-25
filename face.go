@@ -119,21 +119,21 @@ func (r *FaceService) DownloadThumbnail(ctx context.Context, faceID string, opts
 // Represents a detected face in an asset with facial recognition data.
 type FaceResponse struct {
 	// Unique face identifier with 'face\_' prefix
-	ID string `json:"id,required"`
+	ID string `json:"id" api:"required"`
 	// ID of the asset containing this face
-	AssetID string `json:"asset_id,required"`
+	AssetID string `json:"asset_id" api:"required"`
 	// Face location as {x, y, w, h} coordinates in pixels
-	BoundingBox map[string]int64 `json:"bounding_box,required"`
+	BoundingBox map[string]int64 `json:"bounding_box" api:"required"`
 	// When this face was detected and recorded
-	CreatedAt time.Time `json:"created_at,required" format:"date-time"`
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// When this face record was last updated
-	UpdatedAt time.Time `json:"updated_at,required" format:"date-time"`
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// ID of the person this face belongs to (if identified)
-	PersonID string `json:"person_id,nullable"`
+	PersonID string `json:"person_id" api:"nullable"`
 	// URL to get a cropped thumbnail of just this face
-	ThumbnailURL string `json:"thumbnail_url,nullable"`
+	ThumbnailURL string `json:"thumbnail_url" api:"nullable"`
 	// For video files, timestamp in milliseconds when face appears
-	TimestampMs int64 `json:"timestamp_ms,nullable"`
+	TimestampMs int64 `json:"timestamp_ms" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID           respjson.Field

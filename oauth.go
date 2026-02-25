@@ -66,7 +66,7 @@ func (r *OAuthService) LogoutEndpoint(ctx context.Context, opts ...option.Reques
 
 // Response containing OAuth authorization URL
 type AuthURLResponse struct {
-	URL string `json:"url,required" format:"uri"`
+	URL string `json:"url" api:"required" format:"uri"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		URL         respjson.Field
@@ -83,9 +83,9 @@ func (r *AuthURLResponse) UnmarshalJSON(data []byte) error {
 
 // Response containing JWT and user info
 type ExchangeResponse struct {
-	AccessToken string `json:"access_token,required"`
+	AccessToken string `json:"access_token" api:"required"`
 	// User information in token exchange response
-	User ExchangeResponseUser `json:"user,required"`
+	User ExchangeResponseUser `json:"user" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		AccessToken respjson.Field
@@ -103,13 +103,13 @@ func (r *ExchangeResponse) UnmarshalJSON(data []byte) error {
 
 // User information in token exchange response
 type ExchangeResponseUser struct {
-	ID          string `json:"id,required"`
-	ClerkUserID string `json:"clerk_user_id,required"`
-	Email       string `json:"email,required"`
-	FirstName   string `json:"first_name,required"`
-	IsActive    bool   `json:"is_active,required"`
-	IsVerified  bool   `json:"is_verified,required"`
-	LastName    string `json:"last_name,required"`
+	ID          string `json:"id" api:"required"`
+	ClerkUserID string `json:"clerk_user_id" api:"required"`
+	Email       string `json:"email" api:"required"`
+	FirstName   string `json:"first_name" api:"required"`
+	IsActive    bool   `json:"is_active" api:"required"`
+	IsVerified  bool   `json:"is_verified" api:"required"`
+	LastName    string `json:"last_name" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
@@ -132,7 +132,7 @@ func (r *ExchangeResponseUser) UnmarshalJSON(data []byte) error {
 
 // Response containing OAuth provider logout endpoint
 type LogoutEndpointResponse struct {
-	LogoutEndpoint string `json:"logout_endpoint,required"`
+	LogoutEndpoint string `json:"logout_endpoint" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		LogoutEndpoint respjson.Field
@@ -150,7 +150,7 @@ func (r *LogoutEndpointResponse) UnmarshalJSON(data []byte) error {
 type OAuthAuthURLParams struct {
 	// The URI to redirect to after OAuth consent. Must match the registered redirect
 	// URI in OAuth client configuration.
-	RedirectUri string `query:"redirect_uri,required" json:"-"`
+	RedirectUri string `query:"redirect_uri" api:"required" json:"-"`
 	// PKCE code challenge derived from code_verifier. Required for public clients to
 	// prevent authorization code interception attacks.
 	CodeChallenge param.Opt[string] `query:"code_challenge,omitzero" json:"-"`

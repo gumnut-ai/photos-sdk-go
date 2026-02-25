@@ -79,7 +79,7 @@ func (r *AlbumAssetsAssociationService) Remove(ctx context.Context, albumID stri
 
 // The property AssetIDs is required.
 type AlbumAssetAssociationParam struct {
-	AssetIDs []string `json:"asset_ids,omitzero,required"`
+	AssetIDs []string `json:"asset_ids,omitzero" api:"required"`
 	paramObj
 }
 
@@ -92,8 +92,8 @@ func (r *AlbumAssetAssociationParam) UnmarshalJSON(data []byte) error {
 }
 
 type AlbumAssetsAssociationAddResponse struct {
-	AddedAssets     []string `json:"added_assets,required"`
-	DuplicateAssets []string `json:"duplicate_assets,required"`
+	AddedAssets     []string `json:"added_assets" api:"required"`
+	DuplicateAssets []string `json:"duplicate_assets" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		AddedAssets     respjson.Field

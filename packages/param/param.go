@@ -2,7 +2,7 @@ package param
 
 import (
 	"encoding/json"
-	"github.com/stainless-sdks/photos-go/internal/encoding/json/sentinel"
+	"github.com/gumnut-ai/photos-sdk-go/internal/encoding/json/sentinel"
 	"reflect"
 )
 

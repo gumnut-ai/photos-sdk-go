@@ -1,7 +1,7 @@
 package sentinel
 
 import (
-	"github.com/stainless-sdks/photos-go/internal/encoding/json/shims"
+	"github.com/gumnut-ai/photos-sdk-go/internal/encoding/json/shims"
 	"reflect"
 	"sync"
 )

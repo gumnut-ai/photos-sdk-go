@@ -1,7 +1,7 @@
 package apijson
 
 import (
-	"github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 	"reflect"
 )
 

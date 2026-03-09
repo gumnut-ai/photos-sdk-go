@@ -1,4 +1,4 @@
-module github.com/stainless-sdks/photos-go
+module github.com/gumnut-ai/photos-sdk-go
 
 go 1.22
 

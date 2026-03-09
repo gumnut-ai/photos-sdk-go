@@ -3,7 +3,7 @@ package param
 import (
 	"encoding/json"
 	"fmt"
-	shimjson "github.com/stainless-sdks/photos-go/internal/encoding/json"
+	shimjson "github.com/gumnut-ai/photos-sdk-go/internal/encoding/json"
 	"time"
 )
 

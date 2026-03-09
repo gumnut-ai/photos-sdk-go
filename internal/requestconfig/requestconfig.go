@@ -18,10 +18,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/stainless-sdks/photos-go/internal"
-	"github.com/stainless-sdks/photos-go/internal/apierror"
-	"github.com/stainless-sdks/photos-go/internal/apiform"
-	"github.com/stainless-sdks/photos-go/internal/apiquery"
+	"github.com/gumnut-ai/photos-sdk-go/internal"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apierror"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiform"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiquery"
 )
 
 func getDefaultHeaders() map[string]string {

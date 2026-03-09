@@ -120,6 +120,15 @@ func (r *AssetService) CheckExistence(ctx context.Context, params AssetCheckExis
 	return
 }
 
+// Returns asset counts grouped by time period. Supports optional filtering by
+// album, person, or date range. Results are ordered by time bucket descending.
+func (r *AssetService) Counts(ctx context.Context, query AssetCountsParams, opts ...option.RequestOption) (res *AssetCountResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "api/assets/counts"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return
+}
+
 // Downloads the original file for a specific asset.
 func (r *AssetService) Download(ctx context.Context, assetID string, opts ...option.RequestOption) (res *http.Response, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -145,6 +154,44 @@ func (r *AssetService) DownloadThumbnail(ctx context.Context, assetID string, qu
 	path := fmt.Sprintf("api/assets/%s/thumbnail", assetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
+}
+
+type AssetCountResponse struct {
+	Data    []AssetCountResponseData `json:"data" api:"required"`
+	HasMore bool                     `json:"has_more" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		HasMore     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AssetCountResponse) RawJSON() string { return r.JSON.raw }
+func (r *AssetCountResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type AssetCountResponseData struct {
+	// Number of assets in this time period
+	Count int64 `json:"count" api:"required"`
+	// Start of the time period
+	TimeBucket time.Time `json:"time_bucket" api:"required" format:"date-time"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Count       respjson.Field
+		TimeBucket  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AssetCountResponseData) RawJSON() string { return r.JSON.raw }
+func (r *AssetCountResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // Response for asset existence check endpoint.
@@ -367,6 +414,38 @@ func (r *AssetCheckExistenceParams) UnmarshalJSON(data []byte) error {
 // URLQuery serializes [AssetCheckExistenceParams]'s query parameters as
 // `url.Values`.
 func (r AssetCheckExistenceParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type AssetCountsParams struct {
+	// Filter by assets in a specific album
+	AlbumID param.Opt[string] `query:"album_id,omitzero" json:"-"`
+	// Library to count assets in (optional)
+	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
+	// Only include assets with local_datetime after this value (ISO 8601). Naive
+	// values compare directly against local_datetime; timezone-aware values are
+	// converted to UTC and compared against local_datetime adjusted by its stored
+	// offset.
+	LocalDatetimeAfter param.Opt[time.Time] `query:"local_datetime_after,omitzero" format:"date-time" json:"-"`
+	// Only include assets with local_datetime before this value (ISO 8601). Naive
+	// values compare directly against local_datetime; timezone-aware values are
+	// converted to UTC and compared against local_datetime adjusted by its stored
+	// offset. Use the last time_bucket from a previous response to paginate.
+	LocalDatetimeBefore param.Opt[time.Time] `query:"local_datetime_before,omitzero" format:"date-time" json:"-"`
+	// Filter by assets associated with a specific person ID
+	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
+	// Time period to group counts by. Currently only 'month' is supported.
+	GroupBy param.Opt[string] `query:"group_by,omitzero" json:"-"`
+	// Maximum number of time buckets to return
+	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [AssetCountsParams]'s query parameters as `url.Values`.
+func (r AssetCountsParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

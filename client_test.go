@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/photos-go"
-	"github.com/stainless-sdks/photos-go/internal"
-	"github.com/stainless-sdks/photos-go/option"
+	"github.com/gumnut-ai/photos-sdk-go"
+	"github.com/gumnut-ai/photos-sdk-go/internal"
+	"github.com/gumnut-ai/photos-sdk-go/option"
 )
 
 type closureTransport struct {

@@ -41,7 +41,7 @@ To use a local version of this library from source in another project, edit the 
 directive. This can be done through the CLI with the following:
 
 ```sh
-$ go mod edit -replace github.com/stainless-sdks/photos-go=/path/to/photos-go
+$ go mod edit -replace github.com/gumnut-ai/photos-sdk-go=/path/to/photos-sdk-go
 ```
 
 ## Running tests

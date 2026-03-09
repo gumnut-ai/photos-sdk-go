@@ -13,9 +13,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/photos-go"
-	"github.com/stainless-sdks/photos-go/internal/testutil"
-	"github.com/stainless-sdks/photos-go/option"
+	"github.com/gumnut-ai/photos-sdk-go"
+	"github.com/gumnut-ai/photos-sdk-go/internal/testutil"
+	"github.com/gumnut-ai/photos-sdk-go/option"
 )
 
 func TestAssetNewWithOptionalParams(t *testing.T) {

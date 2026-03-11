@@ -38,7 +38,7 @@ func TestUserAgentHeader(t *testing.T) {
 			},
 		}),
 	)
-	client.Albums.New(context.Background(), photos.AlbumNewParams{})
+	_, _ = client.Albums.New(context.Background(), photos.AlbumNewParams{})
 	if userAgent != fmt.Sprintf("Gumnut/Go %s", internal.PackageVersion) {
 		t.Errorf("Expected User-Agent to be correct, but got: %#v", userAgent)
 	}

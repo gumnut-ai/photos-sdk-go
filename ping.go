@@ -36,5 +36,5 @@ func (r *PingService) Get(ctx context.Context, opts ...option.RequestOption) (re
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "text/plain")}, opts...)
 	path := "api/server/ping"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }

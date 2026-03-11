@@ -69,11 +69,11 @@ func (r *AlbumAssetService) Get(ctx context.Context, albumAssetID string, opts .
 	opts = slices.Concat(r.Options, opts)
 	if albumAssetID == "" {
 		err = errors.New("missing required album_asset_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/album-assets/%s", albumAssetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Represents a link between an album and an asset.

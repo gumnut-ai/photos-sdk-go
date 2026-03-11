@@ -51,7 +51,7 @@ func (r *AssetService) New(ctx context.Context, body AssetNewParams, opts ...opt
 	opts = slices.Concat(r.Options, opts)
 	path := "api/assets"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Retrieves detailed metadata for a specific asset, including EXIF information,
@@ -60,11 +60,11 @@ func (r *AssetService) Get(ctx context.Context, assetID string, opts ...option.R
 	opts = slices.Concat(r.Options, opts)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/assets/%s", assetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Retrieves a paginated list of assets from the specified library, optionally
@@ -103,11 +103,11 @@ func (r *AssetService) Delete(ctx context.Context, assetID string, opts ...optio
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("api/assets/%s", assetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Checks which assets exist in the user's library based on checksums or device
@@ -117,7 +117,7 @@ func (r *AssetService) CheckExistence(ctx context.Context, params AssetCheckExis
 	opts = slices.Concat(r.Options, opts)
 	path := "api/assets/exist"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // Returns asset counts grouped by time period. Supports optional filtering by
@@ -126,7 +126,7 @@ func (r *AssetService) Counts(ctx context.Context, query AssetCountsParams, opts
 	opts = slices.Concat(r.Options, opts)
 	path := "api/assets/counts"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
 }
 
 // Downloads the original file for a specific asset.
@@ -135,11 +135,11 @@ func (r *AssetService) Download(ctx context.Context, assetID string, opts ...opt
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/assets/%s/download", assetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Downloads a thumbnail for a specific asset. The exact thumbnail returned depends
@@ -149,11 +149,11 @@ func (r *AssetService) DownloadThumbnail(ctx context.Context, assetID string, qu
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/assets/%s/thumbnail", assetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
 }
 
 type AssetCountResponse struct {

@@ -41,7 +41,7 @@ func (r *LibraryService) New(ctx context.Context, body LibraryNewParams, opts ..
 	opts = slices.Concat(r.Options, opts)
 	path := "api/libraries"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Returns details of a specific library owned by the authenticated user.
@@ -49,11 +49,11 @@ func (r *LibraryService) Get(ctx context.Context, libraryID string, opts ...opti
 	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
 		err = errors.New("missing required library_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/libraries/%s", libraryID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Updates the name and/or description of a library owned by the authenticated
@@ -62,11 +62,11 @@ func (r *LibraryService) Update(ctx context.Context, libraryID string, body Libr
 	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
 		err = errors.New("missing required library_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/libraries/%s", libraryID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Returns all libraries owned by the authenticated user.
@@ -74,7 +74,7 @@ func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption)
 	opts = slices.Concat(r.Options, opts)
 	path := "api/libraries"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Deletes a library and all its associated data (assets, albums, people, faces).
@@ -84,11 +84,11 @@ func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...o
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if libraryID == "" {
 		err = errors.New("missing required library_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("api/libraries/%s", libraryID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Represents a user's photo library.

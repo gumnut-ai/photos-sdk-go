@@ -47,7 +47,7 @@ func (r *SearchService) Search(ctx context.Context, query SearchSearchParams, op
 	opts = slices.Concat(r.Options, opts)
 	path := "api/search"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
 }
 
 // Searches for assets using semantic similarity and/or metadata filters. Results
@@ -57,7 +57,7 @@ func (r *SearchService) SearchAssets(ctx context.Context, body SearchSearchAsset
 	opts = slices.Concat(r.Options, opts)
 	path := "api/search"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 type SearchResponse struct {

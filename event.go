@@ -74,7 +74,7 @@ func (r *EventService) Get(ctx context.Context, query EventGetParams, opts ...op
 	opts = slices.Concat(r.Options, opts)
 	path := "api/events"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
 }
 
 // Response containing a page of events.

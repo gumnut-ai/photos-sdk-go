@@ -38,7 +38,7 @@ func (r *UserService) Me(ctx context.Context, opts ...option.RequestOption) (res
 	opts = slices.Concat(r.Options, opts)
 	path := "api/users/me"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Represents a user account with profile information.

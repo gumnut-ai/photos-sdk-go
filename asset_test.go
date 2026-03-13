@@ -13,9 +13,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stainless-sdks/photos-go"
-	"github.com/stainless-sdks/photos-go/internal/testutil"
-	"github.com/stainless-sdks/photos-go/option"
+	"github.com/gumnut-ai/photos-sdk-go"
+	"github.com/gumnut-ai/photos-sdk-go/internal/testutil"
+	"github.com/gumnut-ai/photos-sdk-go/option"
 )
 
 func TestAssetNewWithOptionalParams(t *testing.T) {
@@ -145,6 +145,37 @@ func TestAssetCheckExistenceWithOptionalParams(t *testing.T) {
 		Checksums:      []string{"string"},
 		DeviceAssetIDs: []string{"string"},
 		DeviceID:       photos.String("deviceId"),
+	})
+	if err != nil {
+		var apierr *photos.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestAssetCountsWithOptionalParams(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := photos.NewClient(
+		option.WithBaseURL(baseURL),
+		option.WithAPIKey("My API Key"),
+	)
+	_, err := client.Assets.Counts(context.TODO(), photos.AssetCountsParams{
+		AlbumID:             photos.String("album_id"),
+		GroupBy:             photos.String("group_by"),
+		LibraryID:           photos.String("library_id"),
+		Limit:               photos.Int(1),
+		LocalDatetimeAfter:  photos.Time(time.Now()),
+		LocalDatetimeBefore: photos.Time(time.Now()),
+		PersonID:            photos.String("person_id"),
 	})
 	if err != nil {
 		var apierr *photos.Error

@@ -3,8 +3,8 @@ package respjson_test
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/stainless-sdks/photos-go/internal/apijson"
-	rj "github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	rj "github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 	"reflect"
 	"testing"
 )

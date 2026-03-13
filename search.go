@@ -12,13 +12,13 @@ import (
 	"slices"
 	"time"
 
-	"github.com/stainless-sdks/photos-go/internal/apiform"
-	"github.com/stainless-sdks/photos-go/internal/apijson"
-	"github.com/stainless-sdks/photos-go/internal/apiquery"
-	"github.com/stainless-sdks/photos-go/internal/requestconfig"
-	"github.com/stainless-sdks/photos-go/option"
-	"github.com/stainless-sdks/photos-go/packages/param"
-	"github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiform"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiquery"
+	"github.com/gumnut-ai/photos-sdk-go/internal/requestconfig"
+	"github.com/gumnut-ai/photos-sdk-go/option"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 )
 
 // SearchService contains methods and other services that help with interacting
@@ -47,7 +47,7 @@ func (r *SearchService) Search(ctx context.Context, query SearchSearchParams, op
 	opts = slices.Concat(r.Options, opts)
 	path := "api/search"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
 }
 
 // Searches for assets using semantic similarity and/or metadata filters. Results
@@ -57,7 +57,7 @@ func (r *SearchService) SearchAssets(ctx context.Context, body SearchSearchAsset
 	opts = slices.Concat(r.Options, opts)
 	path := "api/search"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 type SearchResponse struct {

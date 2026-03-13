@@ -3,8 +3,8 @@
 package photos
 
 import (
-	"github.com/stainless-sdks/photos-go/internal/apierror"
-	"github.com/stainless-sdks/photos-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apierror"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
 )
 
 // aliased to make [param.APIUnion] private when embedding

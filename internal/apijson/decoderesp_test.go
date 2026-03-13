@@ -2,8 +2,8 @@ package apijson_test
 
 import (
 	"encoding/json"
-	"github.com/stainless-sdks/photos-go/internal/apijson"
-	"github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 	"testing"
 )
 

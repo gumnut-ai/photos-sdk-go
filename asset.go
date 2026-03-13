@@ -14,14 +14,14 @@ import (
 	"slices"
 	"time"
 
-	"github.com/stainless-sdks/photos-go/internal/apiform"
-	"github.com/stainless-sdks/photos-go/internal/apijson"
-	"github.com/stainless-sdks/photos-go/internal/apiquery"
-	"github.com/stainless-sdks/photos-go/internal/requestconfig"
-	"github.com/stainless-sdks/photos-go/option"
-	"github.com/stainless-sdks/photos-go/packages/pagination"
-	"github.com/stainless-sdks/photos-go/packages/param"
-	"github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiform"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiquery"
+	"github.com/gumnut-ai/photos-sdk-go/internal/requestconfig"
+	"github.com/gumnut-ai/photos-sdk-go/option"
+	"github.com/gumnut-ai/photos-sdk-go/packages/pagination"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 )
 
 // AssetService contains methods and other services that help with interacting with
@@ -51,7 +51,7 @@ func (r *AssetService) New(ctx context.Context, body AssetNewParams, opts ...opt
 	opts = slices.Concat(r.Options, opts)
 	path := "api/assets"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Retrieves detailed metadata for a specific asset, including EXIF information,
@@ -60,11 +60,11 @@ func (r *AssetService) Get(ctx context.Context, assetID string, opts ...option.R
 	opts = slices.Concat(r.Options, opts)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/assets/%s", assetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Retrieves a paginated list of assets from the specified library, optionally
@@ -103,11 +103,11 @@ func (r *AssetService) Delete(ctx context.Context, assetID string, opts ...optio
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("api/assets/%s", assetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Checks which assets exist in the user's library based on checksums or device
@@ -117,7 +117,16 @@ func (r *AssetService) CheckExistence(ctx context.Context, params AssetCheckExis
 	opts = slices.Concat(r.Options, opts)
 	path := "api/assets/exist"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
-	return
+	return res, err
+}
+
+// Returns asset counts grouped by time period. Supports optional filtering by
+// album, person, or date range. Results are ordered by time bucket descending.
+func (r *AssetService) Counts(ctx context.Context, query AssetCountsParams, opts ...option.RequestOption) (res *AssetCountResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "api/assets/counts"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return res, err
 }
 
 // Downloads the original file for a specific asset.
@@ -126,11 +135,11 @@ func (r *AssetService) Download(ctx context.Context, assetID string, opts ...opt
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/assets/%s/download", assetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Downloads a thumbnail for a specific asset. The exact thumbnail returned depends
@@ -140,11 +149,49 @@ func (r *AssetService) DownloadThumbnail(ctx context.Context, assetID string, qu
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/assets/%s/thumbnail", assetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
+}
+
+type AssetCountResponse struct {
+	Data    []AssetCountResponseData `json:"data" api:"required"`
+	HasMore bool                     `json:"has_more" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Data        respjson.Field
+		HasMore     respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AssetCountResponse) RawJSON() string { return r.JSON.raw }
+func (r *AssetCountResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+type AssetCountResponseData struct {
+	// Number of assets in this time period
+	Count int64 `json:"count" api:"required"`
+	// Start of the time period
+	TimeBucket time.Time `json:"time_bucket" api:"required" format:"date-time"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Count       respjson.Field
+		TimeBucket  respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AssetCountResponseData) RawJSON() string { return r.JSON.raw }
+func (r *AssetCountResponseData) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }
 
 // Response for asset existence check endpoint.
@@ -367,6 +414,38 @@ func (r *AssetCheckExistenceParams) UnmarshalJSON(data []byte) error {
 // URLQuery serializes [AssetCheckExistenceParams]'s query parameters as
 // `url.Values`.
 func (r AssetCheckExistenceParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type AssetCountsParams struct {
+	// Filter by assets in a specific album
+	AlbumID param.Opt[string] `query:"album_id,omitzero" json:"-"`
+	// Library to count assets in (optional)
+	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
+	// Only include assets with local_datetime after this value (ISO 8601). Naive
+	// values compare directly against local_datetime; timezone-aware values are
+	// converted to UTC and compared against local_datetime adjusted by its stored
+	// offset.
+	LocalDatetimeAfter param.Opt[time.Time] `query:"local_datetime_after,omitzero" format:"date-time" json:"-"`
+	// Only include assets with local_datetime before this value (ISO 8601). Naive
+	// values compare directly against local_datetime; timezone-aware values are
+	// converted to UTC and compared against local_datetime adjusted by its stored
+	// offset. Use the last time_bucket from a previous response to paginate.
+	LocalDatetimeBefore param.Opt[time.Time] `query:"local_datetime_before,omitzero" format:"date-time" json:"-"`
+	// Filter by assets associated with a specific person ID
+	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
+	// Time period to group counts by. Currently only 'month' is supported.
+	GroupBy param.Opt[string] `query:"group_by,omitzero" json:"-"`
+	// Maximum number of time buckets to return
+	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [AssetCountsParams]'s query parameters as `url.Values`.
+func (r AssetCountsParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

@@ -10,12 +10,12 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/stainless-sdks/photos-go/internal/apijson"
-	shimjson "github.com/stainless-sdks/photos-go/internal/encoding/json"
-	"github.com/stainless-sdks/photos-go/internal/requestconfig"
-	"github.com/stainless-sdks/photos-go/option"
-	"github.com/stainless-sdks/photos-go/packages/param"
-	"github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	shimjson "github.com/gumnut-ai/photos-sdk-go/internal/encoding/json"
+	"github.com/gumnut-ai/photos-sdk-go/internal/requestconfig"
+	"github.com/gumnut-ai/photos-sdk-go/option"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 )
 
 // AlbumAssetsAssociationService contains methods and other services that help with
@@ -43,11 +43,11 @@ func (r *AlbumAssetsAssociationService) List(ctx context.Context, albumID string
 	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/albums/%s/assets", albumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Adds one or more existing assets to a specific album. Assets must be in the same
@@ -56,11 +56,11 @@ func (r *AlbumAssetsAssociationService) Add(ctx context.Context, albumID string,
 	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/albums/%s/assets", albumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Removes one or more assets from a specific album. Note: This does not delete the
@@ -70,11 +70,11 @@ func (r *AlbumAssetsAssociationService) Remove(ctx context.Context, albumID stri
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("api/albums/%s/assets", albumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, nil, opts...)
-	return
+	return err
 }
 
 // The property AssetIDs is required.

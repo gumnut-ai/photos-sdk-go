@@ -7,12 +7,13 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stainless-sdks/photos-go"
-	"github.com/stainless-sdks/photos-go/internal/testutil"
-	"github.com/stainless-sdks/photos-go/option"
+	"github.com/gumnut-ai/photos-sdk-go"
+	"github.com/gumnut-ai/photos-sdk-go/internal/testutil"
+	"github.com/gumnut-ai/photos-sdk-go/option"
 )
 
 func TestUsage(t *testing.T) {
+	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
 		baseURL = envURL
@@ -24,7 +25,6 @@ func TestUsage(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	t.Skip("Mock server tests are disabled")
 	albumResponse, err := client.Albums.New(context.TODO(), photos.AlbumNewParams{})
 	if err != nil {
 		t.Fatalf("err should be nil: %s", err.Error())

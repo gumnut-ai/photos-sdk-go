@@ -11,13 +11,13 @@ import (
 	"slices"
 	"time"
 
-	"github.com/stainless-sdks/photos-go/internal/apijson"
-	"github.com/stainless-sdks/photos-go/internal/apiquery"
-	"github.com/stainless-sdks/photos-go/internal/requestconfig"
-	"github.com/stainless-sdks/photos-go/option"
-	"github.com/stainless-sdks/photos-go/packages/pagination"
-	"github.com/stainless-sdks/photos-go/packages/param"
-	"github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiquery"
+	"github.com/gumnut-ai/photos-sdk-go/internal/requestconfig"
+	"github.com/gumnut-ai/photos-sdk-go/option"
+	"github.com/gumnut-ai/photos-sdk-go/packages/pagination"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 )
 
 // FaceService contains methods and other services that help with interacting with
@@ -44,11 +44,11 @@ func (r *FaceService) Get(ctx context.Context, faceID string, query FaceGetParam
 	opts = slices.Concat(r.Options, opts)
 	if faceID == "" {
 		err = errors.New("missing required face_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/faces/%s", faceID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
+	return res, err
 }
 
 // Updates the details of a specific face, currently only supporting
@@ -57,11 +57,11 @@ func (r *FaceService) Update(ctx context.Context, faceID string, params FaceUpda
 	opts = slices.Concat(r.Options, opts)
 	if faceID == "" {
 		err = errors.New("missing required face_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/faces/%s", faceID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
-	return
+	return res, err
 }
 
 // Retrieves a paginated list of faces, optionally filtered by asset, person, or
@@ -96,11 +96,11 @@ func (r *FaceService) Delete(ctx context.Context, faceID string, body FaceDelete
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if faceID == "" {
 		err = errors.New("missing required face_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("api/faces/%s", faceID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, nil, opts...)
-	return
+	return err
 }
 
 // Retrieves a thumbnail for a specific face.
@@ -109,11 +109,11 @@ func (r *FaceService) DownloadThumbnail(ctx context.Context, faceID string, opts
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
 	if faceID == "" {
 		err = errors.New("missing required face_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/faces/%s/thumbnail", faceID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Represents a detected face in an asset with facial recognition data.

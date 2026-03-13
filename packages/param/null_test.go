@@ -2,7 +2,7 @@ package param_test
 
 import (
 	"encoding/json"
-	"github.com/stainless-sdks/photos-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
 	"testing"
 )
 

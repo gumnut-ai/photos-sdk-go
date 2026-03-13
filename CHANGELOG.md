@@ -1,0 +1,98 @@
+# Changelog
+
+## 0.1.0 (2026-03-11)
+
+Full Changelog: [v0.0.1...v0.1.0](https://github.com/gumnut-ai/photos-sdk-go/compare/v0.0.1...v0.1.0)
+
+### Features
+
+* **api:** add events endpoint ([3fa8c4e](https://github.com/gumnut-ai/photos-sdk-go/commit/3fa8c4e81f29b7653dc1f449762ae6aad016eb06))
+* **api:** add ExifResponse ([37fcec0](https://github.com/gumnut-ai/photos-sdk-go/commit/37fcec089aa3810767196043e6cf241e8a8aa6e3))
+* **api:** add POST endpoint for /api/search ([8b08cb5](https://github.com/gumnut-ai/photos-sdk-go/commit/8b08cb5368a39b343be762bc4cf15186be3fdfe8))
+* **api:** added /api/assets/counts ([23c05d8](https://github.com/gumnut-ai/photos-sdk-go/commit/23c05d83489560f3f512af1e43def1de9cf4f851))
+* **api:** api update ([30b7b52](https://github.com/gumnut-ai/photos-sdk-go/commit/30b7b522a3da2b29fa2514a9a9e7aee3d74ef057))
+* **api:** api update ([9b43c8a](https://github.com/gumnut-ai/photos-sdk-go/commit/9b43c8a83acedd35911c09954f85d0bfece92663))
+* **api:** api update ([8d1730c](https://github.com/gumnut-ai/photos-sdk-go/commit/8d1730c0134443e3ea15ee13dd2ad075b985908e))
+* **api:** api update ([a426fd7](https://github.com/gumnut-ai/photos-sdk-go/commit/a426fd7fa7d109b33c11c1a01f577c919ff4ea7c))
+* **api:** api update ([c9d6845](https://github.com/gumnut-ai/photos-sdk-go/commit/c9d6845c8a2064f683a3dffb3a7b63256d2cd45c))
+* **api:** api update ([6aa53ac](https://github.com/gumnut-ai/photos-sdk-go/commit/6aa53acd1f5fc1af884c0fe0b4803b3ea38467c2))
+* **api:** api update ([687d42b](https://github.com/gumnut-ai/photos-sdk-go/commit/687d42b2fa5a78fb49692d8035c4c1d374872c71))
+* **api:** api update ([c3e9acc](https://github.com/gumnut-ai/photos-sdk-go/commit/c3e9acc43a82ac51db9efad26b37ba9d9dc5f972))
+* **api:** api update ([43eea2b](https://github.com/gumnut-ai/photos-sdk-go/commit/43eea2b4b40af8cddd9af51905515bd4de0ff49e))
+* **api:** api update ([779a480](https://github.com/gumnut-ai/photos-sdk-go/commit/779a480c52f103475fff2784be745f58d510aeca))
+* **api:** api update ([a3f55de](https://github.com/gumnut-ai/photos-sdk-go/commit/a3f55de23c9f66f8e557cccf9cd2a2aee20c6c6f))
+* **api:** api update ([44b6d12](https://github.com/gumnut-ai/photos-sdk-go/commit/44b6d1267476abba42c233081d6b18555033411f))
+* **api:** api update ([59049a3](https://github.com/gumnut-ai/photos-sdk-go/commit/59049a34bba1a458d0f1aed937c5958ca04b18ae))
+* **api:** api update ([1dd4cbf](https://github.com/gumnut-ai/photos-sdk-go/commit/1dd4cbf579da51237af45bc4373f276f385812b4))
+* **api:** api update ([147c899](https://github.com/gumnut-ai/photos-sdk-go/commit/147c899798b4d5f240050bf37575e5e9c1f914a9))
+* **api:** api update ([a5ec5be](https://github.com/gumnut-ai/photos-sdk-go/commit/a5ec5bef6dbef20d31ef0a26baab7422cf2c3525))
+* **api:** api update ([a5c4533](https://github.com/gumnut-ai/photos-sdk-go/commit/a5c4533fe40feb93c728c911a4f5e1380c021a10))
+* **api:** dedicated album_assets endpoint with pagination ([5343acf](https://github.com/gumnut-ai/photos-sdk-go/commit/5343acf3dccac093b93cea8089c433afd6ba523b))
+* **api:** manual updates ([b8a1d65](https://github.com/gumnut-ai/photos-sdk-go/commit/b8a1d6590358c4f15166c9d1b9a1aa5ea8c99753))
+* **api:** manual updates ([162994a](https://github.com/gumnut-ai/photos-sdk-go/commit/162994a8724c5c246d5fcbcb6b703b0e69527313))
+* **api:** manual updates ([d76e8d1](https://github.com/gumnut-ai/photos-sdk-go/commit/d76e8d17ae5d97d89923fe954f395f76c691c779))
+* **api:** manual updates ([8486e89](https://github.com/gumnut-ai/photos-sdk-go/commit/8486e893bde6fdc62f81e0a17f502c842643244f))
+* **api:** manual updates ([3e3e8a2](https://github.com/gumnut-ai/photos-sdk-go/commit/3e3e8a2645c4d337c65bbd288afd53553764034a))
+* **api:** manual updates ([f65bb25](https://github.com/gumnut-ai/photos-sdk-go/commit/f65bb259f675c958a1e1ecad180629093e197b15))
+* **api:** manual updates ([0e6b262](https://github.com/gumnut-ai/photos-sdk-go/commit/0e6b2628c4ac1fb7b12f4c7b5e40a7000d789dcd))
+* **api:** manual updates ([4335721](https://github.com/gumnut-ai/photos-sdk-go/commit/433572153ab0221968fa840ff4de275b3f2a5409))
+* **api:** manual updates ([837ba64](https://github.com/gumnut-ai/photos-sdk-go/commit/837ba6468628aaee7165053b579d2d4b726ed85a))
+* **api:** manual updates ([c7c1c3f](https://github.com/gumnut-ai/photos-sdk-go/commit/c7c1c3f6b84495ee009bc8ac4d885faeb95e7c57))
+* **api:** manual updates ([24db49f](https://github.com/gumnut-ai/photos-sdk-go/commit/24db49fc49d9a21c08eaef13f372715098c75f32))
+* **api:** manual updates ([eec502d](https://github.com/gumnut-ai/photos-sdk-go/commit/eec502d323d27c78384b43bb599bbc87a877da68))
+* **api:** manual updates ([de083de](https://github.com/gumnut-ai/photos-sdk-go/commit/de083de3d1313f7fa190d3bd8bdb828007f744a5))
+* **api:** manual updates ([498f77c](https://github.com/gumnut-ai/photos-sdk-go/commit/498f77cb5d8d6731e769c8084376cefc5d53a02c))
+* **api:** new events ([10a1755](https://github.com/gumnut-ai/photos-sdk-go/commit/10a1755e5cb79ff14c897c6250b3f4bb72ce10b0))
+* **api:** remove events v2 ([4a46ef2](https://github.com/gumnut-ai/photos-sdk-go/commit/4a46ef2a3e2022c27e9185fc2f4ce27270fb50e7))
+* **api:** remove mcp server ([2599c3c](https://github.com/gumnut-ai/photos-sdk-go/commit/2599c3c58f59693a5bd1a66c6737b44f90ae4540))
+* **client:** add a convenient param.SetJSON helper ([351770b](https://github.com/gumnut-ai/photos-sdk-go/commit/351770bd2cc33774138d92fea62d979db7e45e25))
+* **encoder:** support bracket encoding form-data object members ([f9afa35](https://github.com/gumnut-ai/photos-sdk-go/commit/f9afa3569c5c48a24c26ace80b85437ca87252d2))
+
+
+### Bug Fixes
+
+* allow canceling a request while it is waiting to retry ([f323a64](https://github.com/gumnut-ai/photos-sdk-go/commit/f323a6495784a6dec26055255f5915c3c5767b44))
+* bugfix for setting JSON keys with special characters ([b6570e4](https://github.com/gumnut-ai/photos-sdk-go/commit/b6570e407315cf3b0961813eb191a85d5bbdce72))
+* **client:** correctly specify Accept header with */* instead of empty ([6778d95](https://github.com/gumnut-ai/photos-sdk-go/commit/6778d951090f5b4322e2bb0de1f1164ffdfd411f))
+* close body before retrying ([f1b65cb](https://github.com/gumnut-ai/photos-sdk-go/commit/f1b65cb5b8aa9b345d1b8b11e53064f023928965))
+* **docs:** add missing pointer prefix to api.md return types ([08881ac](https://github.com/gumnut-ai/photos-sdk-go/commit/08881ac5d3f0d41571f80627bc2066b9559fe5fe))
+* **docs:** fix mcp installation instructions for remote servers ([9f84642](https://github.com/gumnut-ai/photos-sdk-go/commit/9f84642bc23eabe71ee62da5bd235e8a8d998763))
+* **encoder:** correctly serialize NullStruct ([d77f753](https://github.com/gumnut-ai/photos-sdk-go/commit/d77f7532f68d49a92e1276834e2009e3ffe6771e))
+* **internal:** skip tests that depend on mock server ([980cda4](https://github.com/gumnut-ai/photos-sdk-go/commit/980cda4fd9e230499d63b3fa53cf23a1eb012d29))
+* **internal:** unmarshal correctly when there are multiple discriminators ([3bbc720](https://github.com/gumnut-ai/photos-sdk-go/commit/3bbc720aff445a0ff5b00289e425645f6bfafe41))
+* **mcp:** correct code tool API endpoint ([85f4a2b](https://github.com/gumnut-ai/photos-sdk-go/commit/85f4a2b3d810f6fbc8d0872a76859821c69b392d))
+* rename param to avoid collision ([88b0c0d](https://github.com/gumnut-ai/photos-sdk-go/commit/88b0c0d7e20d4c98ef8625e20204e28f7ad3c3f0))
+* skip usage tests that don't work with Prism ([694b066](https://github.com/gumnut-ai/photos-sdk-go/commit/694b06631c53bed2aeab4700741a7faab5bafc0c))
+* use slices.Concat instead of sometimes modifying r.Options ([45f9e2b](https://github.com/gumnut-ai/photos-sdk-go/commit/45f9e2b5af390f21e123f2df9d6c22d40a9f8a6a))
+
+
+### Chores
+
+* add float64 to valid types for RegisterFieldValidator ([bfdcacc](https://github.com/gumnut-ai/photos-sdk-go/commit/bfdcaccc9e863b3079eade9802afd82dab40c95f))
+* bump gjson version ([6bd714c](https://github.com/gumnut-ai/photos-sdk-go/commit/6bd714c3b6e86c86c65c0cf63925367e5dc17394))
+* bump minimum go version to 1.22 ([9323c8d](https://github.com/gumnut-ai/photos-sdk-go/commit/9323c8dad9f7222d795b6956bb45b09b75a02d69))
+* **ci:** skip uploading artifacts on stainless-internal branches ([3d9206d](https://github.com/gumnut-ai/photos-sdk-go/commit/3d9206dd24879c4ee9c5ac1e81cd573b7587e56d))
+* configure new SDK language ([d768938](https://github.com/gumnut-ai/photos-sdk-go/commit/d7689385340a81b714ec98ffb4adfe8fbbb3bbed))
+* do not install brew dependencies in ./scripts/bootstrap by default ([c6631dd](https://github.com/gumnut-ai/photos-sdk-go/commit/c6631dd75c942dfa986bddc15aad7a4f6e2f6103))
+* elide duplicate aliases ([9001fbe](https://github.com/gumnut-ai/photos-sdk-go/commit/9001fbed9d018576b69ee84dce275b1eada3cf5f))
+* **internal:** codegen related update ([151fce7](https://github.com/gumnut-ai/photos-sdk-go/commit/151fce7c145a0182f8b954c6a84f35edb0f1738f))
+* **internal:** codegen related update ([886a81f](https://github.com/gumnut-ai/photos-sdk-go/commit/886a81fb962d7eeda2b9448dee1aa81a2e940326))
+* **internal:** codegen related update ([2ba9a4e](https://github.com/gumnut-ai/photos-sdk-go/commit/2ba9a4ee28a201f74d74406b5786424c285f6a5b))
+* **internal:** codegen related update ([2e23b5d](https://github.com/gumnut-ai/photos-sdk-go/commit/2e23b5d2e77234c400c54dbfc7c8b7842d877122))
+* **internal:** codegen related update ([e982246](https://github.com/gumnut-ai/photos-sdk-go/commit/e98224625d426e9a8bb7229133c9828a90b7197e))
+* **internal:** grammar fix (it's -&gt; its) ([291994b](https://github.com/gumnut-ai/photos-sdk-go/commit/291994bb2234ecad5b60979a1482e0189473848d))
+* **internal:** minor cleanup ([97840e4](https://github.com/gumnut-ai/photos-sdk-go/commit/97840e451548ba8674875f9f54d9c5767c363d88))
+* **internal:** move custom custom `json` tags to `api` ([cc009d2](https://github.com/gumnut-ai/photos-sdk-go/commit/cc009d21883aaee9203d9ae6e8b7c698bbe2e8e9))
+* **internal:** remove mock server code ([fb0fb1b](https://github.com/gumnut-ai/photos-sdk-go/commit/fb0fb1bfc1ccd5a6c89f8adbb74317827dc16009))
+* **internal:** update `actions/checkout` version ([d4ac368](https://github.com/gumnut-ai/photos-sdk-go/commit/d4ac368863354f601831f37e905418df9eccf8fc))
+* **internal:** use explicit returns ([7aba321](https://github.com/gumnut-ai/photos-sdk-go/commit/7aba3219f98d7072a5ed4dd8c269752fac153fd8))
+* **internal:** use explicit returns in more places ([96ab2bb](https://github.com/gumnut-ai/photos-sdk-go/commit/96ab2bbcba27829a7b62edfccbd207765aa9bae2))
+* update mock server docs ([2f143a3](https://github.com/gumnut-ai/photos-sdk-go/commit/2f143a31c2f489e1c9a70930e8730326a16ba698))
+* update more docs for 1.22 ([9747052](https://github.com/gumnut-ai/photos-sdk-go/commit/9747052df580eb6a5d9a769df68a4b4c6021f4be))
+* update placeholder string ([1c6e8d1](https://github.com/gumnut-ai/photos-sdk-go/commit/1c6e8d12f9974d1fcd6f8ecfc95533ad7fea83ca))
+* update SDK settings ([0643449](https://github.com/gumnut-ai/photos-sdk-go/commit/06434499e4280f3cd54de168558d0398da07e39c))
+
+
+### Documentation
+
+* prominently feature MCP server setup in root SDK readmes ([abadbf9](https://github.com/gumnut-ai/photos-sdk-go/commit/abadbf9a198081456e17f5e999c4df1a60826d75))

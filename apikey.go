@@ -10,11 +10,11 @@ import (
 	"slices"
 	"time"
 
-	"github.com/stainless-sdks/photos-go/internal/apijson"
-	"github.com/stainless-sdks/photos-go/internal/requestconfig"
-	"github.com/stainless-sdks/photos-go/option"
-	"github.com/stainless-sdks/photos-go/packages/param"
-	"github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/requestconfig"
+	"github.com/gumnut-ai/photos-sdk-go/option"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 )
 
 // APIKeyService contains methods and other services that help with interacting
@@ -41,7 +41,7 @@ func (r *APIKeyService) New(ctx context.Context, body APIKeyNewParams, opts ...o
 	opts = slices.Concat(r.Options, opts)
 	path := "api-keys/"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Updates the name of a specific API key
@@ -49,11 +49,11 @@ func (r *APIKeyService) Update(ctx context.Context, keyID string, body APIKeyUpd
 	opts = slices.Concat(r.Options, opts)
 	if keyID == "" {
 		err = errors.New("missing required key_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api-keys/%s", keyID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Retrieves a list of all API keys for the current user
@@ -61,7 +61,7 @@ func (r *APIKeyService) List(ctx context.Context, opts ...option.RequestOption) 
 	opts = slices.Concat(r.Options, opts)
 	path := "api-keys/"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Deletes a specific API key
@@ -70,11 +70,11 @@ func (r *APIKeyService) Delete(ctx context.Context, keyID string, opts ...option
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if keyID == "" {
 		err = errors.New("missing required key_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("api-keys/%s", keyID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Represents an API key for authentication (without exposing the actual key).

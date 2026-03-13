@@ -11,13 +11,13 @@ import (
 	"slices"
 	"time"
 
-	"github.com/stainless-sdks/photos-go/internal/apijson"
-	"github.com/stainless-sdks/photos-go/internal/apiquery"
-	"github.com/stainless-sdks/photos-go/internal/requestconfig"
-	"github.com/stainless-sdks/photos-go/option"
-	"github.com/stainless-sdks/photos-go/packages/pagination"
-	"github.com/stainless-sdks/photos-go/packages/param"
-	"github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiquery"
+	"github.com/gumnut-ai/photos-sdk-go/internal/requestconfig"
+	"github.com/gumnut-ai/photos-sdk-go/option"
+	"github.com/gumnut-ai/photos-sdk-go/packages/pagination"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 )
 
 // AlbumAssetService contains methods and other services that help with interacting
@@ -69,11 +69,11 @@ func (r *AlbumAssetService) Get(ctx context.Context, albumAssetID string, opts .
 	opts = slices.Concat(r.Options, opts)
 	if albumAssetID == "" {
 		err = errors.New("missing required album_asset_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/album-assets/%s", albumAssetID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Represents a link between an album and an asset.

@@ -11,13 +11,13 @@ import (
 	"slices"
 	"time"
 
-	"github.com/stainless-sdks/photos-go/internal/apijson"
-	"github.com/stainless-sdks/photos-go/internal/apiquery"
-	"github.com/stainless-sdks/photos-go/internal/requestconfig"
-	"github.com/stainless-sdks/photos-go/option"
-	"github.com/stainless-sdks/photos-go/packages/pagination"
-	"github.com/stainless-sdks/photos-go/packages/param"
-	"github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiquery"
+	"github.com/gumnut-ai/photos-sdk-go/internal/requestconfig"
+	"github.com/gumnut-ai/photos-sdk-go/option"
+	"github.com/gumnut-ai/photos-sdk-go/packages/pagination"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 )
 
 // PersonService contains methods and other services that help with interacting
@@ -44,7 +44,7 @@ func (r *PersonService) New(ctx context.Context, body PersonNewParams, opts ...o
 	opts = slices.Concat(r.Options, opts)
 	path := "api/people"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Retrieves details for a specific person.
@@ -52,11 +52,11 @@ func (r *PersonService) Get(ctx context.Context, personID string, opts ...option
 	opts = slices.Concat(r.Options, opts)
 	if personID == "" {
 		err = errors.New("missing required person_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/people/%s", personID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Updates the details of a specific person.
@@ -64,11 +64,11 @@ func (r *PersonService) Update(ctx context.Context, personID string, body Person
 	opts = slices.Concat(r.Options, opts)
 	if personID == "" {
 		err = errors.New("missing required person_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/people/%s", personID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Retrieves a paginated list of people, ordered by creation time, descending. Can
@@ -103,11 +103,11 @@ func (r *PersonService) Delete(ctx context.Context, personID string, opts ...opt
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if personID == "" {
 		err = errors.New("missing required person_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("api/people/%s", personID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Represents a person identified through face clustering and recognition.

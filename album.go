@@ -11,13 +11,13 @@ import (
 	"slices"
 	"time"
 
-	"github.com/stainless-sdks/photos-go/internal/apijson"
-	"github.com/stainless-sdks/photos-go/internal/apiquery"
-	"github.com/stainless-sdks/photos-go/internal/requestconfig"
-	"github.com/stainless-sdks/photos-go/option"
-	"github.com/stainless-sdks/photos-go/packages/pagination"
-	"github.com/stainless-sdks/photos-go/packages/param"
-	"github.com/stainless-sdks/photos-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiquery"
+	"github.com/gumnut-ai/photos-sdk-go/internal/requestconfig"
+	"github.com/gumnut-ai/photos-sdk-go/option"
+	"github.com/gumnut-ai/photos-sdk-go/packages/pagination"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
 )
 
 // AlbumService contains methods and other services that help with interacting with
@@ -47,7 +47,7 @@ func (r *AlbumService) New(ctx context.Context, body AlbumNewParams, opts ...opt
 	opts = slices.Concat(r.Options, opts)
 	path := "api/albums"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Retrieves details for a specific album.
@@ -55,11 +55,11 @@ func (r *AlbumService) Get(ctx context.Context, albumID string, opts ...option.R
 	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/albums/%s", albumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
+	return res, err
 }
 
 // Updates the name and/or description of a specific album.
@@ -67,11 +67,11 @@ func (r *AlbumService) Update(ctx context.Context, albumID string, body AlbumUpd
 	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
-		return
+		return nil, err
 	}
 	path := fmt.Sprintf("api/albums/%s", albumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
-	return
+	return res, err
 }
 
 // Retrieves a paginated list of albums from the specified library, ordered by
@@ -106,11 +106,11 @@ func (r *AlbumService) Delete(ctx context.Context, albumID string, opts ...optio
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
-		return
+		return err
 	}
 	path := fmt.Sprintf("api/albums/%s", albumID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return
+	return err
 }
 
 // Represents a collection of assets organized by the user.

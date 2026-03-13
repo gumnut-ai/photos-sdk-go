@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/stainless-sdks/photos-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
 )
 
 var encoders sync.Map // map[encoderEntry]encoderFunc
@@ -469,5 +469,5 @@ func WriteExtras(writer *multipart.Writer, extras map[string]any) (err error) {
 			break
 		}
 	}
-	return
+	return err
 }

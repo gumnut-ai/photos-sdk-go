@@ -1,8 +1,8 @@
 package sentinel_test
 
 import (
-	"github.com/stainless-sdks/photos-go/internal/encoding/json/sentinel"
-	"github.com/stainless-sdks/photos-go/packages/param"
+	"github.com/gumnut-ai/photos-sdk-go/internal/encoding/json/sentinel"
+	"github.com/gumnut-ai/photos-sdk-go/packages/param"
 	"reflect"
 	"slices"
 	"testing"

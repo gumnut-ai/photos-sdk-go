@@ -61,7 +61,7 @@ func (r *SearchService) SearchAssets(ctx context.Context, body SearchSearchAsset
 }
 
 type SearchResponse struct {
-	Data []SearchResponseData `json:"data" api:"required"`
+	Data []SearchResultItem `json:"data" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -76,7 +76,7 @@ func (r *SearchResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-type SearchResponseData struct {
+type SearchResultItem struct {
 	// Represents a photo or video asset with metadata and access URLs.
 	Asset    AssetResponse `json:"asset" api:"required"`
 	Distance float64       `json:"distance" api:"required"`
@@ -90,8 +90,8 @@ type SearchResponseData struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r SearchResponseData) RawJSON() string { return r.JSON.raw }
-func (r *SearchResponseData) UnmarshalJSON(data []byte) error {
+func (r SearchResultItem) RawJSON() string { return r.JSON.raw }
+func (r *SearchResultItem) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

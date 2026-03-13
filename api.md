@@ -151,6 +151,7 @@ Methods:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#SearchResponse">SearchResponse</a>
+- <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#SearchResultItem">SearchResultItem</a>
 
 Methods:
 

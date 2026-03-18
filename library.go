@@ -95,6 +95,8 @@ func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...o
 type LibraryResponse struct {
 	// Unique library identifier with 'lib\_' prefix
 	ID string `json:"id" api:"required"`
+	// Total number of assets in this library
+	AssetCount int64 `json:"asset_count" api:"required"`
 	// When this library was created
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// Display name of the library
@@ -108,6 +110,7 @@ type LibraryResponse struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID          respjson.Field
+		AssetCount  respjson.Field
 		CreatedAt   respjson.Field
 		Name        respjson.Field
 		UpdatedAt   respjson.Field

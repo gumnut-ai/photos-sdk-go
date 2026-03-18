@@ -151,7 +151,7 @@ type ExifResponse struct {
 	Country string `json:"country" api:"nullable"`
 	// Image description or caption
 	Description string `json:"description" api:"nullable"`
-	// When the photo was digitized, with timezone info
+	// When the photo was digitized, with timezone offset if available in EXIF metadata
 	DigitizedDatetime time.Time `json:"digitized_datetime" api:"nullable" format:"date-time"`
 	// Exposure compensation in EV (e.g., -1.0, +0.5)
 	ExposureBias float64 `json:"exposure_bias" api:"nullable"`
@@ -177,13 +177,15 @@ type ExifResponse struct {
 	Make string `json:"make" api:"nullable"`
 	// Camera model (e.g., 'EOS 5D Mark IV')
 	Model string `json:"model" api:"nullable"`
-	// When the file was last modified, with timezone info
+	// When the file was last modified, with timezone offset if available in EXIF
+	// metadata
 	ModifiedDatetime time.Time `json:"modified_datetime" api:"nullable" format:"date-time"`
 	// Image orientation value (1-8) indicating rotation/flip: 1=normal, 2=mirror
 	// horizontal, 3=rotate 180°, 4=mirror vertical, 5=mirror horizontal+rotate 90° CW,
 	// 6=rotate 90° CW, 7=mirror horizontal+rotate 90° CCW, 8=rotate 90° CCW
 	Orientation int64 `json:"orientation" api:"nullable"`
-	// When the photo was originally taken, with timezone info
+	// When the photo was originally taken, with timezone offset if available in EXIF
+	// metadata
 	OriginalDatetime time.Time `json:"original_datetime" api:"nullable" format:"date-time"`
 	// Color profile description
 	ProfileDescription string `json:"profile_description" api:"nullable"`

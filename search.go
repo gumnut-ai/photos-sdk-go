@@ -107,7 +107,7 @@ type SearchSearchParams struct {
 	// photos taken during a specific date range, use the captured_before and
 	// captured_after parameters instead.
 	Query param.Opt[string] `query:"query,omitzero" json:"-"`
-	// Number of results per page
+	// Number of results per page (1-200)
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Page number
 	Page param.Opt[int64] `query:"page,omitzero" json:"-"`
@@ -140,7 +140,7 @@ type SearchSearchAssetsParams struct {
 	// photos taken during a specific date range, use the captured_before and
 	// captured_after parameters instead.
 	Query param.Opt[string] `json:"query,omitzero"`
-	// Number of results per page
+	// Number of results per page (1-200)
 	Limit param.Opt[int64] `json:"limit,omitzero"`
 	// Page number
 	Page param.Opt[int64] `json:"page,omitzero"`

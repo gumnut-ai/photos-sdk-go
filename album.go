@@ -194,7 +194,7 @@ type AlbumListParams struct {
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
 	// Album ID to start listing albums after
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
-	// Max number of albums to return
+	// Max number of albums to return (1-200)
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Filter by specific album IDs (max 100)
 	IDs []string `query:"ids,omitzero" json:"-"`

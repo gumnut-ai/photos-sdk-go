@@ -374,7 +374,8 @@ type AssetListParams struct {
 	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
 	// Asset ID to start listing assets after
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
-	Limit           param.Opt[int64]  `query:"limit,omitzero" json:"-"`
+	// Max number of assets to return (1-200)
+	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Filter by specific asset IDs (max 100)
 	IDs []string `query:"ids,omitzero" json:"-"`
 	paramObj
@@ -439,7 +440,7 @@ type AssetCountsParams struct {
 	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
 	// Time period to group counts by. Currently only 'month' is supported.
 	GroupBy param.Opt[string] `query:"group_by,omitzero" json:"-"`
-	// Maximum number of time buckets to return
+	// Maximum number of time buckets to return (1-200)
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	paramObj
 }

@@ -250,7 +250,7 @@ type EventGetParams struct {
 	EntityTypes param.Opt[string] `query:"entity_types,omitzero" json:"-"`
 	// Library to list events from. If not provided, uses the user's default library.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
-	// Maximum number of events to return (1-500)
+	// Maximum number of events to return (1-200)
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	paramObj
 }

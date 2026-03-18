@@ -201,7 +201,8 @@ type FaceListParams struct {
 	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
 	// Face ID to start listing faces after
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
-	Limit           param.Opt[int64]  `query:"limit,omitzero" json:"-"`
+	// Max number of faces to return (1-200)
+	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Filter by specific face IDs (max 100)
 	IDs []string `query:"ids,omitzero" json:"-"`
 	paramObj

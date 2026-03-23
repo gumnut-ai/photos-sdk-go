@@ -72,7 +72,7 @@ func (r *PersonService) Update(ctx context.Context, personID string, body Person
 }
 
 // Retrieves a paginated list of people, ordered by creation time, descending. Can
-// be filtered by specific person IDs.
+// be filtered by specific person IDs, name, or whether the person has been named.
 func (r *PersonService) List(ctx context.Context, query PersonListParams, opts ...option.RequestOption) (res *pagination.CursorPage[PersonResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -91,7 +91,7 @@ func (r *PersonService) List(ctx context.Context, query PersonListParams, opts .
 }
 
 // Retrieves a paginated list of people, ordered by creation time, descending. Can
-// be filtered by specific person IDs.
+// be filtered by specific person IDs, name, or whether the person has been named.
 func (r *PersonService) ListAutoPaging(ctx context.Context, query PersonListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[PersonResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
@@ -195,8 +195,13 @@ type PersonListParams struct {
 	AlbumID param.Opt[string] `query:"album_id,omitzero" json:"-"`
 	// Include only people associated with this asset ID
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
+	// Filter by whether the person has a name assigned (true = named only, false =
+	// unnamed only)
+	HasName param.Opt[bool] `query:"has_name,omitzero" json:"-"`
 	// Library ID (required if user has multiple libraries)
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
+	// Filter by name using case-insensitive substring matching
+	Name param.Opt[string] `query:"name,omitzero" json:"-"`
 	// Person ID to start listing people after
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	// Max number of people to return (1-200)

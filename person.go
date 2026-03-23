@@ -124,6 +124,9 @@ type PersonResponse struct {
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Number of unique photos this person appears in, or null if not computed
 	AssetCount int64 `json:"asset_count" api:"nullable"`
+	// Asset variants from this person's thumbnail face. May be null when embedded in
+	// an AssetResponse; use /api/people endpoints for full person data.
+	AssetURLs map[string]PersonResponseAssetURL `json:"asset_urls" api:"nullable"`
 	// Optional birth date of this person
 	BirthDate time.Time `json:"birth_date" api:"nullable" format:"date"`
 	// Optional name assigned to this person
@@ -140,6 +143,7 @@ type PersonResponse struct {
 		IsHidden         respjson.Field
 		UpdatedAt        respjson.Field
 		AssetCount       respjson.Field
+		AssetURLs        respjson.Field
 		BirthDate        respjson.Field
 		Name             respjson.Field
 		ThumbnailFaceID  respjson.Field
@@ -152,6 +156,30 @@ type PersonResponse struct {
 // Returns the unmodified JSON received from the API
 func (r PersonResponse) RawJSON() string { return r.JSON.raw }
 func (r *PersonResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A single image variant with its URL, MIME type, and target width.
+type PersonResponseAssetURL struct {
+	// MIME type of the served image
+	Mimetype string `json:"mimetype" api:"required"`
+	// URL to fetch this image variant
+	URL string `json:"url" api:"required"`
+	// Target width in pixels (null if unknown)
+	Width int64 `json:"width" api:"nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Mimetype    respjson.Field
+		URL         respjson.Field
+		Width       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PersonResponseAssetURL) RawJSON() string { return r.JSON.raw }
+func (r *PersonResponseAssetURL) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

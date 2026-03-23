@@ -128,6 +128,8 @@ type FaceResponse struct {
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
 	// When this face record was last updated
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
+	// Asset variants for this face: 'thumbnail' with face crop
+	AssetURLs map[string]FaceResponseAssetURL `json:"asset_urls" api:"nullable"`
 	// ID of the person this face belongs to (if identified)
 	PersonID string `json:"person_id" api:"nullable"`
 	// URL to get a cropped thumbnail of just this face
@@ -141,6 +143,7 @@ type FaceResponse struct {
 		BoundingBox  respjson.Field
 		CreatedAt    respjson.Field
 		UpdatedAt    respjson.Field
+		AssetURLs    respjson.Field
 		PersonID     respjson.Field
 		ThumbnailURL respjson.Field
 		TimestampMs  respjson.Field
@@ -152,6 +155,30 @@ type FaceResponse struct {
 // Returns the unmodified JSON received from the API
 func (r FaceResponse) RawJSON() string { return r.JSON.raw }
 func (r *FaceResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A single image variant with its URL, MIME type, and target width.
+type FaceResponseAssetURL struct {
+	// MIME type of the served image
+	Mimetype string `json:"mimetype" api:"required"`
+	// URL to fetch this image variant
+	URL string `json:"url" api:"required"`
+	// Target width in pixels (null if unknown)
+	Width int64 `json:"width" api:"nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Mimetype    respjson.Field
+		URL         respjson.Field
+		Width       respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r FaceResponseAssetURL) RawJSON() string { return r.JSON.raw }
+func (r *FaceResponseAssetURL) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

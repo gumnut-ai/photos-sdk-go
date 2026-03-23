@@ -275,6 +275,11 @@ type AssetResponse struct {
 	// Base64-encoded SHA-1 hash for Immich client compatibility. May be null for older
 	// assets.
 	ChecksumSha1 string `json:"checksum_sha1" api:"nullable"`
+	// AI-generated description of the asset's content, quality, and composition. null
+	// means description generation has not yet run; empty string means the model
+	// refused to describe the asset. Distinct from exif.description (camera-embedded
+	// EXIF metadata).
+	Description string `json:"description" api:"nullable"`
 	// If you need to download the full asset, use this URL. Otherwise, use the
 	// thumbnail_url.
 	DownloadURL string `json:"download_url" api:"nullable"`
@@ -310,6 +315,7 @@ type AssetResponse struct {
 		UpdatedAt        respjson.Field
 		AssetURLs        respjson.Field
 		ChecksumSha1     respjson.Field
+		Description      respjson.Field
 		DownloadURL      respjson.Field
 		Exif             respjson.Field
 		Faces            respjson.Field

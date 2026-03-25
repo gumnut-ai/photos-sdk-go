@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -361,7 +360,7 @@ func (r *AssetResponseAssetURL) UnmarshalJSON(data []byte) error {
 }
 
 type AssetNewParams struct {
-	AssetData      io.Reader `json:"asset_data,omitzero" api:"required" format:"binary"`
+	AssetData      string    `json:"asset_data" api:"required"`
 	DeviceAssetID  string    `json:"device_asset_id" api:"required"`
 	DeviceID       string    `json:"device_id" api:"required"`
 	FileCreatedAt  time.Time `json:"file_created_at" api:"required" format:"date-time"`

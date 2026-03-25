@@ -3,10 +3,8 @@
 package photos_test
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"io"
 	"os"
 	"testing"
 	"time"
@@ -64,7 +62,7 @@ func TestSearchSearchAssetsWithOptionalParams(t *testing.T) {
 	_, err := client.Search.SearchAssets(context.TODO(), photos.SearchSearchAssetsParams{
 		CapturedAfter:  photos.Time(time.Now()),
 		CapturedBefore: photos.Time(time.Now()),
-		Image:          io.Reader(bytes.NewBuffer([]byte("Example data"))),
+		Image:          photos.String("image"),
 		LibraryID:      photos.String("library_id"),
 		Limit:          photos.Int(1),
 		Page:           photos.Int(1),

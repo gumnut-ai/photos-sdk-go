@@ -5,6 +5,7 @@ package photos
 import (
 	"bytes"
 	"context"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -132,8 +133,6 @@ type SearchSearchAssetsParams struct {
 	CapturedAfter param.Opt[time.Time] `json:"captured_after,omitzero" format:"date-time"`
 	// Filter to only include assets captured before this date (ISO format).
 	CapturedBefore param.Opt[time.Time] `json:"captured_before,omitzero" format:"date-time"`
-	// Image file to search for similar assets. Can be combined with text query.
-	Image param.Opt[string] `json:"image,omitzero"`
 	// Library to search assets from (optional)
 	LibraryID param.Opt[string] `json:"library_id,omitzero"`
 	// The text query to search for. If you want to search for a specific person or set
@@ -147,6 +146,8 @@ type SearchSearchAssetsParams struct {
 	Page param.Opt[int64] `json:"page,omitzero"`
 	// Similarity threshold (lower means more similar)
 	Threshold param.Opt[float64] `json:"threshold,omitzero"`
+	// Image file to search for similar assets. Can be combined with text query.
+	Image io.Reader `json:"image,omitzero" format:"binary"`
 	// Filter to only include assets containing ALL of these person IDs. Can be
 	// comma-delimited string (e.g. 'person_123,person_abc') or multiple query
 	// parameters.

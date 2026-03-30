@@ -32,7 +32,7 @@ func TestAssetNewWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Assets.New(context.TODO(), photos.AssetNewParams{
-		AssetData:      "asset_data",
+		AssetData:      io.Reader(bytes.NewBuffer([]byte("Example data"))),
 		DeviceAssetID:  "device_asset_id",
 		DeviceID:       "device_id",
 		FileCreatedAt:  time.Now(),

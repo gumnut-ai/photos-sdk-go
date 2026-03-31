@@ -361,6 +361,7 @@ func (r *AssetResponseAssetURL) UnmarshalJSON(data []byte) error {
 }
 
 type AssetNewParams struct {
+	// The asset file to upload
 	AssetData      io.Reader `json:"asset_data,omitzero" api:"required" format:"binary"`
 	DeviceAssetID  string    `json:"device_asset_id" api:"required"`
 	DeviceID       string    `json:"device_id" api:"required"`

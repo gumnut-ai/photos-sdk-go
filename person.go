@@ -96,8 +96,8 @@ func (r *PersonService) ListAutoPaging(ctx context.Context, query PersonListPara
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
 
-// Deletes a specific person. Associated faces will have their person_id set to the
-// closest matching person, or null if no one matches.
+// Deletes a specific person. Orphaned faces will be re-clustered in the next
+// clustering pass.
 func (r *PersonService) Delete(ctx context.Context, personID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)

@@ -4,7 +4,6 @@ package photos
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -118,7 +117,7 @@ func (r AlbumAssetsAssociationAddParams) MarshalJSON() (data []byte, err error) 
 	return shimjson.Marshal(r.AlbumAssetAssociation)
 }
 func (r *AlbumAssetsAssociationAddParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.AlbumAssetAssociation)
+	return apijson.UnmarshalRoot(data, r)
 }
 
 type AlbumAssetsAssociationRemoveParams struct {
@@ -130,5 +129,5 @@ func (r AlbumAssetsAssociationRemoveParams) MarshalJSON() (data []byte, err erro
 	return shimjson.Marshal(r.AlbumAssetAssociation)
 }
 func (r *AlbumAssetsAssociationRemoveParams) UnmarshalJSON(data []byte) error {
-	return json.Unmarshal(data, &r.AlbumAssetAssociation)
+	return apijson.UnmarshalRoot(data, r)
 }

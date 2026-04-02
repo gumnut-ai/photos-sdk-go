@@ -71,8 +71,7 @@ func (r *PersonService) Update(ctx context.Context, personID string, body Person
 	return res, err
 }
 
-// Retrieves a paginated list of people, ordered by creation time, descending. Can
-// be filtered by specific person IDs, name, or whether the person has been named.
+// Retrieves a paginated list of people, ordered by creation time, descending.
 func (r *PersonService) List(ctx context.Context, query PersonListParams, opts ...option.RequestOption) (res *pagination.CursorPage[PersonResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -90,8 +89,7 @@ func (r *PersonService) List(ctx context.Context, query PersonListParams, opts .
 	return res, nil
 }
 
-// Retrieves a paginated list of people, ordered by creation time, descending. Can
-// be filtered by specific person IDs, name, or whether the person has been named.
+// Retrieves a paginated list of people, ordered by creation time, descending.
 func (r *PersonService) ListAutoPaging(ctx context.Context, query PersonListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[PersonResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
@@ -223,9 +221,6 @@ type PersonListParams struct {
 	AlbumID param.Opt[string] `query:"album_id,omitzero" json:"-"`
 	// Include only people associated with this asset ID
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
-	// Filter by whether the person has a name assigned (true = named only, false =
-	// unnamed only)
-	HasName param.Opt[bool] `query:"has_name,omitzero" json:"-"`
 	// Library ID (required if user has multiple libraries)
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
 	// Filter by name using case-insensitive substring matching
@@ -236,6 +231,12 @@ type PersonListParams struct {
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
 	// Filter by specific person IDs (max 100)
 	IDs []string `query:"ids,omitzero" json:"-"`
+	// Filter by name status: 'named' returns only people with a name, 'unnamed'
+	// returns only people without a name, 'all' returns everyone. Defaults to 'named',
+	// or 'all' when ids are provided.
+	//
+	// Any of "named", "unnamed", "all".
+	NameFilter PersonListParamsNameFilter `query:"name_filter,omitzero" json:"-"`
 	paramObj
 }
 
@@ -246,3 +247,14 @@ func (r PersonListParams) URLQuery() (v url.Values, err error) {
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }
+
+// Filter by name status: 'named' returns only people with a name, 'unnamed'
+// returns only people without a name, 'all' returns everyone. Defaults to 'named',
+// or 'all' when ids are provided.
+type PersonListParamsNameFilter string
+
+const (
+	PersonListParamsNameFilterNamed   PersonListParamsNameFilter = "named"
+	PersonListParamsNameFilterUnnamed PersonListParamsNameFilter = "unnamed"
+	PersonListParamsNameFilterAll     PersonListParamsNameFilter = "all"
+)

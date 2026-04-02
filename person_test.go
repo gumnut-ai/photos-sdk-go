@@ -116,11 +116,11 @@ func TestPersonListWithOptionalParams(t *testing.T) {
 	_, err := client.People.List(context.TODO(), photos.PersonListParams{
 		AlbumID:         photos.String("album_id"),
 		AssetID:         photos.String("asset_id"),
-		HasName:         photos.Bool(true),
 		IDs:             []string{"string", "string"},
 		LibraryID:       photos.String("library_id"),
 		Limit:           photos.Int(1),
 		Name:            photos.String("name"),
+		NameFilter:      photos.PersonListParamsNameFilterNamed,
 		StartingAfterID: photos.String("starting_after_id"),
 	})
 	if err != nil {

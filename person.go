@@ -131,23 +131,20 @@ type PersonResponse struct {
 	Name string `json:"name" api:"nullable"`
 	// ID of the face resource used as this person's thumbnail
 	ThumbnailFaceID string `json:"thumbnail_face_id" api:"nullable"`
-	// URL for this person's profile thumbnail image
-	ThumbnailFaceURL string `json:"thumbnail_face_url" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID               respjson.Field
-		CreatedAt        respjson.Field
-		IsFavorite       respjson.Field
-		IsHidden         respjson.Field
-		UpdatedAt        respjson.Field
-		AssetCount       respjson.Field
-		AssetURLs        respjson.Field
-		BirthDate        respjson.Field
-		Name             respjson.Field
-		ThumbnailFaceID  respjson.Field
-		ThumbnailFaceURL respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
+		ID              respjson.Field
+		CreatedAt       respjson.Field
+		IsFavorite      respjson.Field
+		IsHidden        respjson.Field
+		UpdatedAt       respjson.Field
+		AssetCount      respjson.Field
+		AssetURLs       respjson.Field
+		BirthDate       respjson.Field
+		Name            respjson.Field
+		ThumbnailFaceID respjson.Field
+		ExtraFields     map[string]respjson.Field
+		raw             string
 	} `json:"-"`
 }
 

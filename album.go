@@ -127,8 +127,6 @@ type AlbumResponse struct {
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// ID of the asset used as the album cover
 	AlbumCoverAssetID string `json:"album_cover_asset_id" api:"nullable"`
-	// URL to get the album cover thumbnail image
-	AlbumCoverThumbnailURL string `json:"album_cover_thumbnail_url" api:"nullable"`
 	// Asset variants for the album cover: 'thumbnail'
 	AssetURLs map[string]AlbumResponseAssetURL `json:"asset_urls" api:"nullable"`
 	// Optional description text for the album
@@ -139,19 +137,18 @@ type AlbumResponse struct {
 	StartDate time.Time `json:"start_date" api:"nullable" format:"date-time"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID                     respjson.Field
-		AssetCount             respjson.Field
-		CreatedAt              respjson.Field
-		Name                   respjson.Field
-		UpdatedAt              respjson.Field
-		AlbumCoverAssetID      respjson.Field
-		AlbumCoverThumbnailURL respjson.Field
-		AssetURLs              respjson.Field
-		Description            respjson.Field
-		EndDate                respjson.Field
-		StartDate              respjson.Field
-		ExtraFields            map[string]respjson.Field
-		raw                    string
+		ID                respjson.Field
+		AssetCount        respjson.Field
+		CreatedAt         respjson.Field
+		Name              respjson.Field
+		UpdatedAt         respjson.Field
+		AlbumCoverAssetID respjson.Field
+		AssetURLs         respjson.Field
+		Description       respjson.Field
+		EndDate           respjson.Field
+		StartDate         respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
 	} `json:"-"`
 }
 

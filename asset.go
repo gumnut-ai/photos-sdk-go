@@ -129,33 +129,6 @@ func (r *AssetService) Counts(ctx context.Context, query AssetCountsParams, opts
 	return res, err
 }
 
-// Downloads the original file for a specific asset.
-func (r *AssetService) Download(ctx context.Context, assetID string, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
-	if assetID == "" {
-		err = errors.New("missing required asset_id parameter")
-		return nil, err
-	}
-	path := fmt.Sprintf("api/assets/%s/download", assetID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return res, err
-}
-
-// Downloads a thumbnail for a specific asset. The exact thumbnail returned depends
-// on availability and the optional `size` parameter.
-func (r *AssetService) DownloadThumbnail(ctx context.Context, assetID string, query AssetDownloadThumbnailParams, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
-	if assetID == "" {
-		err = errors.New("missing required asset_id parameter")
-		return nil, err
-	}
-	path := fmt.Sprintf("api/assets/%s/thumbnail", assetID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return res, err
-}
-
 type AssetCountResponse struct {
 	Data    []AssetCountResponseData `json:"data" api:"required"`
 	HasMore bool                     `json:"has_more" api:"required"`
@@ -280,9 +253,6 @@ type AssetResponse struct {
 	// refused to describe the asset. Distinct from exif.description (camera-embedded
 	// EXIF metadata).
 	Description string `json:"description" api:"nullable"`
-	// If you need to download the full asset, use this URL. Otherwise, use the
-	// thumbnail_url.
-	DownloadURL string `json:"download_url" api:"nullable"`
 	// EXIF metadata extracted from image and video files.
 	Exif ExifResponse `json:"exif" api:"nullable"`
 	// All faces detected in this asset
@@ -295,9 +265,6 @@ type AssetResponse struct {
 	Metrics map[string]float64 `json:"metrics" api:"nullable"`
 	// All unique people identified in this asset (deduplicated from faces)
 	People []PersonResponse `json:"people"`
-	// Use this URL to display the asset. Never download the full asset unless you
-	// absolutely have to; prefer the thumbnail instead.
-	ThumbnailURL string `json:"thumbnail_url" api:"nullable"`
 	// Width of the asset in pixels
 	Width int64 `json:"width"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -316,14 +283,12 @@ type AssetResponse struct {
 		AssetURLs        respjson.Field
 		ChecksumSha1     respjson.Field
 		Description      respjson.Field
-		DownloadURL      respjson.Field
 		Exif             respjson.Field
 		Faces            respjson.Field
 		FileSizeBytes    respjson.Field
 		Height           respjson.Field
 		Metrics          respjson.Field
 		People           respjson.Field
-		ThumbnailURL     respjson.Field
 		Width            respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
@@ -482,21 +447,6 @@ type AssetCountsParams struct {
 
 // URLQuery serializes [AssetCountsParams]'s query parameters as `url.Values`.
 func (r AssetCountsParams) URLQuery() (v url.Values, err error) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
-}
-
-type AssetDownloadThumbnailParams struct {
-	// Desired thumbnail size (e.g., thumbnail, preview)
-	Size param.Opt[string] `query:"size,omitzero" json:"-"`
-	paramObj
-}
-
-// URLQuery serializes [AssetDownloadThumbnailParams]'s query parameters as
-// `url.Values`.
-func (r AssetDownloadThumbnailParams) URLQuery() (v url.Values, err error) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

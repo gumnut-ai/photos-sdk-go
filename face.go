@@ -103,19 +103,6 @@ func (r *FaceService) Delete(ctx context.Context, faceID string, body FaceDelete
 	return err
 }
 
-// Retrieves a thumbnail for a specific face.
-func (r *FaceService) DownloadThumbnail(ctx context.Context, faceID string, opts ...option.RequestOption) (res *http.Response, err error) {
-	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "image/*")}, opts...)
-	if faceID == "" {
-		err = errors.New("missing required face_id parameter")
-		return nil, err
-	}
-	path := fmt.Sprintf("api/faces/%s/thumbnail", faceID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return res, err
-}
-
 // Represents a detected face in an asset with facial recognition data.
 type FaceResponse struct {
 	// Unique face identifier with 'face\_' prefix
@@ -132,23 +119,20 @@ type FaceResponse struct {
 	AssetURLs map[string]FaceResponseAssetURL `json:"asset_urls" api:"nullable"`
 	// ID of the person this face belongs to (if identified)
 	PersonID string `json:"person_id" api:"nullable"`
-	// URL to get a cropped thumbnail of just this face
-	ThumbnailURL string `json:"thumbnail_url" api:"nullable"`
 	// For video files, timestamp in milliseconds when face appears
 	TimestampMs int64 `json:"timestamp_ms" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID           respjson.Field
-		AssetID      respjson.Field
-		BoundingBox  respjson.Field
-		CreatedAt    respjson.Field
-		UpdatedAt    respjson.Field
-		AssetURLs    respjson.Field
-		PersonID     respjson.Field
-		ThumbnailURL respjson.Field
-		TimestampMs  respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
+		ID          respjson.Field
+		AssetID     respjson.Field
+		BoundingBox respjson.Field
+		CreatedAt   respjson.Field
+		UpdatedAt   respjson.Field
+		AssetURLs   respjson.Field
+		PersonID    respjson.Field
+		TimestampMs respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
 	} `json:"-"`
 }
 

@@ -41,6 +41,9 @@ func NewAlbumAssetService(opts ...option.RequestOption) (r AlbumAssetService) {
 
 // Retrieves a paginated list of album-asset links, ordered by creation time,
 // descending. Can be filtered by album_id, asset_id, or specific album-asset IDs.
+//
+// **Pagination:** When `has_more` is true, pass the `id` of the last album-asset
+// in `data` as `starting_after_id` to fetch the next page.
 func (r *AlbumAssetService) List(ctx context.Context, query AlbumAssetListParams, opts ...option.RequestOption) (res *pagination.CursorPage[AlbumAssetResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -60,6 +63,9 @@ func (r *AlbumAssetService) List(ctx context.Context, query AlbumAssetListParams
 
 // Retrieves a paginated list of album-asset links, ordered by creation time,
 // descending. Can be filtered by album_id, asset_id, or specific album-asset IDs.
+//
+// **Pagination:** When `has_more` is true, pass the `id` of the last album-asset
+// in `data` as `starting_after_id` to fetch the next page.
 func (r *AlbumAssetService) ListAutoPaging(ctx context.Context, query AlbumAssetListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[AlbumAssetResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
@@ -113,7 +119,8 @@ type AlbumAssetListParams struct {
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
 	// Library ID (required if user has multiple libraries)
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
-	// Album-asset ID to start listing after
+	// Cursor for pagination. Pass the `id` of the last album-asset from the previous
+	// page to get the next page.
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	// Max number of results to return (1-200)
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`

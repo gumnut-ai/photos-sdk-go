@@ -71,6 +71,9 @@ func (r *AssetService) Get(ctx context.Context, assetID string, opts ...option.R
 // filtered by album, person, or specific asset IDs. Asset data includes metrics,
 // EXIF data, faces, and people. Assets are ordered by local creation time,
 // descending.
+//
+// **Pagination:** When `has_more` is true, pass the `id` of the last asset in
+// `data` as `starting_after_id` to fetch the next page.
 func (r *AssetService) List(ctx context.Context, query AssetListParams, opts ...option.RequestOption) (res *pagination.CursorPage[AssetResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -92,6 +95,9 @@ func (r *AssetService) List(ctx context.Context, query AssetListParams, opts ...
 // filtered by album, person, or specific asset IDs. Asset data includes metrics,
 // EXIF data, faces, and people. Assets are ordered by local creation time,
 // descending.
+//
+// **Pagination:** When `has_more` is true, pass the `id` of the last asset in
+// `data` as `starting_after_id` to fetch the next page.
 func (r *AssetService) ListAutoPaging(ctx context.Context, query AssetListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[AssetResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
@@ -122,6 +128,9 @@ func (r *AssetService) CheckExistence(ctx context.Context, params AssetCheckExis
 
 // Returns asset counts grouped by time period. Supports optional filtering by
 // album, person, or date range. Results are ordered by time bucket descending.
+//
+// **Pagination:** When `has_more` is true, pass the last `time_bucket` value from
+// `data` as `local_datetime_before` to fetch the next page.
 func (r *AssetService) Counts(ctx context.Context, query AssetCountsParams, opts ...option.RequestOption) (res *AssetCountResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/assets/counts"
@@ -130,8 +139,12 @@ func (r *AssetService) Counts(ctx context.Context, query AssetCountsParams, opts
 }
 
 type AssetCountResponse struct {
-	Data    []AssetCountResponseData `json:"data" api:"required"`
-	HasMore bool                     `json:"has_more" api:"required"`
+	// Time bucket and count pairs, ordered by time bucket descending
+	Data []AssetCountResponseData `json:"data" api:"required"`
+	// True if there are more time buckets. To fetch the next page, pass the last
+	// `time_bucket` value as `local_datetime_before` (exclusive — buckets starting
+	// before that value are returned).
+	HasMore bool `json:"has_more" api:"required"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		Data        respjson.Field
@@ -372,7 +385,8 @@ type AssetListParams struct {
 	LocalDatetimeBefore param.Opt[time.Time] `query:"local_datetime_before,omitzero" format:"date-time" json:"-"`
 	// Filter by assets associated with a specific person ID
 	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
-	// Asset ID to start listing assets after
+	// Cursor for pagination. Pass the `id` of the last asset from the previous page to
+	// get the next page.
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	// Max number of assets to return (1-200)
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`

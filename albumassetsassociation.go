@@ -36,19 +36,6 @@ func NewAlbumAssetsAssociationService(opts ...option.RequestOption) (r AlbumAsse
 	return
 }
 
-// Retrieves a list of all assets contained within a specific album, along with
-// their associated metrics, EXIF data, faces, and people.
-func (r *AlbumAssetsAssociationService) List(ctx context.Context, albumID string, opts ...option.RequestOption) (res *[]AssetResponse, err error) {
-	opts = slices.Concat(r.Options, opts)
-	if albumID == "" {
-		err = errors.New("missing required album_id parameter")
-		return nil, err
-	}
-	path := fmt.Sprintf("api/albums/%s/assets", albumID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return res, err
-}
-
 // Adds one or more existing assets to a specific album. Assets must be in the same
 // library as the album. Duplicate assets are ignored.
 func (r *AlbumAssetsAssociationService) Add(ctx context.Context, albumID string, body AlbumAssetsAssociationAddParams, opts ...option.RequestOption) (res *AlbumAssetsAssociationAddResponse, err error) {

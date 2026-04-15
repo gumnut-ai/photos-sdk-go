@@ -66,6 +66,9 @@ func (r *FaceService) Update(ctx context.Context, faceID string, params FaceUpda
 
 // Retrieves a paginated list of faces, optionally filtered by asset, person, or
 // specific face IDs, ordered by creation time, descending.
+//
+// **Pagination:** When `has_more` is true, pass the `id` of the last face in
+// `data` as `starting_after_id` to fetch the next page.
 func (r *FaceService) List(ctx context.Context, query FaceListParams, opts ...option.RequestOption) (res *pagination.CursorPage[FaceResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -85,6 +88,9 @@ func (r *FaceService) List(ctx context.Context, query FaceListParams, opts ...op
 
 // Retrieves a paginated list of faces, optionally filtered by asset, person, or
 // specific face IDs, ordered by creation time, descending.
+//
+// **Pagination:** When `has_more` is true, pass the `id` of the last face in
+// `data` as `starting_after_id` to fetch the next page.
 func (r *FaceService) ListAutoPaging(ctx context.Context, query FaceListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[FaceResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
@@ -210,7 +216,8 @@ type FaceListParams struct {
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
 	// Filter by faces associated with a specific person
 	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
-	// Face ID to start listing faces after
+	// Cursor for pagination. Pass the `id` of the last face from the previous page to
+	// get the next page.
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	// Max number of faces to return (1-200)
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`

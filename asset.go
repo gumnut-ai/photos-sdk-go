@@ -374,14 +374,14 @@ type AssetListParams struct {
 	// Library to list assets from (optional)
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
 	// Only include assets with local_datetime after this value (ISO 8601). Naive
-	// values compare directly against local_datetime; timezone-aware values are
-	// converted to UTC and compared against local_datetime adjusted by its stored
-	// offset.
+	// values compare directly against local_datetime. Timezone-aware values: assets
+	// with a known offset are compared in UTC (local_datetime - offset); assets
+	// without an offset fall back to wall-clock comparison against local_datetime.
 	LocalDatetimeAfter param.Opt[time.Time] `query:"local_datetime_after,omitzero" format:"date-time" json:"-"`
 	// Only include assets with local_datetime before this value (ISO 8601). Naive
-	// values compare directly against local_datetime; timezone-aware values are
-	// converted to UTC and compared against local_datetime adjusted by its stored
-	// offset.
+	// values compare directly against local_datetime. Timezone-aware values: assets
+	// with a known offset are compared in UTC (local_datetime - offset); assets
+	// without an offset fall back to wall-clock comparison against local_datetime.
 	LocalDatetimeBefore param.Opt[time.Time] `query:"local_datetime_before,omitzero" format:"date-time" json:"-"`
 	// Filter by assets associated with a specific person ID
 	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
@@ -441,14 +441,15 @@ type AssetCountsParams struct {
 	// Library to count assets in (optional)
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
 	// Only include assets with local_datetime after this value (ISO 8601). Naive
-	// values compare directly against local_datetime; timezone-aware values are
-	// converted to UTC and compared against local_datetime adjusted by its stored
-	// offset.
+	// values compare directly against local_datetime. Timezone-aware values: assets
+	// with a known offset are compared in UTC (local_datetime - offset); assets
+	// without an offset fall back to wall-clock comparison against local_datetime.
 	LocalDatetimeAfter param.Opt[time.Time] `query:"local_datetime_after,omitzero" format:"date-time" json:"-"`
 	// Only include assets with local_datetime before this value (ISO 8601). Naive
-	// values compare directly against local_datetime; timezone-aware values are
-	// converted to UTC and compared against local_datetime adjusted by its stored
-	// offset. Use the last time_bucket from a previous response to paginate.
+	// values compare directly against local_datetime. Timezone-aware values: assets
+	// with a known offset are compared in UTC (local_datetime - offset); assets
+	// without an offset fall back to wall-clock comparison against local_datetime. Use
+	// the last time_bucket from a previous response to paginate.
 	LocalDatetimeBefore param.Opt[time.Time] `query:"local_datetime_before,omitzero" format:"date-time" json:"-"`
 	// Filter by assets associated with a specific person ID
 	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`

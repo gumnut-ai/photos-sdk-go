@@ -39,7 +39,8 @@ func NewFaceService(opts ...option.RequestOption) (r FaceService) {
 	return
 }
 
-// Retrieves details for a specific face.
+// Fetches one face's details (bounding box, assigned person, timestamps,
+// thumbnail). Use when you already have a `face_id`.
 func (r *FaceService) Get(ctx context.Context, faceID string, query FaceGetParams, opts ...option.RequestOption) (res *FaceResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if faceID == "" {
@@ -51,8 +52,13 @@ func (r *FaceService) Get(ctx context.Context, faceID string, query FaceGetParam
 	return res, err
 }
 
-// Updates the details of a specific face, currently only supporting
-// associating/disassociating with a person.
+// Assigns a face to a specific person, or detaches it (set `person_id` to null).
+// This is the right tool for 'this face is Alice' or 'this face isn't Bob after
+// all'.
+//
+// Currently only the `person_id` field is mutable. To create a brand-new identity
+// first, call `create_person`; to delete the face detection entirely, use
+// `delete_face`.
 func (r *FaceService) Update(ctx context.Context, faceID string, params FaceUpdateParams, opts ...option.RequestOption) (res *FaceResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if faceID == "" {
@@ -64,11 +70,17 @@ func (r *FaceService) Update(ctx context.Context, faceID string, params FaceUpda
 	return res, err
 }
 
-// Retrieves a paginated list of faces, optionally filtered by asset, person, or
-// specific face IDs, ordered by creation time, descending.
+// Returns a paginated list of individual face detections (with bounding boxes),
+// ordered by creation time (newest first). Each row is a single face in a single
+// asset — a person with many photos will have many face rows.
 //
-// **Pagination:** When `has_more` is true, pass the `id` of the last face in
-// `data` as `starting_after_id` to fetch the next page.
+// **Use `list_people` instead** when the user wants the grouped identities ('list
+// everyone in my library') rather than individual face detections. This tool is
+// useful for curating clustering results, finding unassigned faces, or picking a
+// thumbnail face for a person via `update_person.thumbnail_face_id`.
+//
+// **Pagination** is cursor-based: when `has_more` is true, pass the `id` of the
+// last face in `data` as `starting_after_id` to fetch the next page.
 func (r *FaceService) List(ctx context.Context, query FaceListParams, opts ...option.RequestOption) (res *pagination.CursorPage[FaceResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -86,17 +98,28 @@ func (r *FaceService) List(ctx context.Context, query FaceListParams, opts ...op
 	return res, nil
 }
 
-// Retrieves a paginated list of faces, optionally filtered by asset, person, or
-// specific face IDs, ordered by creation time, descending.
+// Returns a paginated list of individual face detections (with bounding boxes),
+// ordered by creation time (newest first). Each row is a single face in a single
+// asset — a person with many photos will have many face rows.
 //
-// **Pagination:** When `has_more` is true, pass the `id` of the last face in
-// `data` as `starting_after_id` to fetch the next page.
+// **Use `list_people` instead** when the user wants the grouped identities ('list
+// everyone in my library') rather than individual face detections. This tool is
+// useful for curating clustering results, finding unassigned faces, or picking a
+// thumbnail face for a person via `update_person.thumbnail_face_id`.
+//
+// **Pagination** is cursor-based: when `has_more` is true, pass the `id` of the
+// last face in `data` as `starting_after_id` to fetch the next page.
 func (r *FaceService) ListAutoPaging(ctx context.Context, query FaceListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[FaceResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
 
-// Deletes a specific face entry. This does not delete the associated asset or
-// person.
+// Removes one face detection row. The underlying asset and the person this face
+// was assigned to are both preserved.
+//
+// **Use `update_face` with `person_id=null` instead** when the user wants to
+// disassociate the face from a person without discarding the detection (so
+// re-clustering can try again). Use `delete_person` to remove a person; use
+// `delete_asset` to remove the photo entirely.
 func (r *FaceService) Delete(ctx context.Context, faceID string, body FaceDeleteParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
@@ -173,7 +196,8 @@ func (r *FaceResponseAssetURL) UnmarshalJSON(data []byte) error {
 }
 
 type FaceGetParams struct {
-	// Library ID (required if user has multiple libraries)
+	// Library the face belongs to. Optional if the user has a single library; required
+	// when they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
 	paramObj
 }
@@ -187,9 +211,14 @@ func (r FaceGetParams) URLQuery() (v url.Values, err error) {
 }
 
 type FaceUpdateParams struct {
-	// Library ID (required if user has multiple libraries)
+	// Library the face belongs to. Optional if the user has a single library; required
+	// when they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
-	PersonID  param.Opt[string] `json:"person_id,omitzero"`
+	// Target person ID (with `person_` prefix) to assign this face to. Pass `null` to
+	// detach the face from its current person without deleting either. Get IDs from
+	// `list_people`; use `create_person` first if the target identity doesn't exist
+	// yet.
+	PersonID param.Opt[string] `json:"person_id,omitzero"`
 	paramObj
 }
 
@@ -210,18 +239,21 @@ func (r FaceUpdateParams) URLQuery() (v url.Values, err error) {
 }
 
 type FaceListParams struct {
-	// Filter by faces in a specific asset
+	// Return only faces detected in this asset. Useful for 'show me all the faces in
+	// this photo'.
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
-	// Library ID (required if user has multiple libraries)
+	// Library to list from. Optional if the user has a single library; required when
+	// they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
-	// Filter by faces associated with a specific person
+	// Return only faces currently assigned to this person. Useful for reviewing or
+	// curating a person's face cluster.
 	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
-	// Cursor for pagination. Pass the `id` of the last face from the previous page to
-	// get the next page.
+	// Cursor for pagination. Pass the `id` of the last face in the previous response's
+	// `data` to fetch the next page. Omit for the first page.
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
-	// Max number of faces to return (1-200)
+	// Maximum number of faces per page (1–200). Defaults to 20.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Filter by specific face IDs (max 100)
+	// Look up specific faces by ID (max 100). IDs use the `face_` prefix.
 	IDs []string `query:"ids,omitzero" json:"-"`
 	paramObj
 }
@@ -235,7 +267,8 @@ func (r FaceListParams) URLQuery() (v url.Values, err error) {
 }
 
 type FaceDeleteParams struct {
-	// Library ID (required if user has multiple libraries)
+	// Library the face belongs to. Optional if the user has a single library; required
+	// when they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
 	paramObj
 }

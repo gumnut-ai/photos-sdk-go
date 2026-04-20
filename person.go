@@ -39,7 +39,12 @@ func NewPersonService(opts ...option.RequestOption) (r PersonService) {
 	return
 }
 
-// Creates a new person entry.
+// Creates a new person. Most people are auto-created by face clustering, so this
+// tool is typically used only when the user explicitly wants to introduce a new
+// identity before any faces are attached.
+//
+// To assign an existing face to an existing person, use `update_face` with the
+// target `person_id`.
 func (r *PersonService) New(ctx context.Context, body PersonNewParams, opts ...option.RequestOption) (res *PersonResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/people"
@@ -47,7 +52,9 @@ func (r *PersonService) New(ctx context.Context, body PersonNewParams, opts ...o
 	return res, err
 }
 
-// Retrieves details for a specific person.
+// Fetches one person's metadata (name, asset count, thumbnail, etc.). Use this
+// when you already have a `person_id`. To find photos that contain this person,
+// use `search_assets` with `person_ids` or `list_assets` with `person_id`.
 func (r *PersonService) Get(ctx context.Context, personID string, opts ...option.RequestOption) (res *PersonResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if personID == "" {
@@ -59,7 +66,12 @@ func (r *PersonService) Get(ctx context.Context, personID string, opts ...option
 	return res, err
 }
 
-// Updates the details of a specific person.
+// Updates metadata on an existing person. Only the fields included in the request
+// body are changed. Typical use: assigning a name ('name this face cluster
+// "Alice"') or choosing a better thumbnail.
+//
+// This tool does not move faces between people — use `update_face` with a new
+// `person_id` for that.
 func (r *PersonService) Update(ctx context.Context, personID string, body PersonUpdateParams, opts ...option.RequestOption) (res *PersonResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if personID == "" {
@@ -71,10 +83,19 @@ func (r *PersonService) Update(ctx context.Context, personID string, body Person
 	return res, err
 }
 
-// Retrieves a paginated list of people, ordered by creation time, descending.
+// Returns a paginated list of people (named identities that group one or more
+// faces), ordered by creation time (newest first). Use this to enumerate who
+// appears in the library, to resolve a user-typed name to a `person_id`, or to
+// find who appears in a specific asset or album.
 //
-// **Pagination:** When `has_more` is true, pass the `id` of the last person in
-// `data` as `starting_after_id` to fetch the next page.
+// By default only **named** people are returned; pass `name_filter=all` or
+// `name_filter=unnamed` to include clusters that haven't been named yet.
+//
+// To list the underlying faces for a specific person, use `list_faces` with
+// `person_id`.
+//
+// **Pagination** is cursor-based: when `has_more` is true, pass the `id` of the
+// last person in `data` as `starting_after_id` to fetch the next page.
 func (r *PersonService) List(ctx context.Context, query PersonListParams, opts ...option.RequestOption) (res *pagination.CursorPage[PersonResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -92,16 +113,29 @@ func (r *PersonService) List(ctx context.Context, query PersonListParams, opts .
 	return res, nil
 }
 
-// Retrieves a paginated list of people, ordered by creation time, descending.
+// Returns a paginated list of people (named identities that group one or more
+// faces), ordered by creation time (newest first). Use this to enumerate who
+// appears in the library, to resolve a user-typed name to a `person_id`, or to
+// find who appears in a specific asset or album.
 //
-// **Pagination:** When `has_more` is true, pass the `id` of the last person in
-// `data` as `starting_after_id` to fetch the next page.
+// By default only **named** people are returned; pass `name_filter=all` or
+// `name_filter=unnamed` to include clusters that haven't been named yet.
+//
+// To list the underlying faces for a specific person, use `list_faces` with
+// `person_id`.
+//
+// **Pagination** is cursor-based: when `has_more` is true, pass the `id` of the
+// last person in `data` as `starting_after_id` to fetch the next page.
 func (r *PersonService) ListAutoPaging(ctx context.Context, query PersonListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[PersonResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
 
-// Deletes a specific person. Orphaned faces will be re-clustered in the next
-// clustering pass.
+// Deletes the person. The faces that were attached to this person are not deleted
+// — they become unassigned and will be re-clustered on the next clustering pass.
+//
+// Use `update_face` with `person_id=null` to detach a specific face without
+// deleting the whole person. Use `delete_face` to remove a face detection
+// entirely.
 func (r *PersonService) Delete(ctx context.Context, personID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
@@ -185,12 +219,22 @@ func (r *PersonResponseAssetURL) UnmarshalJSON(data []byte) error {
 }
 
 type PersonNewParams struct {
-	BirthDate       param.Opt[time.Time] `json:"birth_date,omitzero" format:"date"`
-	IsFavorite      param.Opt[bool]      `json:"is_favorite,omitzero"`
-	IsHidden        param.Opt[bool]      `json:"is_hidden,omitzero"`
-	LibraryID       param.Opt[string]    `json:"library_id,omitzero"`
-	Name            param.Opt[string]    `json:"name,omitzero"`
-	ThumbnailFaceID param.Opt[string]    `json:"thumbnail_face_id,omitzero"`
+	// Optional birth date (ISO 8601 date, YYYY-MM-DD) for this person.
+	BirthDate param.Opt[time.Time] `json:"birth_date,omitzero" format:"date"`
+	// If true, the person is marked as a favorite. Defaults to false.
+	IsFavorite param.Opt[bool] `json:"is_favorite,omitzero"`
+	// If true, the person is hidden from default listings. Defaults to false.
+	IsHidden param.Opt[bool] `json:"is_hidden,omitzero"`
+	// Library to create the person in. Optional if the user has a single library;
+	// required when they have multiple.
+	LibraryID param.Opt[string] `json:"library_id,omitzero"`
+	// Display name for the new person (e.g., 'Alice'). Optional — unnamed people can
+	// be named later via `update_person`.
+	Name param.Opt[string] `json:"name,omitzero"`
+	// ID of the face to use as this person's thumbnail (with `face_` prefix).
+	// Typically set after the person has at least one associated face — get face IDs
+	// from `list_faces`.
+	ThumbnailFaceID param.Opt[string] `json:"thumbnail_face_id,omitzero"`
 	paramObj
 }
 
@@ -203,11 +247,17 @@ func (r *PersonNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type PersonUpdateParams struct {
-	BirthDate       param.Opt[time.Time] `json:"birth_date,omitzero" format:"date"`
-	IsFavorite      param.Opt[bool]      `json:"is_favorite,omitzero"`
-	IsHidden        param.Opt[bool]      `json:"is_hidden,omitzero"`
-	Name            param.Opt[string]    `json:"name,omitzero"`
-	ThumbnailFaceID param.Opt[string]    `json:"thumbnail_face_id,omitzero"`
+	// New birth date (ISO 8601 date). Omit to leave unchanged.
+	BirthDate param.Opt[time.Time] `json:"birth_date,omitzero" format:"date"`
+	// Mark or unmark this person as a favorite. Omit to leave unchanged.
+	IsFavorite param.Opt[bool] `json:"is_favorite,omitzero"`
+	// Hide or unhide this person. Omit to leave unchanged.
+	IsHidden param.Opt[bool] `json:"is_hidden,omitzero"`
+	// New display name. Omit to leave unchanged.
+	Name param.Opt[string] `json:"name,omitzero"`
+	// New thumbnail face ID for this person. Omit to leave unchanged. Get face IDs
+	// from `list_faces`.
+	ThumbnailFaceID param.Opt[string] `json:"thumbnail_face_id,omitzero"`
 	paramObj
 }
 
@@ -220,24 +270,31 @@ func (r *PersonUpdateParams) UnmarshalJSON(data []byte) error {
 }
 
 type PersonListParams struct {
-	// Include only people associated with this album ID
+	// Return only people who appear in at least one asset of this album. Useful for
+	// 'who is in this album?'.
 	AlbumID param.Opt[string] `query:"album_id,omitzero" json:"-"`
-	// Include only people associated with this asset ID
+	// Return only people who have at least one face in this asset. Useful for 'who is
+	// in this photo?'.
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
-	// Library ID (required if user has multiple libraries)
+	// Library to list from. Optional if the user has a single library; required when
+	// they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
-	// Filter by name using case-insensitive substring matching
+	// Filter by name using case-insensitive substring matching. Use this to resolve a
+	// user-supplied name like 'Alice' into a `person_id`, then pass that ID into
+	// `search_assets.person_ids` or `list_assets.person_id`.
 	Name param.Opt[string] `query:"name,omitzero" json:"-"`
-	// Cursor for pagination. Pass the `id` of the last person from the previous page
-	// to get the next page.
+	// Cursor for pagination. Pass the `id` of the last person in the previous
+	// response's `data` to fetch the next page. Omit for the first page.
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
-	// Max number of people to return (1-200)
+	// Maximum number of people to return per page (1–200). Defaults to 20.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Filter by specific person IDs (max 100)
+	// Look up specific people by ID (max 100; each ID has the `person_` prefix). When
+	// set, `name_filter` defaults to `all` so unnamed clusters are included in the
+	// lookup.
 	IDs []string `query:"ids,omitzero" json:"-"`
-	// Filter by name status: 'named' returns only people with a name, 'unnamed'
-	// returns only people without a name, 'all' returns everyone. Defaults to 'named',
-	// or 'all' when ids are provided.
+	// Filter by name status: `named` returns only people with a name; `unnamed`
+	// returns only nameless face clusters awaiting a name; `all` returns both.
+	// Defaults to `named` (or `all` when `ids` is provided).
 	//
 	// Any of "named", "unnamed", "all".
 	NameFilter PersonListParamsNameFilter `query:"name_filter,omitzero" json:"-"`
@@ -252,9 +309,9 @@ func (r PersonListParams) URLQuery() (v url.Values, err error) {
 	})
 }
 
-// Filter by name status: 'named' returns only people with a name, 'unnamed'
-// returns only people without a name, 'all' returns everyone. Defaults to 'named',
-// or 'all' when ids are provided.
+// Filter by name status: `named` returns only people with a name; `unnamed`
+// returns only nameless face clusters awaiting a name; `all` returns both.
+// Defaults to `named` (or `all` when `ids` is provided).
 type PersonListParamsNameFilter string
 
 const (

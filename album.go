@@ -41,8 +41,9 @@ func NewAlbumService(opts ...option.RequestOption) (r AlbumService) {
 	return
 }
 
-// Creates a new, empty album with optional name and description in the specified
-// library.
+// Creates an album (with optional name and description) and returns it. The album
+// starts empty — follow up with `add_assets_to_album` to populate it. To rename an
+// existing album, use `update_album` instead of creating a new one.
 func (r *AlbumService) New(ctx context.Context, body AlbumNewParams, opts ...option.RequestOption) (res *AlbumResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/albums"
@@ -50,7 +51,9 @@ func (r *AlbumService) New(ctx context.Context, body AlbumNewParams, opts ...opt
 	return res, err
 }
 
-// Retrieves details for a specific album.
+// Fetches one album's metadata (name, description, cover, counts). Use when you
+// already have an album ID. Does not include the album's assets — use
+// `list_album_assets` or `list_assets` with `album_id` for that.
 func (r *AlbumService) Get(ctx context.Context, albumID string, opts ...option.RequestOption) (res *AlbumResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
@@ -62,7 +65,10 @@ func (r *AlbumService) Get(ctx context.Context, albumID string, opts ...option.R
 	return res, err
 }
 
-// Updates the name and/or description of a specific album.
+// Updates the `name` and/or `description` of an existing album. Only the fields
+// included in the request body are changed. To modify the contents of an album,
+// use `add_assets_to_album` / `remove_assets_from_album` instead — this tool only
+// changes album metadata.
 func (r *AlbumService) Update(ctx context.Context, albumID string, body AlbumUpdateParams, opts ...option.RequestOption) (res *AlbumResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
@@ -74,11 +80,15 @@ func (r *AlbumService) Update(ctx context.Context, albumID string, body AlbumUpd
 	return res, err
 }
 
-// Retrieves a paginated list of albums from the specified library, ordered by
-// creation time, descending. Can be filtered by asset_id or specific album IDs.
+// Returns a paginated list of albums ordered by creation time (newest first). Use
+// this to enumerate a user's albums or to find which albums contain a specific
+// asset (via `asset_id`).
 //
-// **Pagination:** When `has_more` is true, pass the `id` of the last album in
-// `data` as `starting_after_id` to fetch the next page.
+// `list_albums` returns album metadata only — to list the assets inside a
+// particular album, use `list_album_assets` or `list_assets` with `album_id`.
+//
+// **Pagination** is cursor-based: when `has_more` is true, pass the `id` of the
+// last album in `data` as `starting_after_id` to fetch the next page.
 func (r *AlbumService) List(ctx context.Context, query AlbumListParams, opts ...option.RequestOption) (res *pagination.CursorPage[AlbumResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -96,17 +106,23 @@ func (r *AlbumService) List(ctx context.Context, query AlbumListParams, opts ...
 	return res, nil
 }
 
-// Retrieves a paginated list of albums from the specified library, ordered by
-// creation time, descending. Can be filtered by asset_id or specific album IDs.
+// Returns a paginated list of albums ordered by creation time (newest first). Use
+// this to enumerate a user's albums or to find which albums contain a specific
+// asset (via `asset_id`).
 //
-// **Pagination:** When `has_more` is true, pass the `id` of the last album in
-// `data` as `starting_after_id` to fetch the next page.
+// `list_albums` returns album metadata only — to list the assets inside a
+// particular album, use `list_album_assets` or `list_assets` with `album_id`.
+//
+// **Pagination** is cursor-based: when `has_more` is true, pass the `id` of the
+// last album in `data` as `starting_after_id` to fetch the next page.
 func (r *AlbumService) ListAutoPaging(ctx context.Context, query AlbumListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[AlbumResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
 
-// Deletes a specific album. Note: This does not delete the assets within the
-// album.
+// Deletes the album itself. Assets that were in the album remain in the library —
+// only the album and its asset-links are removed. Use `delete_asset` to delete the
+// underlying assets, or `remove_assets_from_album` to detach specific assets from
+// an album you want to keep.
 func (r *AlbumService) Delete(ctx context.Context, albumID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
@@ -189,9 +205,14 @@ func (r *AlbumResponseAssetURL) UnmarshalJSON(data []byte) error {
 }
 
 type AlbumNewParams struct {
+	// Optional free-form description shown alongside the album name.
 	Description param.Opt[string] `json:"description,omitzero"`
-	LibraryID   param.Opt[string] `json:"library_id,omitzero"`
-	Name        param.Opt[string] `json:"name,omitzero"`
+	// Library to create the album in. Optional if the user has a single library;
+	// required when they have multiple. Use `list_libraries` to enumerate.
+	LibraryID param.Opt[string] `json:"library_id,omitzero"`
+	// Display name for the new album. Optional; callers that need to name an album can
+	// set it here or via `update_album` after creation.
+	Name param.Opt[string] `json:"name,omitzero"`
 	paramObj
 }
 
@@ -204,8 +225,10 @@ func (r *AlbumNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type AlbumUpdateParams struct {
+	// New free-form description for the album. Omit to leave unchanged.
 	Description param.Opt[string] `json:"description,omitzero"`
-	Name        param.Opt[string] `json:"name,omitzero"`
+	// New display name for the album. Omit to leave unchanged.
+	Name param.Opt[string] `json:"name,omitzero"`
 	paramObj
 }
 
@@ -218,16 +241,19 @@ func (r *AlbumUpdateParams) UnmarshalJSON(data []byte) error {
 }
 
 type AlbumListParams struct {
-	// Filter albums containing this asset ID (optional)
+	// Return only albums that contain this asset. Useful for answering 'which albums
+	// is this photo in?' without calling `list_album_assets`.
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
-	// Library to list albums from (optional)
+	// Library to list albums from. Optional if the user has a single library; required
+	// when they have multiple. Use `list_libraries` to enumerate.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
-	// Cursor for pagination. Pass the `id` of the last album from the previous page to
-	// get the next page.
+	// Cursor for pagination. Pass the `id` of the last album in the previous
+	// response's `data` to fetch the next page. Omit for the first page.
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
-	// Max number of albums to return (1-200)
+	// Maximum number of albums to return per page (1–200). Defaults to 20.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Filter by specific album IDs (max 100)
+	// Look up specific albums by ID (max 100; each ID has the `album_` prefix). Use
+	// for bulk fetch when IDs are already known.
 	IDs []string `query:"ids,omitzero" json:"-"`
 	paramObj
 }

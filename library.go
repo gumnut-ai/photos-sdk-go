@@ -36,7 +36,9 @@ func NewLibraryService(opts ...option.RequestOption) (r LibraryService) {
 	return
 }
 
-// Creates a new library for the authenticated user.
+// Creates a new, empty library. A library is the top-level container for assets,
+// albums, people, and faces — most users have exactly one. Only create a new
+// library when the user explicitly asks for a separate container.
 func (r *LibraryService) New(ctx context.Context, body LibraryNewParams, opts ...option.RequestOption) (res *LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/libraries"
@@ -44,7 +46,9 @@ func (r *LibraryService) New(ctx context.Context, body LibraryNewParams, opts ..
 	return res, err
 }
 
-// Returns details of a specific library owned by the authenticated user.
+// Fetches one library's metadata (name, description, asset count). Use when you
+// already have a specific `library_id`; for enumerating a user's libraries prefer
+// `list_libraries`.
 func (r *LibraryService) Get(ctx context.Context, libraryID string, opts ...option.RequestOption) (res *LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
@@ -56,8 +60,9 @@ func (r *LibraryService) Get(ctx context.Context, libraryID string, opts ...opti
 	return res, err
 }
 
-// Updates the name and/or description of a library owned by the authenticated
-// user.
+// Updates the `name` and/or `description` of an existing library. Only the fields
+// included in the request body are changed. Library contents (assets, albums,
+// people, faces) are not affected.
 func (r *LibraryService) Update(ctx context.Context, libraryID string, body LibraryUpdateParams, opts ...option.RequestOption) (res *LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
@@ -69,7 +74,10 @@ func (r *LibraryService) Update(ctx context.Context, libraryID string, body Libr
 	return res, err
 }
 
-// Returns all libraries owned by the authenticated user.
+// Returns every library the user owns (no pagination — users typically have one or
+// a handful). Call this when another tool's `library_id` parameter is required but
+// you don't yet know which libraries exist. A single-library user can usually omit
+// `library_id` on other tools entirely.
 func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption) (res *[]LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/libraries"
@@ -77,8 +85,15 @@ func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption)
 	return res, err
 }
 
-// Deletes a library and all its associated data (assets, albums, people, faces).
-// Cannot delete the user's only library.
+// Deletes the library and all its associated database records — assets, albums,
+// people, and faces — via cascading foreign-key delete. This is irreversible and
+// should be used only when the user explicitly confirms they want to destroy an
+// entire library.
+//
+// **Does not delete asset files from object storage.** The library's underlying
+// asset files will be orphaned in storage. To purge files as well, call
+// `delete_asset` on each asset first (that endpoint removes both the database
+// record and the stored file), then delete the library.
 func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
@@ -128,7 +143,9 @@ func (r *LibraryResponse) UnmarshalJSON(data []byte) error {
 }
 
 type LibraryNewParams struct {
-	Name        string            `json:"name" api:"required"`
+	// Display name for the new library. Required.
+	Name string `json:"name" api:"required"`
+	// Optional free-form description shown alongside the library name.
 	Description param.Opt[string] `json:"description,omitzero"`
 	paramObj
 }
@@ -142,8 +159,10 @@ func (r *LibraryNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type LibraryUpdateParams struct {
+	// New free-form description for the library. Omit to leave unchanged.
 	Description param.Opt[string] `json:"description,omitzero"`
-	Name        param.Opt[string] `json:"name,omitzero"`
+	// New display name for the library. Omit to leave unchanged.
+	Name param.Opt[string] `json:"name,omitzero"`
 	paramObj
 }
 

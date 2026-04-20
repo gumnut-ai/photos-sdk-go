@@ -39,11 +39,17 @@ func NewAlbumAssetService(opts ...option.RequestOption) (r AlbumAssetService) {
 	return
 }
 
-// Retrieves a paginated list of album-asset links, ordered by creation time,
-// descending. Can be filtered by album_id, asset_id, or specific album-asset IDs.
+// Returns paginated _link_ records describing which assets are in which albums —
+// each row contains `album_id` + `asset_id` + link timestamps, not the full asset
+// or album metadata. Use this when you specifically need the junction records (for
+// sync or change tracking).
 //
-// **Pagination:** When `has_more` is true, pass the `id` of the last album-asset
-// in `data` as `starting_after_id` to fetch the next page.
+// **For most use cases you want a different tool:** use `list_assets` with
+// `album_id` to get the full asset metadata for a specific album; use
+// `list_albums` with `asset_id` to find which albums contain an asset.
+//
+// **Pagination** is cursor-based: when `has_more` is true, pass the `id` of the
+// last album-asset in `data` as `starting_after_id` to fetch the next page.
 func (r *AlbumAssetService) List(ctx context.Context, query AlbumAssetListParams, opts ...option.RequestOption) (res *pagination.CursorPage[AlbumAssetResponse], err error) {
 	var raw *http.Response
 	opts = slices.Concat(r.Options, opts)
@@ -61,16 +67,24 @@ func (r *AlbumAssetService) List(ctx context.Context, query AlbumAssetListParams
 	return res, nil
 }
 
-// Retrieves a paginated list of album-asset links, ordered by creation time,
-// descending. Can be filtered by album_id, asset_id, or specific album-asset IDs.
+// Returns paginated _link_ records describing which assets are in which albums —
+// each row contains `album_id` + `asset_id` + link timestamps, not the full asset
+// or album metadata. Use this when you specifically need the junction records (for
+// sync or change tracking).
 //
-// **Pagination:** When `has_more` is true, pass the `id` of the last album-asset
-// in `data` as `starting_after_id` to fetch the next page.
+// **For most use cases you want a different tool:** use `list_assets` with
+// `album_id` to get the full asset metadata for a specific album; use
+// `list_albums` with `asset_id` to find which albums contain an asset.
+//
+// **Pagination** is cursor-based: when `has_more` is true, pass the `id` of the
+// last album-asset in `data` as `starting_after_id` to fetch the next page.
 func (r *AlbumAssetService) ListAutoPaging(ctx context.Context, query AlbumAssetListParams, opts ...option.RequestOption) *pagination.CursorPageAutoPager[AlbumAssetResponse] {
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
 
-// Retrieves details for a specific album-asset link.
+// Fetches one album-asset link record (the junction row between an album and an
+// asset). Rarely needed directly; most callers want `get_asset` or `get_album`
+// instead.
 func (r *AlbumAssetService) Get(ctx context.Context, albumAssetID string, opts ...option.RequestOption) (res *AlbumAssetResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if albumAssetID == "" {
@@ -113,18 +127,24 @@ func (r *AlbumAssetResponse) UnmarshalJSON(data []byte) error {
 }
 
 type AlbumAssetListParams struct {
-	// Filter by album ID
+	// Return only link records for this album ID. Equivalent to 'list the assets in
+	// this album' — in most cases prefer `list_assets` with `album_id` to get the
+	// asset metadata directly instead of the lightweight link records.
 	AlbumID param.Opt[string] `query:"album_id,omitzero" json:"-"`
-	// Filter by asset ID
+	// Return only link records for this asset ID. Equivalent to 'which albums contain
+	// this asset' — in most cases prefer `list_albums` with `asset_id` to get the
+	// album metadata directly.
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
-	// Library ID (required if user has multiple libraries)
+	// Library to list from. Optional if the user has a single library; required when
+	// they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
-	// Cursor for pagination. Pass the `id` of the last album-asset from the previous
-	// page to get the next page.
+	// Cursor for pagination. Pass the `id` of the last album-asset in the previous
+	// response's `data` to fetch the next page. Omit for the first page.
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
-	// Max number of results to return (1-200)
+	// Maximum number of link records per page (1–200). Defaults to 20.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Filter by specific album-asset IDs (max 100)
+	// Look up specific album-asset link records by ID (max 100). The ID has the
+	// `album_asset_` prefix.
 	IDs []string `query:"ids,omitzero" json:"-"`
 	paramObj
 }

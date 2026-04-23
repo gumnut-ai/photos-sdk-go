@@ -302,6 +302,8 @@ type AssetResponse struct {
 	FileSizeBytes int64 `json:"file_size_bytes"`
 	// Height of the asset in pixels
 	Height int64 `json:"height"`
+	// Metadata for an asset — camera/EXIF fields, GPS, and location names.
+	Metadata AssetResponseMetadata `json:"metadata" api:"nullable"`
 	// ML-generated quality scores and other metrics
 	Metrics map[string]float64 `json:"metrics" api:"nullable"`
 	// All unique people identified in this asset (deduplicated from faces)
@@ -328,6 +330,7 @@ type AssetResponse struct {
 		Faces            respjson.Field
 		FileSizeBytes    respjson.Field
 		Height           respjson.Field
+		Metadata         respjson.Field
 		Metrics          respjson.Field
 		People           respjson.Field
 		Width            respjson.Field
@@ -363,6 +366,116 @@ type AssetResponseAssetURL struct {
 // Returns the unmodified JSON received from the API
 func (r AssetResponseAssetURL) RawJSON() string { return r.JSON.raw }
 func (r *AssetResponseAssetURL) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Metadata for an asset — camera/EXIF fields, GPS, and location names.
+type AssetResponseMetadata struct {
+	// ID of the asset this metadata belongs to
+	AssetID string `json:"asset_id" api:"required"`
+	// When this metadata record was created
+	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
+	// When this metadata record was last updated
+	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
+	// GPS altitude in meters
+	Altitude float64 `json:"altitude" api:"nullable"`
+	// Identifier for automatic photo stacking
+	AutoStackID string `json:"auto_stack_id" api:"nullable"`
+	// City name
+	City string `json:"city" api:"nullable"`
+	// Country name
+	Country string `json:"country" api:"nullable"`
+	// ISO 3166-1 alpha-2 country code (e.g., 'US', 'JP')
+	CountryCode string `json:"country_code" api:"nullable"`
+	// Image description or caption
+	Description string `json:"description" api:"nullable"`
+	// When the photo was digitized, with timezone offset if available
+	DigitizedDatetime time.Time `json:"digitized_datetime" api:"nullable" format:"date-time"`
+	// Exposure compensation in EV (e.g., -1.0, +0.5)
+	ExposureBias float64 `json:"exposure_bias" api:"nullable"`
+	// Shutter speed in seconds (e.g., 0.001 for 1/1000s)
+	ExposureTime float64 `json:"exposure_time" api:"nullable"`
+	// Aperture f-stop value (e.g., 2.8, 5.6)
+	FNumber float64 `json:"f_number" api:"nullable"`
+	// Focal length in millimeters
+	FocalLength float64 `json:"focal_length" api:"nullable"`
+	// Frame rate for video files
+	Fps float64 `json:"fps" api:"nullable"`
+	// ISO sensitivity value (e.g., 100, 800, 3200)
+	ISO int64 `json:"iso" api:"nullable"`
+	// GPS latitude in decimal degrees
+	Latitude float64 `json:"latitude" api:"nullable"`
+	// Lens model used (e.g., 'EF 24-70mm f/2.8L II USM')
+	LensModel string `json:"lens_model" api:"nullable"`
+	// Live photo content identifier
+	LivePhotoCid string `json:"live_photo_cid" api:"nullable"`
+	// GPS longitude in decimal degrees
+	Longitude float64 `json:"longitude" api:"nullable"`
+	// Camera manufacturer (e.g., 'Canon', 'Nikon')
+	Make string `json:"make" api:"nullable"`
+	// Camera model (e.g., 'EOS 5D Mark IV')
+	Model string `json:"model" api:"nullable"`
+	// When the file was last modified, with timezone offset if available
+	ModifiedDatetime time.Time `json:"modified_datetime" api:"nullable" format:"date-time"`
+	// Image orientation value (1-8) indicating rotation/flip: 1=normal, 2=mirror
+	// horizontal, 3=rotate 180°, 4=mirror vertical, 5=mirror horizontal+rotate 90° CW,
+	// 6=rotate 90° CW, 7=mirror horizontal+rotate 90° CCW, 8=rotate 90° CCW
+	Orientation int64 `json:"orientation" api:"nullable"`
+	// When the photo was originally taken, with timezone offset if available
+	OriginalDatetime time.Time `json:"original_datetime" api:"nullable" format:"date-time"`
+	// Landmark or point-of-interest name
+	PlaceName string `json:"place_name" api:"nullable"`
+	// Projection type (e.g., for 360° photos)
+	ProjectionType string `json:"projection_type" api:"nullable"`
+	// User or camera rating (typically 1-5 stars)
+	Rating int64 `json:"rating" api:"nullable"`
+	// State/province name
+	State string `json:"state" api:"nullable"`
+	// Neighborhood or district
+	Sublocation string `json:"sublocation" api:"nullable"`
+	// IANA timezone identifier (e.g., 'America/Los_Angeles')
+	Timezone string `json:"timezone" api:"nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		AssetID           respjson.Field
+		CreatedAt         respjson.Field
+		UpdatedAt         respjson.Field
+		Altitude          respjson.Field
+		AutoStackID       respjson.Field
+		City              respjson.Field
+		Country           respjson.Field
+		CountryCode       respjson.Field
+		Description       respjson.Field
+		DigitizedDatetime respjson.Field
+		ExposureBias      respjson.Field
+		ExposureTime      respjson.Field
+		FNumber           respjson.Field
+		FocalLength       respjson.Field
+		Fps               respjson.Field
+		ISO               respjson.Field
+		Latitude          respjson.Field
+		LensModel         respjson.Field
+		LivePhotoCid      respjson.Field
+		Longitude         respjson.Field
+		Make              respjson.Field
+		Model             respjson.Field
+		ModifiedDatetime  respjson.Field
+		Orientation       respjson.Field
+		OriginalDatetime  respjson.Field
+		PlaceName         respjson.Field
+		ProjectionType    respjson.Field
+		Rating            respjson.Field
+		State             respjson.Field
+		Sublocation       respjson.Field
+		Timezone          respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AssetResponseMetadata) RawJSON() string { return r.JSON.raw }
+func (r *AssetResponseMetadata) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

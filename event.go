@@ -68,12 +68,15 @@ func NewEventService(opts ...option.RequestOption) (r EventService) {
 //
 // **Event types:**
 //
-// - `asset_created`, `asset_updated`, `asset_deleted`
-// - `album_created`, `album_updated`, `album_deleted`
-// - `person_created`, `person_updated`, `person_deleted`
-// - `face_created`, `face_updated`, `face_deleted`
-// - `album_asset_added`, `album_asset_removed`
-// - `exif_created`, `exif_updated`, `exif_deleted`
+//   - `asset_created`, `asset_updated`, `asset_deleted`
+//   - `album_created`, `album_updated`, `album_deleted`
+//   - `person_created`, `person_updated`, `person_deleted`
+//   - `face_created`, `face_updated`, `face_deleted`
+//   - `album_asset_added`, `album_asset_removed`
+//   - `exif_created`, `exif_updated`, `exif_deleted`
+//   - `metadata_updated` (emitted alongside `exif_updated` during the asset*metadata
+//     migration window; `exif*\*` events are deprecated and will be removed in a
+//     future release)
 func (r *EventService) Get(ctx context.Context, query EventGetParams, opts ...option.RequestOption) (res *EventsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/events"
@@ -253,8 +256,8 @@ type EventGetParams struct {
 	// window.
 	CreatedAtLt param.Opt[time.Time] `query:"created_at_lt,omitzero" format:"date-time" json:"-"`
 	// Comma-separated list of entity types to include (e.g., `asset,album`). Valid
-	// values: `asset`, `album`, `person`, `face`, `album_asset`, `exif`. Omit to
-	// receive events for all types.
+	// values: `asset`, `album`, `person`, `face`, `album_asset`, `exif`, `metadata`.
+	// Omit to receive events for all types.
 	EntityTypes param.Opt[string] `query:"entity_types,omitzero" json:"-"`
 	// Library to stream events from. Optional if the user has a single library;
 	// required when they have multiple. Use `list_libraries` to enumerate.

@@ -22,6 +22,7 @@ import (
 	"github.com/gumnut-ai/photos-sdk-go/packages/pagination"
 	"github.com/gumnut-ai/photos-sdk-go/packages/param"
 	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/shared"
 )
 
 // AssetService contains methods and other services that help with interacting with
@@ -285,7 +286,7 @@ type AssetResponse struct {
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Named asset variants: 'original', 'thumbnail', 'preview', 'fullsize' for images;
 	// 'original' only for videos
-	AssetURLs map[string]AssetResponseAssetURL `json:"asset_urls" api:"nullable"`
+	AssetURLs map[string]shared.AssetVariant `json:"asset_urls" api:"nullable"`
 	// Base64-encoded SHA-1 hash for Immich client compatibility. May be null for older
 	// assets.
 	ChecksumSha1 string `json:"checksum_sha1" api:"nullable"`
@@ -303,7 +304,7 @@ type AssetResponse struct {
 	// Height of the asset in pixels
 	Height int64 `json:"height"`
 	// Metadata for an asset — camera/EXIF fields, GPS, and location names.
-	Metadata AssetResponseMetadata `json:"metadata" api:"nullable"`
+	Metadata MetadataResponse `json:"metadata" api:"nullable"`
 	// ML-generated quality scores and other metrics
 	Metrics map[string]float64 `json:"metrics" api:"nullable"`
 	// All unique people identified in this asset (deduplicated from faces)
@@ -345,32 +346,8 @@ func (r *AssetResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-// A single image variant with its URL, MIME type, and target width.
-type AssetResponseAssetURL struct {
-	// MIME type of the served image
-	Mimetype string `json:"mimetype" api:"required"`
-	// URL to fetch this image variant
-	URL string `json:"url" api:"required"`
-	// Target width in pixels (null if unknown)
-	Width int64 `json:"width" api:"nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Mimetype    respjson.Field
-		URL         respjson.Field
-		Width       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AssetResponseAssetURL) RawJSON() string { return r.JSON.raw }
-func (r *AssetResponseAssetURL) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
 // Metadata for an asset — camera/EXIF fields, GPS, and location names.
-type AssetResponseMetadata struct {
+type MetadataResponse struct {
 	// ID of the asset this metadata belongs to
 	AssetID string `json:"asset_id" api:"required"`
 	// When this metadata record was created
@@ -474,8 +451,8 @@ type AssetResponseMetadata struct {
 }
 
 // Returns the unmodified JSON received from the API
-func (r AssetResponseMetadata) RawJSON() string { return r.JSON.raw }
-func (r *AssetResponseMetadata) UnmarshalJSON(data []byte) error {
+func (r MetadataResponse) RawJSON() string { return r.JSON.raw }
+func (r *MetadataResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

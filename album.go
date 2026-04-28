@@ -18,6 +18,7 @@ import (
 	"github.com/gumnut-ai/photos-sdk-go/packages/pagination"
 	"github.com/gumnut-ai/photos-sdk-go/packages/param"
 	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/shared"
 )
 
 // AlbumService contains methods and other services that help with interacting with
@@ -150,7 +151,7 @@ type AlbumResponse struct {
 	// ID of the asset used as the album cover
 	AlbumCoverAssetID string `json:"album_cover_asset_id" api:"nullable"`
 	// Asset variants for the album cover: 'thumbnail'
-	AssetURLs map[string]AlbumResponseAssetURL `json:"asset_urls" api:"nullable"`
+	AssetURLs map[string]shared.AssetVariant `json:"asset_urls" api:"nullable"`
 	// Optional description text for the album
 	Description string `json:"description" api:"nullable"`
 	// The newest asset date (local_datetime) in the album, or null if empty
@@ -177,30 +178,6 @@ type AlbumResponse struct {
 // Returns the unmodified JSON received from the API
 func (r AlbumResponse) RawJSON() string { return r.JSON.raw }
 func (r *AlbumResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// A single image variant with its URL, MIME type, and target width.
-type AlbumResponseAssetURL struct {
-	// MIME type of the served image
-	Mimetype string `json:"mimetype" api:"required"`
-	// URL to fetch this image variant
-	URL string `json:"url" api:"required"`
-	// Target width in pixels (null if unknown)
-	Width int64 `json:"width" api:"nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Mimetype    respjson.Field
-		URL         respjson.Field
-		Width       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r AlbumResponseAssetURL) RawJSON() string { return r.JSON.raw }
-func (r *AlbumResponseAssetURL) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

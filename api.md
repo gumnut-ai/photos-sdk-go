@@ -1,3 +1,7 @@
+# Shared Response Types
+
+- <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go/shared">shared</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go/shared#AssetVariant">AssetVariant</a>
+
 # APIKeys
 
 Response Types:
@@ -20,6 +24,7 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetExistenceResponse">AssetExistenceResponse</a>
 - <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetLiteResponse">AssetLiteResponse</a>
 - <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetResponse">AssetResponse</a>
+- <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#MetadataResponse">MetadataResponse</a>
 
 Methods:
 
@@ -135,6 +140,7 @@ Methods:
 - <code title="patch /api/people/{person_id}">client.People.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, personID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonUpdateParams">PersonUpdateParams</a>) (\*<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonResponse">PersonResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /api/people">client.People.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonListParams">PersonListParams</a>) (\*<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go/packages/pagination">pagination</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go/packages/pagination#CursorPage">CursorPage</a>[<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonResponse">PersonResponse</a>], <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="delete /api/people/{person_id}">client.People.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, personID <a href="https://pkg.go.dev/builtin#string">string</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
+- <code title="post /api/people/{person_id}/merge">client.People.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonService.Merge">Merge</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, personID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonMergeParams">PersonMergeParams</a>) (\*<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonResponse">PersonResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Ping
 

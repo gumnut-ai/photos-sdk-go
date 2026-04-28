@@ -18,6 +18,7 @@ import (
 	"github.com/gumnut-ai/photos-sdk-go/packages/pagination"
 	"github.com/gumnut-ai/photos-sdk-go/packages/param"
 	"github.com/gumnut-ai/photos-sdk-go/packages/respjson"
+	"github.com/gumnut-ai/photos-sdk-go/shared"
 )
 
 // PersonService contains methods and other services that help with interacting
@@ -148,6 +149,21 @@ func (r *PersonService) Delete(ctx context.Context, personID string, opts ...opt
 	return err
 }
 
+// Merges one or more source people into the primary person identified by the URL.
+// All faces from source people are reassigned to the primary person. Source people
+// are permanently deleted (this cannot be undone). The primary person's centroid
+// embedding is recalculated.
+func (r *PersonService) Merge(ctx context.Context, personID string, body PersonMergeParams, opts ...option.RequestOption) (res *PersonResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if personID == "" {
+		err = errors.New("missing required person_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("api/people/%s/merge", personID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 // Represents a person identified through face clustering and recognition.
 type PersonResponse struct {
 	// Unique person identifier with 'person\_' prefix
@@ -164,7 +180,7 @@ type PersonResponse struct {
 	AssetCount int64 `json:"asset_count" api:"nullable"`
 	// Asset variants from this person's thumbnail face. May be null when embedded in
 	// an AssetResponse; use /api/people endpoints for full person data.
-	AssetURLs map[string]PersonResponseAssetURL `json:"asset_urls" api:"nullable"`
+	AssetURLs map[string]shared.AssetVariant `json:"asset_urls" api:"nullable"`
 	// Optional birth date of this person
 	BirthDate time.Time `json:"birth_date" api:"nullable" format:"date"`
 	// Optional name assigned to this person
@@ -191,30 +207,6 @@ type PersonResponse struct {
 // Returns the unmodified JSON received from the API
 func (r PersonResponse) RawJSON() string { return r.JSON.raw }
 func (r *PersonResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// A single image variant with its URL, MIME type, and target width.
-type PersonResponseAssetURL struct {
-	// MIME type of the served image
-	Mimetype string `json:"mimetype" api:"required"`
-	// URL to fetch this image variant
-	URL string `json:"url" api:"required"`
-	// Target width in pixels (null if unknown)
-	Width int64 `json:"width" api:"nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Mimetype    respjson.Field
-		URL         respjson.Field
-		Width       respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PersonResponseAssetURL) RawJSON() string { return r.JSON.raw }
-func (r *PersonResponseAssetURL) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -319,3 +311,18 @@ const (
 	PersonListParamsNameFilterUnnamed PersonListParamsNameFilter = "unnamed"
 	PersonListParamsNameFilterAll     PersonListParamsNameFilter = "all"
 )
+
+type PersonMergeParams struct {
+	// IDs of the people to merge into the primary person. These people will be deleted
+	// after their faces are moved.
+	SourcePersonIDs []string `json:"source_person_ids,omitzero" api:"required"`
+	paramObj
+}
+
+func (r PersonMergeParams) MarshalJSON() (data []byte, err error) {
+	type shadow PersonMergeParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *PersonMergeParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}

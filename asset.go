@@ -368,6 +368,11 @@ type MetadataResponse struct {
 	Description string `json:"description" api:"nullable"`
 	// When the photo was digitized, with timezone offset if available
 	DigitizedDatetime time.Time `json:"digitized_datetime" api:"nullable" format:"date-time"`
+	// Human-readable location label. Picks the most specific available identifier
+	// (place_name > sublocation > city > country) and appends broader context (city,
+	// then state-or-country). Example: 'Golden Gate Bridge, San Francisco,
+	// California'. Null when no location fields are populated.
+	DisplayLabel string `json:"display_label" api:"nullable"`
 	// Exposure compensation in EV (e.g., -1.0, +0.5)
 	ExposureBias float64 `json:"exposure_bias" api:"nullable"`
 	// Shutter speed in seconds (e.g., 0.001 for 1/1000s)
@@ -424,6 +429,7 @@ type MetadataResponse struct {
 		CountryCode       respjson.Field
 		Description       respjson.Field
 		DigitizedDatetime respjson.Field
+		DisplayLabel      respjson.Field
 		ExposureBias      respjson.Field
 		ExposureTime      respjson.Field
 		FNumber           respjson.Field

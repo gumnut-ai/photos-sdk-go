@@ -92,8 +92,8 @@ func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption)
 //
 // **Does not delete asset files from object storage.** The library's underlying
 // asset files will be orphaned in storage. To purge files as well, call
-// `delete_asset` on each asset first (that endpoint removes both the database
-// record and the stored file), then delete the library.
+// `permanently_delete_assets` on the library's assets first (that tool removes
+// both the database record and the stored file), then delete the library.
 func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)

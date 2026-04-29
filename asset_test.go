@@ -91,6 +91,7 @@ func TestAssetListWithOptionalParams(t *testing.T) {
 		LocalDatetimeBefore: photos.Time(time.Now()),
 		PersonID:            photos.String("person_id"),
 		StartingAfterID:     photos.String("starting_after_id"),
+		State:               photos.AssetListParamsStateLive,
 	})
 	if err != nil {
 		var apierr *photos.Error
@@ -174,6 +175,7 @@ func TestAssetCountsWithOptionalParams(t *testing.T) {
 		LocalDatetimeAfter:  photos.Time(time.Now()),
 		LocalDatetimeBefore: photos.Time(time.Now()),
 		PersonID:            photos.String("person_id"),
+		State:               photos.AssetCountsParamsStateLive,
 	})
 	if err != nil {
 		var apierr *photos.Error

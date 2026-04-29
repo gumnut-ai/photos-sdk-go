@@ -128,7 +128,9 @@ func (r *AssetService) ListAutoPaging(ctx context.Context, query AssetListParams
 }
 
 // Deletes the asset entirely — the database record, the stored file, and all
-// associated data (faces, album links, etc.). This is irreversible.
+// associated data (faces, album links, etc.). **Irreversible.** Prefer
+// `trash_assets` for the user's standard delete action so accidents can be
+// recovered.
 //
 // **Use `remove_assets_from_album` instead** when the user only wants to remove an
 // asset from a specific album but keep the file in their library. Use
@@ -309,6 +311,10 @@ type AssetResponse struct {
 	Metrics map[string]float64 `json:"metrics" api:"nullable"`
 	// All unique people identified in this asset (deduplicated from faces)
 	People []PersonResponse `json:"people"`
+	// When this asset was moved to trash (ISO 8601, UTC). `null` for live assets.
+	// Trashed assets are excluded from default list/search results and are purged
+	// after the configured retention window.
+	TrashedAt time.Time `json:"trashed_at" api:"nullable" format:"date-time"`
 	// Width of the asset in pixels
 	Width int64 `json:"width"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
@@ -334,6 +340,7 @@ type AssetResponse struct {
 		Metadata         respjson.Field
 		Metrics          respjson.Field
 		People           respjson.Field
+		TrashedAt        respjson.Field
 		Width            respjson.Field
 		ExtraFields      map[string]respjson.Field
 		raw              string
@@ -528,6 +535,12 @@ type AssetListParams struct {
 	// (album_id, person_id, datetime range) using AND logic — the result is the
 	// intersection.
 	IDs []string `query:"ids,omitzero" json:"-"`
+	// Which set of assets to read from: `live` (default — only assets that are not
+	// trashed), `trashed` (only trashed assets, ordered by most recently trashed), or
+	// `all` (both live and trashed, ordered by capture time like `live`).
+	//
+	// Any of "live", "trashed", "all".
+	State AssetListParamsState `query:"state,omitzero" json:"-"`
 	paramObj
 }
 
@@ -538,6 +551,17 @@ func (r AssetListParams) URLQuery() (v url.Values, err error) {
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }
+
+// Which set of assets to read from: `live` (default — only assets that are not
+// trashed), `trashed` (only trashed assets, ordered by most recently trashed), or
+// `all` (both live and trashed, ordered by capture time like `live`).
+type AssetListParamsState string
+
+const (
+	AssetListParamsStateLive    AssetListParamsState = "live"
+	AssetListParamsStateTrashed AssetListParamsState = "trashed"
+	AssetListParamsStateAll     AssetListParamsState = "all"
+)
 
 type AssetCheckExistenceParams struct {
 	// Library to check assets in (optional)
@@ -593,6 +617,11 @@ type AssetCountsParams struct {
 	GroupBy param.Opt[string] `query:"group_by,omitzero" json:"-"`
 	// Maximum number of time buckets to return (1-200)
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
+	// Which set of assets to count: `live` (default — excludes trashed assets),
+	// `trashed` (only trashed assets), or `all` (both live and trashed).
+	//
+	// Any of "live", "trashed", "all".
+	State AssetCountsParamsState `query:"state,omitzero" json:"-"`
 	paramObj
 }
 
@@ -603,3 +632,13 @@ func (r AssetCountsParams) URLQuery() (v url.Values, err error) {
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }
+
+// Which set of assets to count: `live` (default — excludes trashed assets),
+// `trashed` (only trashed assets), or `all` (both live and trashed).
+type AssetCountsParamsState string
+
+const (
+	AssetCountsParamsStateLive    AssetCountsParamsState = "live"
+	AssetCountsParamsStateTrashed AssetCountsParamsState = "trashed"
+	AssetCountsParamsStateAll     AssetCountsParamsState = "all"
+)

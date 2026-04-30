@@ -85,15 +85,9 @@ func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption)
 	return res, err
 }
 
-// Deletes the library and all its associated database records — assets, albums,
-// people, and faces — via cascading foreign-key delete. This is irreversible and
-// should be used only when the user explicitly confirms they want to destroy an
-// entire library.
-//
-// **Does not delete asset files from object storage.** The library's underlying
-// asset files will be orphaned in storage. To purge files as well, call
-// `permanently_delete_assets` on the library's assets first (that tool removes
-// both the database record and the stored file), then delete the library.
+// Deletes the library and all its contents — assets (including their stored
+// files), albums, people, and faces. This is irreversible and should be used only
+// when the user explicitly confirms they want to destroy an entire library.
 func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)

@@ -41,6 +41,8 @@ func NewAlbumAssetsAssociationService(opts ...option.RequestOption) (r AlbumAsse
 // already in the album are silently skipped and returned separately as
 // `duplicate_assets`. Idempotent: calling with the same IDs twice leaves the album
 // in the same state.
+//
+// Up to 100 ids per request; over-cap requests return 422.
 func (r *AlbumAssetsAssociationService) Add(ctx context.Context, albumID string, body AlbumAssetsAssociationAddParams, opts ...option.RequestOption) (res *AlbumAssetsAssociationAddResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if albumID == "" {
@@ -57,6 +59,8 @@ func (r *AlbumAssetsAssociationService) Add(ctx context.Context, albumID string,
 // `permanently_delete_assets` for irreversible removal) to delete the asset
 // entirely. To empty an album completely, call `list_album_assets` to get the
 // links and then remove them, or delete the album itself with `delete_album`.
+//
+// Up to 100 ids per request; over-cap requests return 422.
 func (r *AlbumAssetsAssociationService) Remove(ctx context.Context, albumID string, body AlbumAssetsAssociationRemoveParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
@@ -72,7 +76,8 @@ func (r *AlbumAssetsAssociationService) Remove(ctx context.Context, albumID stri
 // The property AssetIDs is required.
 type AlbumAssetAssociationParam struct {
 	// Asset IDs (with `asset_` prefix) to associate with the album. Get IDs from
-	// `list_assets`, `search_assets`, or `list_album_assets`.
+	// `list_assets`, `search_assets`, or `list_album_assets`. Up to 100 ids per
+	// request.
 	AssetIDs []string `json:"asset_ids,omitzero" api:"required"`
 	paramObj
 }

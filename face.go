@@ -148,22 +148,28 @@ type FaceResponse struct {
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
 	// Asset variants for this face: 'thumbnail' with face crop
 	AssetURLs map[string]shared.AssetVariant `json:"asset_urls" api:"nullable"`
+	// Per-face cluster-assignment diagnostics: how well the face fits its
+	// currently-assigned Person, and which other Persons are nearby in embedding
+	// space. Surfaced via `include=cluster_assignment` on the faces endpoints — used
+	// by the operator-facing face cleanup dashboard to triage mis-clustered faces.
+	ClusterAssignment FaceResponseClusterAssignment `json:"cluster_assignment" api:"nullable"`
 	// ID of the person this face belongs to (if identified)
 	PersonID string `json:"person_id" api:"nullable"`
 	// For video files, timestamp in milliseconds when face appears
 	TimestampMs int64 `json:"timestamp_ms" api:"nullable"`
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
-		ID          respjson.Field
-		AssetID     respjson.Field
-		BoundingBox respjson.Field
-		CreatedAt   respjson.Field
-		UpdatedAt   respjson.Field
-		AssetURLs   respjson.Field
-		PersonID    respjson.Field
-		TimestampMs respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
+		ID                respjson.Field
+		AssetID           respjson.Field
+		BoundingBox       respjson.Field
+		CreatedAt         respjson.Field
+		UpdatedAt         respjson.Field
+		AssetURLs         respjson.Field
+		ClusterAssignment respjson.Field
+		PersonID          respjson.Field
+		TimestampMs       respjson.Field
+		ExtraFields       map[string]respjson.Field
+		raw               string
 	} `json:"-"`
 }
 
@@ -173,7 +179,69 @@ func (r *FaceResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
+// Per-face cluster-assignment diagnostics: how well the face fits its
+// currently-assigned Person, and which other Persons are nearby in embedding
+// space. Surfaced via `include=cluster_assignment` on the faces endpoints — used
+// by the operator-facing face cleanup dashboard to triage mis-clustered faces.
+type FaceResponseClusterAssignment struct {
+	// Persons in the same library that pass the same gate shape as production face
+	// assignment, surfaced with deliberately relaxed thresholds so the list is a
+	// superset of what the automated path would admit. Sorted ascending by distance.
+	// Excludes the face's currently-assigned Person (its distance is in
+	// `distance_to_person`). Empty when no eligible Persons pass the gate.
+	Candidates []FaceResponseClusterAssignmentCandidate `json:"candidates"`
+	// Cosine distance from the face's embedding to its currently-assigned Person's
+	// centroid. Lower = better fit. Null when the face is unassigned or when the
+	// assigned Person has no centroid.
+	DistanceToPerson float64 `json:"distance_to_person" api:"nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Candidates       respjson.Field
+		DistanceToPerson respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r FaceResponseClusterAssignment) RawJSON() string { return r.JSON.raw }
+func (r *FaceResponseClusterAssignment) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Person whose centroid is close enough to a given face's embedding that it
+// would be considered for assignment — surfaced under
+// `ClusterAssignmentResponse.candidates`.
+type FaceResponseClusterAssignmentCandidate struct {
+	// Cosine distance from the face's embedding to this Person's centroid (lower =
+	// closer).
+	Distance float64 `json:"distance" api:"required"`
+	// Person ID (with 'person\_' prefix) of the candidate.
+	PersonID string `json:"person_id" api:"required"`
+	// Display name of the candidate Person, or null for unnamed clusters. Candidates
+	// surface the same Persons production assignment considers, which includes unnamed
+	// clusters.
+	Name string `json:"name" api:"nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Distance    respjson.Field
+		PersonID    respjson.Field
+		Name        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r FaceResponseClusterAssignmentCandidate) RawJSON() string { return r.JSON.raw }
+func (r *FaceResponseClusterAssignmentCandidate) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 type FaceGetParams struct {
+	// Comma-separated list of opt-in expansion fields. See `list_faces` for supported
+	// values.
+	Include param.Opt[string] `query:"include,omitzero" json:"-"`
 	// Library the face belongs to. Optional if the user has a single library; required
 	// when they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
@@ -220,6 +288,10 @@ type FaceListParams struct {
 	// Return only faces detected in this asset. Useful for 'show me all the faces in
 	// this photo'.
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
+	// Comma-separated list of opt-in expansion fields. Supported values:
+	// `cluster_assignment` (adds the nested `cluster_assignment` object —
+	// `distance_to_person` and a top-K `candidates` list of nearby Persons).
+	Include param.Opt[string] `query:"include,omitzero" json:"-"`
 	// Library to list from. Optional if the user has a single library; required when
 	// they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`

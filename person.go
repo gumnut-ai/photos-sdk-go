@@ -56,14 +56,14 @@ func (r *PersonService) New(ctx context.Context, body PersonNewParams, opts ...o
 // Fetches one person's metadata (name, asset count, thumbnail, etc.). Use this
 // when you already have a `person_id`. To find photos that contain this person,
 // use `search_assets` with `person_ids` or `list_assets` with `person_id`.
-func (r *PersonService) Get(ctx context.Context, personID string, opts ...option.RequestOption) (res *PersonResponse, err error) {
+func (r *PersonService) Get(ctx context.Context, personID string, query PersonGetParams, opts ...option.RequestOption) (res *PersonResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if personID == "" {
 		err = errors.New("missing required person_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("api/people/%s", personID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -187,6 +187,12 @@ type PersonResponse struct {
 	AssetURLs map[string]shared.AssetVariant `json:"asset_urls" api:"nullable"`
 	// Optional birth date of this person
 	BirthDate time.Time `json:"birth_date" api:"nullable" format:"date"`
+	// Cohesion metrics for a Person's face cluster — surfaced via
+	// `include=cluster_metrics` on the people endpoints. These describe how tight the
+	// cluster is in embedding space (lower = more cohesive) and drive both the
+	// production face-assignment cohesion gate and the operator-facing face cleanup
+	// dashboard.
+	ClusterMetrics PersonResponseClusterMetrics `json:"cluster_metrics" api:"nullable"`
 	// Optional name assigned to this person
 	Name string `json:"name" api:"nullable"`
 	// ID of the face resource used as this person's thumbnail
@@ -201,6 +207,7 @@ type PersonResponse struct {
 		AssetCount      respjson.Field
 		AssetURLs       respjson.Field
 		BirthDate       respjson.Field
+		ClusterMetrics  respjson.Field
 		Name            respjson.Field
 		ThumbnailFaceID respjson.Field
 		ExtraFields     map[string]respjson.Field
@@ -211,6 +218,39 @@ type PersonResponse struct {
 // Returns the unmodified JSON received from the API
 func (r PersonResponse) RawJSON() string { return r.JSON.raw }
 func (r *PersonResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// Cohesion metrics for a Person's face cluster — surfaced via
+// `include=cluster_metrics` on the people endpoints. These describe how tight the
+// cluster is in embedding space (lower = more cohesive) and drive both the
+// production face-assignment cohesion gate and the operator-facing face cleanup
+// dashboard.
+type PersonResponseClusterMetrics struct {
+	// Number of faces that fed into the centroid and pairwise metrics. This is the
+	// cluster-membership count, **not** the same as `asset_count` — `face_count`
+	// counts every face row, while `asset_count` counts distinct assets (one asset can
+	// contribute multiple faces of the same person).
+	FaceCount int64 `json:"face_count" api:"required"`
+	// Mean pairwise cosine distance between faces in this person's cluster.
+	PairwiseMean float64 `json:"pairwise_mean" api:"required"`
+	// 90th-percentile pairwise cosine distance between faces in this person's cluster.
+	// Lower = more cohesive cluster; loose clusters (higher pairwise_p90) are gated
+	// out of the face-assignment path to prevent further drift.
+	PairwiseP90 float64 `json:"pairwise_p90" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		FaceCount    respjson.Field
+		PairwiseMean respjson.Field
+		PairwiseP90  respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r PersonResponseClusterMetrics) RawJSON() string { return r.JSON.raw }
+func (r *PersonResponseClusterMetrics) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -240,6 +280,21 @@ func (r PersonNewParams) MarshalJSON() (data []byte, err error) {
 }
 func (r *PersonNewParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
+}
+
+type PersonGetParams struct {
+	// Comma-separated list of opt-in expansion fields. See `list_people` for supported
+	// values.
+	Include param.Opt[string] `query:"include,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [PersonGetParams]'s query parameters as `url.Values`.
+func (r PersonGetParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }
 
 type PersonUpdateParams struct {
@@ -272,6 +327,11 @@ type PersonListParams struct {
 	// Return only people who have at least one face in this asset. Useful for 'who is
 	// in this photo?'.
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
+	// Comma-separated list of opt-in expansion fields. Supported values:
+	// `cluster_metrics` (adds the nested `cluster_metrics` object — `pairwise_p90`,
+	// `pairwise_mean`, `face_count` — for each Person with a populated centroid).
+	// Unknown values return 422.
+	Include param.Opt[string] `query:"include,omitzero" json:"-"`
 	// Library to list from. Optional if the user has a single library; required when
 	// they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`

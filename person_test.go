@@ -44,7 +44,7 @@ func TestPersonNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestPersonGet(t *testing.T) {
+func TestPersonGetWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -57,7 +57,13 @@ func TestPersonGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.People.Get(context.TODO(), "person_id")
+	_, err := client.People.Get(
+		context.TODO(),
+		"person_id",
+		photos.PersonGetParams{
+			Include: photos.String("include"),
+		},
+	)
 	if err != nil {
 		var apierr *photos.Error
 		if errors.As(err, &apierr) {
@@ -117,6 +123,7 @@ func TestPersonListWithOptionalParams(t *testing.T) {
 		AlbumID:         photos.String("album_id"),
 		AssetID:         photos.String("asset_id"),
 		IDs:             []string{"string", "string"},
+		Include:         photos.String("include"),
 		LibraryID:       photos.String("library_id"),
 		Limit:           photos.Int(1),
 		Name:            photos.String("name"),

@@ -134,6 +134,65 @@ func (r *FaceService) Delete(ctx context.Context, faceID string, body FaceDelete
 	return err
 }
 
+// Per-face cluster-assignment diagnostics: how well the face fits its
+// currently-assigned Person, and which other Persons are nearby in embedding
+// space. Surfaced via `include=cluster_assignment` on the faces endpoints — used
+// by the operator-facing face cleanup dashboard to triage mis-clustered faces.
+type ClusterAssignmentResponse struct {
+	// Persons in the same library that pass the same gate shape as production face
+	// assignment, surfaced with deliberately relaxed thresholds so the list is a
+	// superset of what the automated path would admit. Sorted ascending by distance.
+	// Excludes the face's currently-assigned Person (its distance is in
+	// `distance_to_person`). Empty when no eligible Persons pass the gate.
+	Candidates []ClusterAssignmentResponseCandidate `json:"candidates"`
+	// Cosine distance from the face's embedding to its currently-assigned Person's
+	// centroid. Lower = better fit. Null when the face is unassigned or when the
+	// assigned Person has no centroid.
+	DistanceToPerson float64 `json:"distance_to_person" api:"nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Candidates       respjson.Field
+		DistanceToPerson respjson.Field
+		ExtraFields      map[string]respjson.Field
+		raw              string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ClusterAssignmentResponse) RawJSON() string { return r.JSON.raw }
+func (r *ClusterAssignmentResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// A Person whose centroid is close enough to a given face's embedding that it
+// would be considered for assignment — surfaced under
+// `ClusterAssignmentResponse.candidates`.
+type ClusterAssignmentResponseCandidate struct {
+	// Cosine distance from the face's embedding to this Person's centroid (lower =
+	// closer).
+	Distance float64 `json:"distance" api:"required"`
+	// Person ID (with 'person\_' prefix) of the candidate.
+	PersonID string `json:"person_id" api:"required"`
+	// Display name of the candidate Person, or null for unnamed clusters. Candidates
+	// surface the same Persons production assignment considers, which includes unnamed
+	// clusters.
+	Name string `json:"name" api:"nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Distance    respjson.Field
+		PersonID    respjson.Field
+		Name        respjson.Field
+		ExtraFields map[string]respjson.Field
+		raw         string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ClusterAssignmentResponseCandidate) RawJSON() string { return r.JSON.raw }
+func (r *ClusterAssignmentResponseCandidate) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Represents a detected face in an asset with facial recognition data.
 type FaceResponse struct {
 	// Unique face identifier with 'face\_' prefix
@@ -152,7 +211,7 @@ type FaceResponse struct {
 	// currently-assigned Person, and which other Persons are nearby in embedding
 	// space. Surfaced via `include=cluster_assignment` on the faces endpoints — used
 	// by the operator-facing face cleanup dashboard to triage mis-clustered faces.
-	ClusterAssignment FaceResponseClusterAssignment `json:"cluster_assignment" api:"nullable"`
+	ClusterAssignment ClusterAssignmentResponse `json:"cluster_assignment" api:"nullable"`
 	// ID of the person this face belongs to (if identified)
 	PersonID string `json:"person_id" api:"nullable"`
 	// For video files, timestamp in milliseconds when face appears
@@ -176,65 +235,6 @@ type FaceResponse struct {
 // Returns the unmodified JSON received from the API
 func (r FaceResponse) RawJSON() string { return r.JSON.raw }
 func (r *FaceResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Per-face cluster-assignment diagnostics: how well the face fits its
-// currently-assigned Person, and which other Persons are nearby in embedding
-// space. Surfaced via `include=cluster_assignment` on the faces endpoints — used
-// by the operator-facing face cleanup dashboard to triage mis-clustered faces.
-type FaceResponseClusterAssignment struct {
-	// Persons in the same library that pass the same gate shape as production face
-	// assignment, surfaced with deliberately relaxed thresholds so the list is a
-	// superset of what the automated path would admit. Sorted ascending by distance.
-	// Excludes the face's currently-assigned Person (its distance is in
-	// `distance_to_person`). Empty when no eligible Persons pass the gate.
-	Candidates []FaceResponseClusterAssignmentCandidate `json:"candidates"`
-	// Cosine distance from the face's embedding to its currently-assigned Person's
-	// centroid. Lower = better fit. Null when the face is unassigned or when the
-	// assigned Person has no centroid.
-	DistanceToPerson float64 `json:"distance_to_person" api:"nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Candidates       respjson.Field
-		DistanceToPerson respjson.Field
-		ExtraFields      map[string]respjson.Field
-		raw              string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FaceResponseClusterAssignment) RawJSON() string { return r.JSON.raw }
-func (r *FaceResponseClusterAssignment) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// A Person whose centroid is close enough to a given face's embedding that it
-// would be considered for assignment — surfaced under
-// `ClusterAssignmentResponse.candidates`.
-type FaceResponseClusterAssignmentCandidate struct {
-	// Cosine distance from the face's embedding to this Person's centroid (lower =
-	// closer).
-	Distance float64 `json:"distance" api:"required"`
-	// Person ID (with 'person\_' prefix) of the candidate.
-	PersonID string `json:"person_id" api:"required"`
-	// Display name of the candidate Person, or null for unnamed clusters. Candidates
-	// surface the same Persons production assignment considers, which includes unnamed
-	// clusters.
-	Name string `json:"name" api:"nullable"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		Distance    respjson.Field
-		PersonID    respjson.Field
-		Name        respjson.Field
-		ExtraFields map[string]respjson.Field
-		raw         string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r FaceResponseClusterAssignmentCandidate) RawJSON() string { return r.JSON.raw }
-func (r *FaceResponseClusterAssignmentCandidate) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

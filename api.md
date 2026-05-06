@@ -34,6 +34,10 @@ Methods:
 - <code title="delete /api/assets/{asset_id}">client.Assets.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, assetID <a href="https://pkg.go.dev/builtin#string">string</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
 - <code title="post /api/assets/exist">client.Assets.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetService.CheckExistence">CheckExistence</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetCheckExistenceParams">AssetCheckExistenceParams</a>) (\*<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetExistenceResponse">AssetExistenceResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /api/assets/counts">client.Assets.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetService.Counts">Counts</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetCountsParams">AssetCountsParams</a>) (\*<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetCountResponse">AssetCountResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="delete /api/assets">client.Assets.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetService.DeleteList">DeleteList</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetDeleteListParams">AssetDeleteListParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
+- <code title="post /api/assets/empty-trash">client.Assets.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetService.EmptyTrash">EmptyTrash</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetEmptyTrashParams">AssetEmptyTrashParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
+- <code title="post /api/assets/restore">client.Assets.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetService.Restore">Restore</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetRestoreParams">AssetRestoreParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
+- <code title="post /api/assets/trash">client.Assets.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetService.Trash">Trash</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#AssetTrashParams">AssetTrashParams</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
 
 # Albums
 
@@ -90,6 +94,7 @@ Methods:
 
 Response Types:
 
+- <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#ClusterAssignmentResponse">ClusterAssignmentResponse</a>
 - <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#FaceResponse">FaceResponse</a>
 
 Methods:
@@ -131,6 +136,7 @@ Methods:
 
 Response Types:
 
+- <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#ClusterMetricsResponse">ClusterMetricsResponse</a>
 - <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#PersonResponse">PersonResponse</a>
 
 Methods:

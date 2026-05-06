@@ -168,6 +168,39 @@ func (r *PersonService) Merge(ctx context.Context, personID string, body PersonM
 	return res, err
 }
 
+// Cohesion metrics for a Person's face cluster — surfaced via
+// `include=cluster_metrics` on the people endpoints. These describe how tight the
+// cluster is in embedding space (lower = more cohesive) and drive both the
+// production face-assignment cohesion gate and the operator-facing face cleanup
+// dashboard.
+type ClusterMetricsResponse struct {
+	// Number of faces that fed into the centroid and pairwise metrics. This is the
+	// cluster-membership count, **not** the same as `asset_count` — `face_count`
+	// counts every face row, while `asset_count` counts distinct assets (one asset can
+	// contribute multiple faces of the same person).
+	FaceCount int64 `json:"face_count" api:"required"`
+	// Mean pairwise cosine distance between faces in this person's cluster.
+	PairwiseMean float64 `json:"pairwise_mean" api:"required"`
+	// 90th-percentile pairwise cosine distance between faces in this person's cluster.
+	// Lower = more cohesive cluster; loose clusters (higher pairwise_p90) are gated
+	// out of the face-assignment path to prevent further drift.
+	PairwiseP90 float64 `json:"pairwise_p90" api:"required"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		FaceCount    respjson.Field
+		PairwiseMean respjson.Field
+		PairwiseP90  respjson.Field
+		ExtraFields  map[string]respjson.Field
+		raw          string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r ClusterMetricsResponse) RawJSON() string { return r.JSON.raw }
+func (r *ClusterMetricsResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
 // Represents a person identified through face clustering and recognition.
 type PersonResponse struct {
 	// Unique person identifier with 'person\_' prefix
@@ -192,7 +225,7 @@ type PersonResponse struct {
 	// cluster is in embedding space (lower = more cohesive) and drive both the
 	// production face-assignment cohesion gate and the operator-facing face cleanup
 	// dashboard.
-	ClusterMetrics PersonResponseClusterMetrics `json:"cluster_metrics" api:"nullable"`
+	ClusterMetrics ClusterMetricsResponse `json:"cluster_metrics" api:"nullable"`
 	// Optional name assigned to this person
 	Name string `json:"name" api:"nullable"`
 	// ID of the face resource used as this person's thumbnail
@@ -218,39 +251,6 @@ type PersonResponse struct {
 // Returns the unmodified JSON received from the API
 func (r PersonResponse) RawJSON() string { return r.JSON.raw }
 func (r *PersonResponse) UnmarshalJSON(data []byte) error {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-// Cohesion metrics for a Person's face cluster — surfaced via
-// `include=cluster_metrics` on the people endpoints. These describe how tight the
-// cluster is in embedding space (lower = more cohesive) and drive both the
-// production face-assignment cohesion gate and the operator-facing face cleanup
-// dashboard.
-type PersonResponseClusterMetrics struct {
-	// Number of faces that fed into the centroid and pairwise metrics. This is the
-	// cluster-membership count, **not** the same as `asset_count` — `face_count`
-	// counts every face row, while `asset_count` counts distinct assets (one asset can
-	// contribute multiple faces of the same person).
-	FaceCount int64 `json:"face_count" api:"required"`
-	// Mean pairwise cosine distance between faces in this person's cluster.
-	PairwiseMean float64 `json:"pairwise_mean" api:"required"`
-	// 90th-percentile pairwise cosine distance between faces in this person's cluster.
-	// Lower = more cohesive cluster; loose clusters (higher pairwise_p90) are gated
-	// out of the face-assignment path to prevent further drift.
-	PairwiseP90 float64 `json:"pairwise_p90" api:"required"`
-	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
-	JSON struct {
-		FaceCount    respjson.Field
-		PairwiseMean respjson.Field
-		PairwiseP90  respjson.Field
-		ExtraFields  map[string]respjson.Field
-		raw          string
-	} `json:"-"`
-}
-
-// Returns the unmodified JSON received from the API
-func (r PersonResponseClusterMetrics) RawJSON() string { return r.JSON.raw }
-func (r *PersonResponseClusterMetrics) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 

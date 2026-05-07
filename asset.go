@@ -26,7 +26,7 @@ import (
 )
 
 // AssetService contains methods and other services that help with interacting with
-// the Gumnut AI API.
+// the Gumnut API.
 //
 // Note, unlike clients, this service does not read variables from the environment
 // automatically. You should not instantiate this service directly, and instead use

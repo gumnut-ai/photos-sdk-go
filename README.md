@@ -1,4 +1,4 @@
-# Gumnut Go API Library
+# Gumnut AI Go API Library
 
 <!-- x-release-please-start-version -->
 
@@ -6,7 +6,7 @@
 
 <!-- x-release-please-end -->
 
-The Gumnut Go library provides convenient access to the [Gumnut REST API](https://api.gumnut.ai/redoc)
+The Gumnut AI Go library provides convenient access to the [Gumnut AI REST API](https://docs.gumnut.ai)
 from applications written in Go.
 
 It is generated with [Stainless](https://www.stainless.com/).

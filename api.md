@@ -4,6 +4,18 @@
 
 # APIKeys
 
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyResponse">APIKeyResponse</a>
+- <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyNewResponse">APIKeyNewResponse</a>
+
+Methods:
+
+- <code title="post /api/api-keys/">client.APIKeys.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyService.New">New</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyNewParams">APIKeyNewParams</a>) (\*<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyNewResponse">APIKeyNewResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="patch /api/api-keys/{key_id}">client.APIKeys.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, keyID <a href="https://pkg.go.dev/builtin#string">string</a>, body <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyUpdateParams">APIKeyUpdateParams</a>) (\*<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyResponse">APIKeyResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /api/api-keys/">client.APIKeys.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>) (\*[]<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyResponse">APIKeyResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="delete /api/api-keys/{key_id}">client.APIKeys.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#APIKeyService.Delete">Delete</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, keyID <a href="https://pkg.go.dev/builtin#string">string</a>) <a href="https://pkg.go.dev/builtin#error">error</a></code>
+
 # Assets
 
 Response Types:

@@ -84,7 +84,6 @@ Methods:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#EventsResponse">EventsResponse</a>
-- <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#ExifResponse">ExifResponse</a>
 
 Methods:
 

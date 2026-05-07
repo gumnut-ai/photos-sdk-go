@@ -347,11 +347,9 @@ type AssetResponse struct {
 	ChecksumSha1 string `json:"checksum_sha1" api:"nullable"`
 	// AI-generated description of the asset's content, quality, and composition. null
 	// means description generation has not yet run; empty string means the model
-	// refused to describe the asset. Distinct from exif.description (camera-embedded
-	// EXIF metadata).
+	// refused to describe the asset. Distinct from metadata.description
+	// (camera-embedded EXIF metadata).
 	Description string `json:"description" api:"nullable"`
-	// EXIF metadata extracted from image and video files.
-	Exif ExifResponse `json:"exif" api:"nullable"`
 	// All faces detected in this asset
 	Faces []FaceResponse `json:"faces"`
 	// File size of the asset in bytes
@@ -386,7 +384,6 @@ type AssetResponse struct {
 		AssetURLs        respjson.Field
 		ChecksumSha1     respjson.Field
 		Description      respjson.Field
-		Exif             respjson.Field
 		Faces            respjson.Field
 		FileSizeBytes    respjson.Field
 		Height           respjson.Field

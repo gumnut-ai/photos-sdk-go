@@ -14,7 +14,7 @@ import (
 )
 
 // Client creates a struct with services and top level methods that help with
-// interacting with the Gumnut AI API. You should not instantiate this client
+// interacting with the Gumnut API. You should not instantiate this client
 // directly, and instead use the [NewClient] method instead.
 type Client struct {
 	Options     []option.RequestOption
@@ -33,16 +33,16 @@ type Client struct {
 }
 
 // DefaultClientOptions read from the environment (GUMNUT_API_KEY,
-// GUMNUT_AI_BASE_URL). This should be used to initialize new clients.
+// GUMNUT_BASE_URL). This should be used to initialize new clients.
 func DefaultClientOptions() []option.RequestOption {
 	defaults := []option.RequestOption{option.WithHTTPClient(defaultHTTPClient()), option.WithEnvironmentProduction()}
-	if o, ok := os.LookupEnv("GUMNUT_AI_BASE_URL"); ok {
+	if o, ok := os.LookupEnv("GUMNUT_BASE_URL"); ok {
 		defaults = append(defaults, option.WithBaseURL(o))
 	}
 	if o, ok := os.LookupEnv("GUMNUT_API_KEY"); ok {
 		defaults = append(defaults, option.WithAPIKey(o))
 	}
-	if o, ok := os.LookupEnv("GUMNUT_AI_CUSTOM_HEADERS"); ok {
+	if o, ok := os.LookupEnv("GUMNUT_CUSTOM_HEADERS"); ok {
 		for _, line := range strings.Split(o, "\n") {
 			colon := strings.Index(line, ":")
 			if colon >= 0 {
@@ -54,9 +54,9 @@ func DefaultClientOptions() []option.RequestOption {
 }
 
 // NewClient generates a new client with the default option read from the
-// environment (GUMNUT_API_KEY, GUMNUT_AI_BASE_URL). The option passed in as
-// arguments are applied after these default arguments, and all option will be
-// passed down to the services and requests that this client makes.
+// environment (GUMNUT_API_KEY, GUMNUT_BASE_URL). The option passed in as arguments
+// are applied after these default arguments, and all option will be passed down to
+// the services and requests that this client makes.
 func NewClient(opts ...option.RequestOption) (r Client) {
 	opts = append(DefaultClientOptions(), opts...)
 

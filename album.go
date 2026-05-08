@@ -42,9 +42,10 @@ func NewAlbumService(opts ...option.RequestOption) (r AlbumService) {
 	return
 }
 
-// Creates an album (with optional name and description) and returns it. The album
-// starts empty — follow up with `add_assets_to_album` to populate it. To rename an
-// existing album, use `update_album` instead of creating a new one.
+// Creates a new, empty album in a library (with optional name and description) and
+// returns it. The album starts empty — follow up with `add_assets_to_album` to
+// populate it. To rename an existing album, use `update_album` instead of creating
+// a new one.
 func (r *AlbumService) New(ctx context.Context, body AlbumNewParams, opts ...option.RequestOption) (res *AlbumResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/albums"
@@ -52,8 +53,8 @@ func (r *AlbumService) New(ctx context.Context, body AlbumNewParams, opts ...opt
 	return res, err
 }
 
-// Fetches one album's metadata (name, description, cover, counts). Use when you
-// already have an album ID. Does not include the album's assets — use
+// Fetches one album's metadata by ID (name, description, cover, counts). Use when
+// you already have an album ID. Does not include the album's assets — use
 // `list_album_assets` or `list_assets` with `album_id` for that.
 func (r *AlbumService) Get(ctx context.Context, albumID string, opts ...option.RequestOption) (res *AlbumResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -66,9 +67,9 @@ func (r *AlbumService) Get(ctx context.Context, albumID string, opts ...option.R
 	return res, err
 }
 
-// Updates the `name` and/or `description` of an existing album. Only the fields
-// included in the request body are changed. To modify the contents of an album,
-// use `add_assets_to_album` / `remove_assets_from_album` instead — this tool only
+// Renames an album or changes its description. Only the fields included in the
+// request body are changed. To modify the contents of an album, use
+// `add_assets_to_album` / `remove_assets_from_album` instead — this tool only
 // changes album metadata.
 func (r *AlbumService) Update(ctx context.Context, albumID string, body AlbumUpdateParams, opts ...option.RequestOption) (res *AlbumResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -81,9 +82,9 @@ func (r *AlbumService) Update(ctx context.Context, albumID string, body AlbumUpd
 	return res, err
 }
 
-// Returns a paginated list of albums ordered by creation time (newest first). Use
-// this to enumerate a user's albums or to find which albums contain a specific
-// asset (via `asset_id`).
+// Returns a paginated list of albums ordered by creation time (newest first),
+// optionally filtered by asset membership or ID. Use this to enumerate a user's
+// albums or to find which albums contain a specific asset (via `asset_id`).
 //
 // `list_albums` returns album metadata only — to list the assets inside a
 // particular album, use `list_album_assets` or `list_assets` with `album_id`.
@@ -107,9 +108,9 @@ func (r *AlbumService) List(ctx context.Context, query AlbumListParams, opts ...
 	return res, nil
 }
 
-// Returns a paginated list of albums ordered by creation time (newest first). Use
-// this to enumerate a user's albums or to find which albums contain a specific
-// asset (via `asset_id`).
+// Returns a paginated list of albums ordered by creation time (newest first),
+// optionally filtered by asset membership or ID. Use this to enumerate a user's
+// albums or to find which albums contain a specific asset (via `asset_id`).
 //
 // `list_albums` returns album metadata only — to list the assets inside a
 // particular album, use `list_album_assets` or `list_assets` with `album_id`.

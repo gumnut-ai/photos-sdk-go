@@ -36,9 +36,10 @@ func NewLibraryService(opts ...option.RequestOption) (r LibraryService) {
 	return
 }
 
-// Creates a new, empty library. A library is the top-level container for assets,
-// albums, people, and faces — most users have exactly one. Only create a new
-// library when the user explicitly asks for a separate container.
+// Creates a new, empty photo library for the authenticated user. A library is the
+// top-level container for assets, albums, people, and faces — most users have
+// exactly one. Only create a new library when the user explicitly asks for a
+// separate container.
 func (r *LibraryService) New(ctx context.Context, body LibraryNewParams, opts ...option.RequestOption) (res *LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/libraries"
@@ -46,9 +47,9 @@ func (r *LibraryService) New(ctx context.Context, body LibraryNewParams, opts ..
 	return res, err
 }
 
-// Fetches one library's metadata (name, description, asset count). Use when you
-// already have a specific `library_id`; for enumerating a user's libraries prefer
-// `list_libraries`.
+// Fetches one library's metadata by ID (name, description, asset count). Use when
+// you already have a specific `library_id`; for enumerating a user's libraries
+// prefer `list_libraries`.
 func (r *LibraryService) Get(ctx context.Context, libraryID string, opts ...option.RequestOption) (res *LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
@@ -60,9 +61,9 @@ func (r *LibraryService) Get(ctx context.Context, libraryID string, opts ...opti
 	return res, err
 }
 
-// Updates the `name` and/or `description` of an existing library. Only the fields
-// included in the request body are changed. Library contents (assets, albums,
-// people, faces) are not affected.
+// Renames a library or changes its description. Only the fields included in the
+// request body are changed. Library contents (assets, albums, people, faces) are
+// not affected.
 func (r *LibraryService) Update(ctx context.Context, libraryID string, body LibraryUpdateParams, opts ...option.RequestOption) (res *LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
@@ -74,10 +75,10 @@ func (r *LibraryService) Update(ctx context.Context, libraryID string, body Libr
 	return res, err
 }
 
-// Returns every library the user owns (no pagination — users typically have one or
-// a handful). Call this when another tool's `library_id` parameter is required but
-// you don't yet know which libraries exist. A single-library user can usually omit
-// `library_id` on other tools entirely.
+// Returns every library owned by the authenticated user (no pagination — users
+// typically have one or a handful). Call this when another tool's `library_id`
+// parameter is required but you don't yet know which libraries exist. A
+// single-library user can usually omit `library_id` on other tools entirely.
 func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption) (res *[]LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/libraries"
@@ -86,8 +87,9 @@ func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption)
 }
 
 // Deletes the library and all its contents — assets (including their stored
-// files), albums, people, and faces. This is irreversible and should be used only
-// when the user explicitly confirms they want to destroy an entire library.
+// files), albums, people, and faces. **Destructive and irreversible** — should be
+// used only when the user explicitly confirms they want to destroy an entire
+// library.
 func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)

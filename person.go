@@ -40,9 +40,10 @@ func NewPersonService(opts ...option.RequestOption) (r PersonService) {
 	return
 }
 
-// Creates a new person. Most people are auto-created by face clustering, so this
-// tool is typically used only when the user explicitly wants to introduce a new
-// identity before any faces are attached.
+// Creates a new person record (a named identity for grouping faces). Most people
+// are auto-created by face clustering, so this tool is typically used only when
+// the user explicitly wants to introduce a new identity before any faces are
+// attached.
 //
 // To assign an existing face to an existing person, use `update_face` with the
 // target `person_id`.
@@ -53,9 +54,9 @@ func (r *PersonService) New(ctx context.Context, body PersonNewParams, opts ...o
 	return res, err
 }
 
-// Fetches one person's metadata (name, asset count, thumbnail, etc.). Use this
-// when you already have a `person_id`. To find photos that contain this person,
-// use `search_assets` with `person_ids` or `list_assets` with `person_id`.
+// Fetches one person's metadata by ID (name, asset count, thumbnail, etc.). Use
+// this when you already have a `person_id`. To find photos that contain this
+// person, use `search_assets` with `person_ids` or `list_assets` with `person_id`.
 func (r *PersonService) Get(ctx context.Context, personID string, query PersonGetParams, opts ...option.RequestOption) (res *PersonResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if personID == "" {
@@ -67,9 +68,9 @@ func (r *PersonService) Get(ctx context.Context, personID string, query PersonGe
 	return res, err
 }
 
-// Updates metadata on an existing person. Only the fields included in the request
-// body are changed. Typical use: assigning a name ('name this face cluster
-// "Alice"') or choosing a better thumbnail.
+// Updates a person's name, birth date, visibility, or thumbnail. Only the fields
+// included in the request body are changed. Typical use: assigning a name ('name
+// this face cluster "Alice"') or choosing a better thumbnail.
 //
 // This tool does not move faces between people — use `update_face` with a new
 // `person_id` for that.
@@ -85,9 +86,10 @@ func (r *PersonService) Update(ctx context.Context, personID string, body Person
 }
 
 // Returns a paginated list of people (named identities that group one or more
-// faces), ordered by creation time (newest first). Use this to enumerate who
-// appears in the library, to resolve a user-typed name to a `person_id`, or to
-// find who appears in a specific asset or album.
+// faces), ordered by creation time (newest first), optionally filtered by asset,
+// album, name, or ID. Use this to enumerate who appears in the library, to resolve
+// a user-typed name to a `person_id`, or to find who appears in a specific asset
+// or album.
 //
 // By default only **named** people are returned; pass `name_filter=all` or
 // `name_filter=unnamed` to include clusters that haven't been named yet.
@@ -115,9 +117,10 @@ func (r *PersonService) List(ctx context.Context, query PersonListParams, opts .
 }
 
 // Returns a paginated list of people (named identities that group one or more
-// faces), ordered by creation time (newest first). Use this to enumerate who
-// appears in the library, to resolve a user-typed name to a `person_id`, or to
-// find who appears in a specific asset or album.
+// faces), ordered by creation time (newest first), optionally filtered by asset,
+// album, name, or ID. Use this to enumerate who appears in the library, to resolve
+// a user-typed name to a `person_id`, or to find who appears in a specific asset
+// or album.
 //
 // By default only **named** people are returned; pass `name_filter=all` or
 // `name_filter=unnamed` to include clusters that haven't been named yet.
@@ -131,8 +134,9 @@ func (r *PersonService) ListAutoPaging(ctx context.Context, query PersonListPara
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
 
-// Deletes the person. The faces that were attached to this person are not deleted
-// — they become unassigned and will be re-clustered on the next clustering pass.
+// Deletes the person record; the faces that were attached to this person are not
+// deleted — they become unassigned and will be re-clustered on the next clustering
+// pass.
 //
 // Use `update_face` with `person_id=null` to detach a specific face without
 // deleting the whole person. Use `delete_face` to remove a face detection

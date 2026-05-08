@@ -55,8 +55,8 @@ func (r *AssetService) New(ctx context.Context, body AssetNewParams, opts ...opt
 	return res, err
 }
 
-// Fetches one asset and its associated metadata. Use this when you already have a
-// specific asset ID (e.g., from `list_assets`, `search_assets`, or
+// Fetches one asset and its associated metadata by ID. Use this when you already
+// have a specific asset ID (e.g., from `list_assets`, `search_assets`, or
 // `list_album_assets`) and need its full details. For bulk fetch of multiple known
 // IDs, prefer `list_assets` with the `ids` parameter to avoid N round trips.
 func (r *AssetService) Get(ctx context.Context, assetID string, opts ...option.RequestOption) (res *AssetResponse, err error) {
@@ -70,10 +70,10 @@ func (r *AssetService) Get(ctx context.Context, assetID string, opts ...option.R
 	return res, err
 }
 
-// Returns a paginated list of assets ordered by local capture time (newest first).
-// Use this tool for structured browsing and filtering — when the request can be
-// expressed as exact filters on album membership, people, date range, or specific
-// asset IDs.
+// Returns a paginated list of assets ordered by local capture time (newest first),
+// optionally filtered by album, person, date range, or asset ID. Use this tool for
+// structured browsing and filtering — when the request can be expressed as exact
+// filters on album membership, people, date range, or specific asset IDs.
 //
 // **Use `search_assets` instead** when the request involves natural-language image
 // content ('photos of sunsets', 'pictures with my dog'), location or place
@@ -105,10 +105,10 @@ func (r *AssetService) List(ctx context.Context, query AssetListParams, opts ...
 	return res, nil
 }
 
-// Returns a paginated list of assets ordered by local capture time (newest first).
-// Use this tool for structured browsing and filtering — when the request can be
-// expressed as exact filters on album membership, people, date range, or specific
-// asset IDs.
+// Returns a paginated list of assets ordered by local capture time (newest first),
+// optionally filtered by album, person, date range, or asset ID. Use this tool for
+// structured browsing and filtering — when the request can be expressed as exact
+// filters on album membership, people, date range, or specific asset IDs.
 //
 // **Use `search_assets` instead** when the request involves natural-language image
 // content ('photos of sunsets', 'pictures with my dog'), location or place
@@ -183,9 +183,9 @@ func (r *AssetService) DeleteList(ctx context.Context, params AssetDeleteListPar
 	return err
 }
 
-// Hard-deletes every trashed asset in the caller's library in one shot — storage
-// and CDN are cleaned up via the same outbox path as the scheduled purge task.
-// **Irreversible**. Deliberately not exposed as an MCP tool.
+// Permanently deletes every trashed asset in the caller's library in one shot —
+// storage and CDN are cleaned up via the same outbox path as the scheduled purge
+// task. **Irreversible**. Deliberately not exposed as an MCP tool.
 func (r *AssetService) EmptyTrash(ctx context.Context, body AssetEmptyTrashParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)

@@ -40,7 +40,7 @@ func NewFaceService(opts ...option.RequestOption) (r FaceService) {
 	return
 }
 
-// Fetches one face's details (bounding box, assigned person, timestamps,
+// Fetches one face's details by ID (bounding box, assigned person, timestamps,
 // thumbnail). Use when you already have a `face_id`.
 func (r *FaceService) Get(ctx context.Context, faceID string, query FaceGetParams, opts ...option.RequestOption) (res *FaceResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -53,9 +53,9 @@ func (r *FaceService) Get(ctx context.Context, faceID string, query FaceGetParam
 	return res, err
 }
 
-// Assigns a face to a specific person, or detaches it (set `person_id` to null).
-// This is the right tool for 'this face is Alice' or 'this face isn't Bob after
-// all'.
+// Assigns a face to a specific person, or detaches it from its current person (set
+// `person_id` to null). This is the right tool for 'this face is Alice' or 'this
+// face isn't Bob after all'.
 //
 // Currently only the `person_id` field is mutable. To create a brand-new identity
 // first, call `create_person`; to delete the face detection entirely, use
@@ -72,8 +72,9 @@ func (r *FaceService) Update(ctx context.Context, faceID string, params FaceUpda
 }
 
 // Returns a paginated list of individual face detections (with bounding boxes),
-// ordered by creation time (newest first). Each row is a single face in a single
-// asset — a person with many photos will have many face rows.
+// ordered by creation time (newest first), optionally filtered by asset, person,
+// or ID. Each row is a single face in a single asset — a person with many photos
+// will have many face rows.
 //
 // **Use `list_people` instead** when the user wants the grouped identities ('list
 // everyone in my library') rather than individual face detections. This tool is
@@ -100,8 +101,9 @@ func (r *FaceService) List(ctx context.Context, query FaceListParams, opts ...op
 }
 
 // Returns a paginated list of individual face detections (with bounding boxes),
-// ordered by creation time (newest first). Each row is a single face in a single
-// asset — a person with many photos will have many face rows.
+// ordered by creation time (newest first), optionally filtered by asset, person,
+// or ID. Each row is a single face in a single asset — a person with many photos
+// will have many face rows.
 //
 // **Use `list_people` instead** when the user wants the grouped identities ('list
 // everyone in my library') rather than individual face detections. This tool is
@@ -114,7 +116,7 @@ func (r *FaceService) ListAutoPaging(ctx context.Context, query FaceListParams, 
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
 
-// Removes one face detection row. The underlying asset and the person this face
+// Removes one face detection row; the underlying asset and the person this face
 // was assigned to are both preserved.
 //
 // **Use `update_face` with `person_id=null` instead** when the user wants to

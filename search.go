@@ -41,9 +41,10 @@ func NewSearchService(opts ...option.RequestOption) (r SearchService) {
 }
 
 // Searches for assets using semantic (CLIP-based) image-content matching and/or
-// structured filters. Use this tool when the user describes _what's in_ the photos
-// they want — subjects, scenes, places, activities, moods, objects — as opposed to
-// browsing by album membership or exact ID.
+// structured filters on people and date range. Use this tool when the user
+// describes _what's in_ the photos they want — subjects, scenes, places,
+// activities, moods, objects — as opposed to browsing by album membership or exact
+// ID.
 //
 // A natural-language `query` can be combined with structured filters
 // (`person_ids`, `captured_before`, `captured_after`) for precision. For example,

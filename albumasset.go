@@ -39,10 +39,11 @@ func NewAlbumAssetService(opts ...option.RequestOption) (r AlbumAssetService) {
 	return
 }
 
-// Returns paginated _link_ records describing which assets are in which albums —
-// each row contains `album_id` + `asset_id` + link timestamps, not the full asset
-// or album metadata. Use this when you specifically need the junction records (for
-// sync or change tracking).
+// Returns paginated _link_ records (lightweight join rows between albums and
+// assets) describing which assets are in which albums — each row contains
+// `album_id` + `asset_id` + link timestamps, not the full asset or album metadata.
+// Use this when you specifically need the junction records (for sync or change
+// tracking).
 //
 // **For most use cases you want a different tool:** use `list_assets` with
 // `album_id` to get the full asset metadata for a specific album; use
@@ -67,10 +68,11 @@ func (r *AlbumAssetService) List(ctx context.Context, query AlbumAssetListParams
 	return res, nil
 }
 
-// Returns paginated _link_ records describing which assets are in which albums —
-// each row contains `album_id` + `asset_id` + link timestamps, not the full asset
-// or album metadata. Use this when you specifically need the junction records (for
-// sync or change tracking).
+// Returns paginated _link_ records (lightweight join rows between albums and
+// assets) describing which assets are in which albums — each row contains
+// `album_id` + `asset_id` + link timestamps, not the full asset or album metadata.
+// Use this when you specifically need the junction records (for sync or change
+// tracking).
 //
 // **For most use cases you want a different tool:** use `list_assets` with
 // `album_id` to get the full asset metadata for a specific album; use
@@ -82,8 +84,8 @@ func (r *AlbumAssetService) ListAutoPaging(ctx context.Context, query AlbumAsset
 	return pagination.NewCursorPageAutoPager(r.List(ctx, query, opts...))
 }
 
-// Fetches one album-asset link record (the junction row between an album and an
-// asset). Rarely needed directly; most callers want `get_asset` or `get_album`
+// Fetches one album-asset link record by ID (the junction row between an album and
+// an asset). Rarely needed directly; most callers want `get_asset` or `get_album`
 // instead.
 func (r *AlbumAssetService) Get(ctx context.Context, albumAssetID string, opts ...option.RequestOption) (res *AlbumAssetResponse, err error) {
 	opts = slices.Concat(r.Options, opts)

@@ -67,9 +67,9 @@ func (r *AlbumService) Get(ctx context.Context, albumID string, opts ...option.R
 	return res, err
 }
 
-// Renames an album or changes its description. Only the fields included in the
-// request body are changed. To modify the contents of an album, use
-// `add_assets_to_album` / `remove_assets_from_album` instead — this tool only
+// Updates album metadata (name, description, and/or cover). Only the fields
+// included in the request body are changed. To modify the contents of an album,
+// use `add_assets_to_album` / `remove_assets_from_album` instead — this tool only
 // changes album metadata.
 func (r *AlbumService) Update(ctx context.Context, albumID string, body AlbumUpdateParams, opts ...option.RequestOption) (res *AlbumResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -150,7 +150,9 @@ type AlbumResponse struct {
 	Name string `json:"name" api:"required"`
 	// When this album was last updated
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// ID of the asset used as the album cover
+	// ID of the asset displayed as the album cover. May be a server-selected default
+	// when the album has no explicit cover set, or null when the album has no live
+	// assets.
 	AlbumCoverAssetID string `json:"album_cover_asset_id" api:"nullable"`
 	// Asset variants for the album cover: 'thumbnail'
 	AssetURLs map[string]shared.AssetVariant `json:"asset_urls" api:"nullable"`
@@ -204,6 +206,10 @@ func (r *AlbumNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type AlbumUpdateParams struct {
+	// Asset ID (with `asset_` prefix) to use as the album cover. Must be a live asset
+	// already in the album — get IDs from `list_album_assets`. Pass `null` to clear
+	// the explicit cover. Omit to leave unchanged.
+	AlbumCoverAssetID param.Opt[string] `json:"album_cover_asset_id,omitzero"`
 	// New free-form description for the album. Omit to leave unchanged.
 	Description param.Opt[string] `json:"description,omitzero"`
 	// New display name for the album. Omit to leave unchanged.

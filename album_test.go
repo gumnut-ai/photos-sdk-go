@@ -80,8 +80,9 @@ func TestAlbumUpdateWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"album_id",
 		photos.AlbumUpdateParams{
-			Description: photos.String("description"),
-			Name:        photos.String("name"),
+			AlbumCoverAssetID: photos.String("album_cover_asset_id"),
+			Description:       photos.String("description"),
+			Name:              photos.String("name"),
 		},
 	)
 	if err != nil {

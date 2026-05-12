@@ -468,6 +468,10 @@ type MetadataResponse struct {
 	ProjectionType string `json:"projection_type" api:"nullable"`
 	// User or camera rating (typically 1-5 stars)
 	Rating int64 `json:"rating" api:"nullable"`
+	// Pre-rotation raw height; null when not available
+	RawHeight int64 `json:"raw_height" api:"nullable"`
+	// Pre-rotation raw width; null when not available
+	RawWidth int64 `json:"raw_width" api:"nullable"`
 	// State/province name
 	State string `json:"state" api:"nullable"`
 	// Neighborhood or district
@@ -505,6 +509,8 @@ type MetadataResponse struct {
 		PlaceName         respjson.Field
 		ProjectionType    respjson.Field
 		Rating            respjson.Field
+		RawHeight         respjson.Field
+		RawWidth          respjson.Field
 		State             respjson.Field
 		Sublocation       respjson.Field
 		Timezone          respjson.Field

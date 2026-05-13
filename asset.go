@@ -586,10 +586,10 @@ type AssetListParams struct {
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	// Maximum number of assets to return per page (1–200). Defaults to 20.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Look up specific assets by ID (max 100; each ID has the `asset_` prefix). Use
-	// this for bulk fetch when you already have asset IDs. Combines with other filters
-	// (album_id, person_id, datetime range) using AND logic — the result is the
-	// intersection.
+	// Look up specific assets by ID (max 100; each ID has the `asset_` prefix).
+	// Accepts multiple `ids=` query params or a single comma-delimited value (e.g.,
+	// `ids=asset_1,asset_2`). Combines with other filters (album_id, person_id,
+	// datetime range) using AND logic — the result is the intersection.
 	IDs []string `query:"ids,omitzero" json:"-"`
 	// Which set of assets to read from: `live` (default — only assets that are not
 	// trashed), `trashed` (only trashed assets, ordered by most recently trashed), or

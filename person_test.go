@@ -61,7 +61,7 @@ func TestPersonGetWithOptionalParams(t *testing.T) {
 		context.TODO(),
 		"person_id",
 		photos.PersonGetParams{
-			Include: photos.String("include"),
+			Include: []string{"string", "string"},
 		},
 	)
 	if err != nil {
@@ -123,7 +123,7 @@ func TestPersonListWithOptionalParams(t *testing.T) {
 		AlbumID:         photos.String("album_id"),
 		AssetID:         photos.String("asset_id"),
 		IDs:             []string{"string", "string"},
-		Include:         photos.String("include"),
+		Include:         []string{"string", "string"},
 		LibraryID:       photos.String("library_id"),
 		Limit:           photos.Int(1),
 		Name:            photos.String("name"),

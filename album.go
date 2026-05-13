@@ -237,8 +237,9 @@ type AlbumListParams struct {
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	// Maximum number of albums to return per page (1–200). Defaults to 20.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Look up specific albums by ID (max 100; each ID has the `album_` prefix). Use
-	// for bulk fetch when IDs are already known.
+	// Look up specific albums by ID (max 100; each ID has the `album_` prefix).
+	// Accepts multiple `ids=` query params or a single comma-delimited value (e.g.,
+	// `ids=album_1,album_2`).
 	IDs []string `query:"ids,omitzero" json:"-"`
 	paramObj
 }

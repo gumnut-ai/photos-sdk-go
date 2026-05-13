@@ -186,9 +186,9 @@ type SearchSearchAssetsParams struct {
 	Threshold param.Opt[float64] `json:"threshold,omitzero"`
 	// Image file to search for similar assets. Can be combined with text query.
 	Image io.Reader `json:"image,omitzero" format:"binary"`
-	// Filter to only include assets containing ALL of these person IDs. Can be
-	// comma-delimited string (e.g. 'person_123,person_abc') or multiple query
-	// parameters.
+	// Filter to assets containing ALL of these person IDs (intersection, not union).
+	// Accepts multiple `person_ids=` form fields or a single comma-delimited value
+	// (e.g., `person_123,person_abc`). Get person IDs from `list_people`.
 	PersonIDs []string `json:"person_ids,omitzero"`
 	paramObj
 }

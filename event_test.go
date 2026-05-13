@@ -31,7 +31,7 @@ func TestEventGetWithOptionalParams(t *testing.T) {
 		AfterCursor:  photos.String("after_cursor"),
 		CreatedAtGte: photos.Time(time.Now()),
 		CreatedAtLt:  photos.Time(time.Now()),
-		EntityTypes:  photos.String("entity_types"),
+		EntityTypes:  []string{"string", "string"},
 		LibraryID:    photos.String("library_id"),
 		Limit:        photos.Int(1),
 	})

@@ -287,9 +287,9 @@ func (r *PersonNewParams) UnmarshalJSON(data []byte) error {
 }
 
 type PersonGetParams struct {
-	// Comma-separated list of opt-in expansion fields. See `list_people` for supported
-	// values.
-	Include param.Opt[string] `query:"include,omitzero" json:"-"`
+	// Opt-in expansion fields. See `list_people` for supported values. Accepts
+	// multiple `include=` query params or a single comma-delimited value.
+	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
 
@@ -331,11 +331,6 @@ type PersonListParams struct {
 	// Return only people who have at least one face in this asset. Useful for 'who is
 	// in this photo?'.
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
-	// Comma-separated list of opt-in expansion fields. Supported values:
-	// `cluster_metrics` (adds the nested `cluster_metrics` object — `pairwise_p90`,
-	// `pairwise_mean`, `face_count` — for each Person with a populated centroid).
-	// Unknown values return 422.
-	Include param.Opt[string] `query:"include,omitzero" json:"-"`
 	// Library to list from. Optional if the user has a single library; required when
 	// they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
@@ -348,10 +343,16 @@ type PersonListParams struct {
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	// Maximum number of people to return per page (1–200). Defaults to 20.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Look up specific people by ID (max 100; each ID has the `person_` prefix). When
-	// set, `name_filter` defaults to `all` so unnamed clusters are included in the
-	// lookup.
+	// Look up specific people by ID (max 100; each ID has the `person_` prefix).
+	// Accepts multiple `ids=` query params or a single comma-delimited value (e.g.,
+	// `ids=person_1,person_2`). When set, `name_filter` defaults to `all` so unnamed
+	// clusters are included in the lookup.
 	IDs []string `query:"ids,omitzero" json:"-"`
+	// Opt-in expansion fields. Supported values: `cluster_metrics` (adds the nested
+	// `cluster_metrics` object — `pairwise_p90`, `pairwise_mean`, `face_count` — for
+	// each Person with a populated centroid). Accepts multiple `include=` query params
+	// or a single comma-delimited value. Unknown values return 422.
+	Include []string `query:"include,omitzero" json:"-"`
 	// Filter by name status: `named` returns only people with a name; `unnamed`
 	// returns only nameless face clusters awaiting a name; `all` returns both.
 	// Defaults to `named` (or `all` when `ids` is provided).

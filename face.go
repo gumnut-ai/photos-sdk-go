@@ -241,12 +241,12 @@ func (r *FaceResponse) UnmarshalJSON(data []byte) error {
 }
 
 type FaceGetParams struct {
-	// Comma-separated list of opt-in expansion fields. See `list_faces` for supported
-	// values.
-	Include param.Opt[string] `query:"include,omitzero" json:"-"`
 	// Library the face belongs to. Optional if the user has a single library; required
 	// when they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
+	// Opt-in expansion fields. See `list_faces` for supported values. Accepts multiple
+	// `include=` query params or a single comma-delimited value.
+	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
 
@@ -290,10 +290,6 @@ type FaceListParams struct {
 	// Return only faces detected in this asset. Useful for 'show me all the faces in
 	// this photo'.
 	AssetID param.Opt[string] `query:"asset_id,omitzero" json:"-"`
-	// Comma-separated list of opt-in expansion fields. Supported values:
-	// `cluster_assignment` (adds the nested `cluster_assignment` object —
-	// `distance_to_person` and a top-K `candidates` list of nearby Persons).
-	Include param.Opt[string] `query:"include,omitzero" json:"-"`
 	// Library to list from. Optional if the user has a single library; required when
 	// they have multiple.
 	LibraryID param.Opt[string] `query:"library_id,omitzero" json:"-"`
@@ -305,8 +301,15 @@ type FaceListParams struct {
 	StartingAfterID param.Opt[string] `query:"starting_after_id,omitzero" json:"-"`
 	// Maximum number of faces per page (1–200). Defaults to 20.
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
-	// Look up specific faces by ID (max 100). IDs use the `face_` prefix.
+	// Look up specific faces by ID (max 100). IDs use the `face_` prefix. Accepts
+	// multiple `ids=` query params or a single comma-delimited value (e.g.,
+	// `ids=face_1,face_2`).
 	IDs []string `query:"ids,omitzero" json:"-"`
+	// Opt-in expansion fields. Supported values: `cluster_assignment` (adds the nested
+	// `cluster_assignment` object — `distance_to_person` and a top-K `candidates` list
+	// of nearby Persons). Accepts multiple `include=` query params or a single
+	// comma-delimited value (e.g., `include=cluster_assignment`).
+	Include []string `query:"include,omitzero" json:"-"`
 	paramObj
 }
 

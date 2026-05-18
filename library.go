@@ -7,10 +7,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"slices"
 	"time"
 
 	"github.com/gumnut-ai/photos-sdk-go/internal/apijson"
+	"github.com/gumnut-ai/photos-sdk-go/internal/apiquery"
 	"github.com/gumnut-ai/photos-sdk-go/internal/requestconfig"
 	"github.com/gumnut-ai/photos-sdk-go/option"
 	"github.com/gumnut-ai/photos-sdk-go/packages/param"
@@ -47,9 +49,8 @@ func (r *LibraryService) New(ctx context.Context, body LibraryNewParams, opts ..
 	return res, err
 }
 
-// Fetches one library's metadata by ID (name, description, asset count). Use when
-// you already have a specific `library_id`; for enumerating a user's libraries
-// prefer `list_libraries`.
+// Fetches one library's metadata by ID. Returns the library regardless of trash
+// state.
 func (r *LibraryService) Get(ctx context.Context, libraryID string, opts ...option.RequestOption) (res *LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
@@ -75,21 +76,27 @@ func (r *LibraryService) Update(ctx context.Context, libraryID string, body Libr
 	return res, err
 }
 
-// Returns every library owned by the authenticated user (no pagination — users
+// Returns libraries owned by the authenticated user (no pagination — users
 // typically have one or a handful). Call this when another tool's `library_id`
 // parameter is required but you don't yet know which libraries exist. A
 // single-library user can usually omit `library_id` on other tools entirely.
-func (r *LibraryService) List(ctx context.Context, opts ...option.RequestOption) (res *[]LibraryResponse, err error) {
+//
+// By default trashed libraries are excluded. Pass `state=trashed` to list the
+// trash drawer (ordered by most recently trashed) or `state=all` for both.
+func (r *LibraryService) List(ctx context.Context, query LibraryListParams, opts ...option.RequestOption) (res *[]LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/libraries"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
-// Deletes the library and all its contents — assets (including their stored
-// files), albums, people, and faces. **Destructive and irreversible** — should be
-// used only when the user explicitly confirms they want to destroy an entire
-// library.
+// Expedites the background purge on a **trashed** library: the 90-day undo window
+// is waived and the drain begins claiming this library on the next scheduled tick.
+// Returns 204 immediately; the drain proceeds asynchronously in bounded batches
+// and does not block on completion. Restore still works until the drain finishes
+// purging all assets, but past this point it will recover only the assets the
+// drain hasn't gotten to yet. Returns 409 if the library has not been trashed yet;
+// trash it first.
 func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
@@ -169,3 +176,30 @@ func (r LibraryUpdateParams) MarshalJSON() (data []byte, err error) {
 func (r *LibraryUpdateParams) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type LibraryListParams struct {
+	// Which set of libraries to return: `live` (default — excludes trashed), `trashed`
+	// (only trashed, ordered by most recently trashed), or `all` (both).
+	//
+	// Any of "live", "trashed", "all".
+	State LibraryListParamsState `query:"state,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [LibraryListParams]'s query parameters as `url.Values`.
+func (r LibraryListParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+// Which set of libraries to return: `live` (default — excludes trashed), `trashed`
+// (only trashed, ordered by most recently trashed), or `all` (both).
+type LibraryListParamsState string
+
+const (
+	LibraryListParamsStateLive    LibraryListParamsState = "live"
+	LibraryListParamsStateTrashed LibraryListParamsState = "trashed"
+	LibraryListParamsStateAll     LibraryListParamsState = "all"
+)

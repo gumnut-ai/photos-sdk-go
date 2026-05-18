@@ -130,7 +130,7 @@ func TestLibraryDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.Libraries.Delete(context.TODO(), "library_id")
+	_, err := client.Libraries.Delete(context.TODO(), "library_id")
 	if err != nil {
 		var apierr *photos.Error
 		if errors.As(err, &apierr) {
@@ -176,7 +176,7 @@ func TestLibraryTrash(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.Libraries.Trash(context.TODO(), "library_id")
+	_, err := client.Libraries.Trash(context.TODO(), "library_id")
 	if err != nil {
 		var apierr *photos.Error
 		if errors.As(err, &apierr) {

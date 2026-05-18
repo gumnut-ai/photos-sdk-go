@@ -103,7 +103,7 @@ func TestAPIKeyDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.APIKeys.Delete(context.TODO(), "key_id")
+	_, err := client.APIKeys.Delete(context.TODO(), "key_id")
 	if err != nil {
 		var apierr *photos.Error
 		if errors.As(err, &apierr) {

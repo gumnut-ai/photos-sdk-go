@@ -65,16 +65,15 @@ func (r *APIKeyService) List(ctx context.Context, opts ...option.RequestOption) 
 }
 
 // Deletes a specific API key
-func (r *APIKeyService) Delete(ctx context.Context, keyID string, opts ...option.RequestOption) (err error) {
+func (r *APIKeyService) Delete(ctx context.Context, keyID string, opts ...option.RequestOption) (res *APIKeyDeleteResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if keyID == "" {
 		err = errors.New("missing required key_id parameter")
-		return err
+		return nil, err
 	}
 	path := fmt.Sprintf("api/api-keys/%s", keyID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
 }
 
 // Represents an API key for authentication (without exposing the actual key).
@@ -142,6 +141,8 @@ func (r APIKeyNewResponse) RawJSON() string { return r.JSON.raw }
 func (r *APIKeyNewResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type APIKeyDeleteResponse = any
 
 type APIKeyNewParams struct {
 	Name string `json:"name" api:"required"`

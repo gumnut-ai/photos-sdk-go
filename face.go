@@ -124,16 +124,15 @@ func (r *FaceService) ListAutoPaging(ctx context.Context, query FaceListParams, 
 // re-clustering can try again). Use `delete_person` to remove a person; use
 // `trash_assets` (or `permanently_delete_assets` for irreversible removal) to
 // remove the photo entirely.
-func (r *FaceService) Delete(ctx context.Context, faceID string, body FaceDeleteParams, opts ...option.RequestOption) (err error) {
+func (r *FaceService) Delete(ctx context.Context, faceID string, body FaceDeleteParams, opts ...option.RequestOption) (res *FaceDeleteResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if faceID == "" {
 		err = errors.New("missing required face_id parameter")
-		return err
+		return nil, err
 	}
 	path := fmt.Sprintf("api/faces/%s", faceID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, &res, opts...)
+	return res, err
 }
 
 // Per-face cluster-assignment diagnostics: how well the face fits its
@@ -239,6 +238,8 @@ func (r FaceResponse) RawJSON() string { return r.JSON.raw }
 func (r *FaceResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type FaceDeleteResponse = any
 
 type FaceGetParams struct {
 	// Library the face belongs to. Optional if the user has a single library; required

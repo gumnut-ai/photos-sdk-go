@@ -136,7 +136,7 @@ func TestAlbumDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.Albums.Delete(context.TODO(), "album_id")
+	_, err := client.Albums.Delete(context.TODO(), "album_id")
 	if err != nil {
 		var apierr *photos.Error
 		if errors.As(err, &apierr) {

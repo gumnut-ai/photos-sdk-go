@@ -117,7 +117,7 @@ func TestFaceDeleteWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.Faces.Delete(
+	_, err := client.Faces.Delete(
 		context.TODO(),
 		"face_id",
 		photos.FaceDeleteParams{

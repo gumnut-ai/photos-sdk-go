@@ -29,6 +29,7 @@ type Client struct {
 	People      PersonService
 	Ping        PingService
 	Search      SearchService
+	Tasks       TaskService
 	Users       UserService
 }
 
@@ -73,6 +74,7 @@ func NewClient(opts ...option.RequestOption) (r Client) {
 	r.People = NewPersonService(opts...)
 	r.Ping = NewPingService(opts...)
 	r.Search = NewSearchService(opts...)
+	r.Tasks = NewTaskService(opts...)
 	r.Users = NewUserService(opts...)
 
 	return

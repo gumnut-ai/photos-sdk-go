@@ -168,6 +168,8 @@ Methods:
 - <code title="get /api/search">client.Search.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#SearchService.Search">Search</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#SearchSearchParams">SearchSearchParams</a>) (\*<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#SearchResponse">SearchResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /api/search">client.Search.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#SearchService.SearchAssets">SearchAssets</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#SearchSearchAssetsParams">SearchSearchAssetsParams</a>) (\*<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go">photos</a>.<a href="https://pkg.go.dev/github.com/gumnut-ai/photos-sdk-go#SearchResponse">SearchResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
+# Tasks
+
 # Users
 
 Response Types:

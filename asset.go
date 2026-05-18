@@ -222,6 +222,27 @@ func (r *AssetService) Trash(ctx context.Context, params AssetTrashParams, opts 
 	return err
 }
 
+// Edits the user-editable metadata for a single asset — description, GPS
+// coordinates, and original capture datetime. Only fields included in the request
+// body are changed; others are left untouched. Passing `null` for a field removes
+// a previously-set value; the response then falls back to the value embedded in
+// the file when present. `latitude` and `longitude` must be set together (both
+// written or both cleared).
+//
+// Setting or clearing GPS coordinates re-enqueues reverse geocoding so location
+// names refresh against the new effective coordinates. Setting the datetime moves
+// the asset in the timeline (`list_assets` ordering).
+func (r *AssetService) UpdateAsset(ctx context.Context, assetID string, body AssetUpdateAssetParams, opts ...option.RequestOption) (res *AssetResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	if assetID == "" {
+		err = errors.New("missing required asset_id parameter")
+		return nil, err
+	}
+	path := fmt.Sprintf("api/assets/%s", assetID)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, body, &res, opts...)
+	return res, err
+}
+
 type AssetCountResponse struct {
 	// Time bucket and count pairs, ordered by time bucket descending
 	Data []AssetCountResponseData `json:"data" api:"required"`
@@ -790,4 +811,35 @@ func (r AssetTrashParams) URLQuery() (v url.Values, err error) {
 		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type AssetUpdateAssetParams struct {
+	// User-set description for the asset. Pass `null` to remove a previously-set value
+	// (the response then falls back to the description embedded in the file, if any).
+	// Omit to leave unchanged. Distinct from the AI-generated `description` field on
+	// the response — this writes to `metadata.description`.
+	Description param.Opt[string] `json:"description,omitzero"`
+	// GPS latitude in decimal degrees, `[-90, 90]`. Must be set together with
+	// `longitude`. Pass `null` (along with `longitude=null`) to remove a
+	// previously-set value; omit to leave unchanged.
+	Latitude param.Opt[float64] `json:"latitude,omitzero"`
+	// GPS longitude in decimal degrees, `[-180, 180]`. Must be set together with
+	// `latitude`. Pass `null` (along with `latitude=null`) to remove a previously-set
+	// value; omit to leave unchanged.
+	Longitude param.Opt[float64] `json:"longitude,omitzero"`
+	// When the asset was originally captured. Aware values store the offset from
+	// `utcoffset()` alongside; naive values store NULL offset. Pass `null` to remove a
+	// previously-set value — the response then falls back to the datetime embedded in
+	// the file when present, otherwise to the file's upload timestamp. Omit to leave
+	// unchanged.
+	OriginalDatetime param.Opt[time.Time] `json:"original_datetime,omitzero" format:"date-time"`
+	paramObj
+}
+
+func (r AssetUpdateAssetParams) MarshalJSON() (data []byte, err error) {
+	type shadow AssetUpdateAssetParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AssetUpdateAssetParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
 }

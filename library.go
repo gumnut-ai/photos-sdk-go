@@ -92,21 +92,20 @@ func (r *LibraryService) List(ctx context.Context, query LibraryListParams, opts
 
 // Expedites the background purge on a **trashed** library: the 90-day undo window
 // is waived and the drain begins claiming this library on the next scheduled tick.
-// Returns 204 immediately; the drain proceeds asynchronously in bounded batches
-// and does not block on completion. Restore still works until the drain finishes
+// Returns immediately; the drain proceeds asynchronously in bounded batches and
+// does not block on completion. Restore still works until the drain finishes
 // purging all assets, but past this point it will recover only the assets the
 // drain hasn't gotten to yet. Returns 409 if the library has not been trashed yet;
 // trash it first.
-func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...option.RequestOption) (err error) {
+func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...option.RequestOption) (res *LibraryDeleteResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if libraryID == "" {
 		err = errors.New("missing required library_id parameter")
-		return err
+		return nil, err
 	}
 	path := fmt.Sprintf("api/libraries/%s", libraryID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
 }
 
 // Restores a previously-trashed library so it reappears in default list/search
@@ -131,17 +130,16 @@ func (r *LibraryService) Restore(ctx context.Context, libraryID string, opts ...
 // the background; until the library row itself is removed, restore still works but
 // recovers only the assets not yet purged.
 //
-// Idempotent — a second call on an already-trashed library no-ops and returns 204.
-func (r *LibraryService) Trash(ctx context.Context, libraryID string, opts ...option.RequestOption) (err error) {
+// Idempotent — a second call on an already-trashed library no-ops.
+func (r *LibraryService) Trash(ctx context.Context, libraryID string, opts ...option.RequestOption) (res *LibraryTrashResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if libraryID == "" {
 		err = errors.New("missing required library_id parameter")
-		return err
+		return nil, err
 	}
 	path := fmt.Sprintf("api/libraries/%s/trash", libraryID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, nil, &res, opts...)
+	return res, err
 }
 
 // Represents a user's photo library.
@@ -179,6 +177,10 @@ func (r LibraryResponse) RawJSON() string { return r.JSON.raw }
 func (r *LibraryResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type LibraryDeleteResponse = any
+
+type LibraryTrashResponse = any
 
 type LibraryNewParams struct {
 	// Display name for the new library. Required.

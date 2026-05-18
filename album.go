@@ -126,16 +126,15 @@ func (r *AlbumService) ListAutoPaging(ctx context.Context, query AlbumListParams
 // `permanently_delete_assets` for irreversible removal) to delete the underlying
 // assets, or `remove_assets_from_album` to detach specific assets from an album
 // you want to keep.
-func (r *AlbumService) Delete(ctx context.Context, albumID string, opts ...option.RequestOption) (err error) {
+func (r *AlbumService) Delete(ctx context.Context, albumID string, opts ...option.RequestOption) (res *AlbumDeleteResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
-		return err
+		return nil, err
 	}
 	path := fmt.Sprintf("api/albums/%s", albumID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
 }
 
 // Represents a collection of assets organized by the user.
@@ -184,6 +183,8 @@ func (r AlbumResponse) RawJSON() string { return r.JSON.raw }
 func (r *AlbumResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type AlbumDeleteResponse = any
 
 type AlbumNewParams struct {
 	// Optional free-form description shown alongside the album name.

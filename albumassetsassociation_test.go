@@ -57,7 +57,7 @@ func TestAlbumAssetsAssociationRemove(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.Albums.AssetsAssociations.Remove(
+	_, err := client.Albums.AssetsAssociations.Remove(
 		context.TODO(),
 		"album_id",
 		photos.AlbumAssetsAssociationRemoveParams{

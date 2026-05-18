@@ -62,16 +62,15 @@ func (r *AlbumAssetsAssociationService) Add(ctx context.Context, albumID string,
 // links and then remove them, or delete the album itself with `delete_album`.
 //
 // Up to 100 ids per request; over-cap requests return 422.
-func (r *AlbumAssetsAssociationService) Remove(ctx context.Context, albumID string, body AlbumAssetsAssociationRemoveParams, opts ...option.RequestOption) (err error) {
+func (r *AlbumAssetsAssociationService) Remove(ctx context.Context, albumID string, body AlbumAssetsAssociationRemoveParams, opts ...option.RequestOption) (res *AlbumAssetsAssociationRemoveResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if albumID == "" {
 		err = errors.New("missing required album_id parameter")
-		return err
+		return nil, err
 	}
 	path := fmt.Sprintf("api/albums/%s/assets", albumID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, &res, opts...)
+	return res, err
 }
 
 // The property AssetIDs is required.
@@ -115,6 +114,8 @@ func (r AlbumAssetsAssociationAddResponse) RawJSON() string { return r.JSON.raw 
 func (r *AlbumAssetsAssociationAddResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type AlbumAssetsAssociationRemoveResponse = any
 
 type AlbumAssetsAssociationAddParams struct {
 	AlbumAssetAssociation AlbumAssetAssociationParam

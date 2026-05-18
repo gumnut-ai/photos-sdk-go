@@ -152,7 +152,7 @@ func TestPersonDelete(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	err := client.People.Delete(context.TODO(), "person_id")
+	_, err := client.People.Delete(context.TODO(), "person_id")
 	if err != nil {
 		var apierr *photos.Error
 		if errors.As(err, &apierr) {

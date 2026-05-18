@@ -141,16 +141,15 @@ func (r *PersonService) ListAutoPaging(ctx context.Context, query PersonListPara
 // Use `update_face` with `person_id=null` to detach a specific face without
 // deleting the whole person. Use `delete_face` to remove a face detection
 // entirely.
-func (r *PersonService) Delete(ctx context.Context, personID string, opts ...option.RequestOption) (err error) {
+func (r *PersonService) Delete(ctx context.Context, personID string, opts ...option.RequestOption) (res *PersonDeleteResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if personID == "" {
 		err = errors.New("missing required person_id parameter")
-		return err
+		return nil, err
 	}
 	path := fmt.Sprintf("api/people/%s", personID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
 }
 
 // Merges one or more source people into the primary person identified by the URL.
@@ -257,6 +256,8 @@ func (r PersonResponse) RawJSON() string { return r.JSON.raw }
 func (r *PersonResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type PersonDeleteResponse = any
 
 type PersonNewParams struct {
 	// Optional birth date (ISO 8601 date, YYYY-MM-DD) for this person.

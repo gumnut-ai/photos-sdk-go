@@ -135,16 +135,15 @@ func (r *AssetService) ListAutoPaging(ctx context.Context, query AssetListParams
 // **Use `remove_assets_from_album` instead** when the user only wants to remove an
 // asset from a specific album but keep the file in their library. Use
 // `delete_album` to remove an album without deleting its assets.
-func (r *AssetService) Delete(ctx context.Context, assetID string, opts ...option.RequestOption) (err error) {
+func (r *AssetService) Delete(ctx context.Context, assetID string, opts ...option.RequestOption) (res *AssetDeleteResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
-		return err
+		return nil, err
 	}
 	path := fmt.Sprintf("api/assets/%s", assetID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
+	return res, err
 }
 
 // Checks which assets exist in the user's library based on checksums or device
@@ -175,23 +174,21 @@ func (r *AssetService) Counts(ctx context.Context, query AssetCountsParams, opts
 // recovered.
 //
 // Up to 100 ids per request; over-cap requests return 422.
-func (r *AssetService) DeleteList(ctx context.Context, params AssetDeleteListParams, opts ...option.RequestOption) (err error) {
+func (r *AssetService) DeleteList(ctx context.Context, params AssetDeleteListParams, opts ...option.RequestOption) (res *AssetDeleteListResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	path := "api/assets"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, params, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, params, &res, opts...)
+	return res, err
 }
 
 // Permanently deletes every trashed asset in the caller's library in one shot —
 // storage and CDN are cleaned up via the same outbox path as the scheduled purge
 // task. **Irreversible**. Deliberately not exposed as an MCP tool.
-func (r *AssetService) EmptyTrash(ctx context.Context, body AssetEmptyTrashParams, opts ...option.RequestOption) (err error) {
+func (r *AssetService) EmptyTrash(ctx context.Context, body AssetEmptyTrashParams, opts ...option.RequestOption) (res *AssetEmptyTrashResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	path := "api/assets/empty-trash"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
 }
 
 // Restores trashed assets so they reappear in default list/search results.
@@ -199,12 +196,11 @@ func (r *AssetService) EmptyTrash(ctx context.Context, body AssetEmptyTrashParam
 //
 // Pairs with `trash_assets`: assets soft-deleted there can be brought back here
 // within the retention window.
-func (r *AssetService) Restore(ctx context.Context, params AssetRestoreParams, opts ...option.RequestOption) (err error) {
+func (r *AssetService) Restore(ctx context.Context, params AssetRestoreParams, opts ...option.RequestOption) (res *AssetRestoreResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	path := "api/assets/restore"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
 }
 
 // Soft-deletes the given assets. Trashed assets are excluded from default
@@ -214,12 +210,11 @@ func (r *AssetService) Restore(ctx context.Context, params AssetRestoreParams, o
 // Use this for the user's standard 'delete' action. To delete forever in one step,
 // use `permanently_delete_assets` instead — but prefer trash so the user can
 // recover from accidental deletes.
-func (r *AssetService) Trash(ctx context.Context, params AssetTrashParams, opts ...option.RequestOption) (err error) {
+func (r *AssetService) Trash(ctx context.Context, params AssetTrashParams, opts ...option.RequestOption) (res *AssetTrashResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	opts = append([]option.RequestOption{option.WithHeader("Accept", "*/*")}, opts...)
 	path := "api/assets/trash"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, nil, opts...)
-	return err
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return res, err
 }
 
 // Edits the user-editable metadata for a single asset — description, GPS
@@ -545,6 +540,16 @@ func (r MetadataResponse) RawJSON() string { return r.JSON.raw }
 func (r *MetadataResponse) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
+
+type AssetDeleteResponse = any
+
+type AssetDeleteListResponse = any
+
+type AssetEmptyTrashResponse = any
+
+type AssetRestoreResponse = any
+
+type AssetTrashResponse = any
 
 type AssetNewParams struct {
 	// The asset file to upload

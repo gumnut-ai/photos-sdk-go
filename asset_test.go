@@ -169,7 +169,7 @@ func TestAssetCountsWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Assets.Counts(context.TODO(), photos.AssetCountsParams{
 		AlbumID:             photos.String("album_id"),
-		GroupBy:             photos.String("group_by"),
+		GroupBy:             photos.AssetCountsParamsGroupByMonth,
 		LibraryID:           photos.String("library_id"),
 		Limit:               photos.Int(1),
 		LocalDatetimeAfter:  photos.Time(time.Now()),

@@ -93,10 +93,10 @@ func (r *LibraryService) List(ctx context.Context, query LibraryListParams, opts
 // Expedites the background purge on a **trashed** library: the 90-day undo window
 // is waived and the drain begins claiming this library on the next scheduled tick.
 // Returns immediately; the drain proceeds asynchronously in bounded batches and
-// does not block on completion. Restore still works until the drain finishes
-// purging all assets, but past this point it will recover only the assets the
-// drain hasn't gotten to yet. Returns 409 if the library has not been trashed yet;
-// trash it first.
+// does not block on completion. `restore_library` still works until the drain
+// finishes purging all assets, but past this point it will recover only the assets
+// the drain hasn't gotten to yet. Returns 409 if the library has not been trashed
+// yet — call `trash_library` first.
 func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...option.RequestOption) (res *LibraryDeleteResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
@@ -113,6 +113,9 @@ func (r *LibraryService) Delete(ctx context.Context, libraryID string, opts ...o
 // returns 404 the row is gone and restore is no longer possible. If the background
 // drain has already started purging assets, restore succeeds but recovers only the
 // assets the drain hasn't gotten to yet.
+//
+// Pairs with `trash_library`. To restore individual trashed assets within an
+// untrashed library, use `restore_assets` instead.
 func (r *LibraryService) Restore(ctx context.Context, libraryID string, opts ...option.RequestOption) (res *LibraryResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {
@@ -130,7 +133,9 @@ func (r *LibraryService) Restore(ctx context.Context, libraryID string, opts ...
 // the background; until the library row itself is removed, restore still works but
 // recovers only the assets not yet purged.
 //
-// Idempotent — a second call on an already-trashed library no-ops.
+// Idempotent — a second call on an already-trashed library no-ops. To trash
+// individual assets without trashing the whole library, use `trash_assets`
+// instead.
 func (r *LibraryService) Trash(ctx context.Context, libraryID string, opts ...option.RequestOption) (res *LibraryTrashResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if libraryID == "" {

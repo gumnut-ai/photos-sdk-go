@@ -122,8 +122,7 @@ func (r *FaceService) ListAutoPaging(ctx context.Context, query FaceListParams, 
 // **Use `update_face` with `person_id=null` instead** when the user wants to
 // disassociate the face from a person without discarding the detection (so
 // re-clustering can try again). Use `delete_person` to remove a person; use
-// `trash_assets` (or `permanently_delete_assets` for irreversible removal) to
-// remove the photo entirely.
+// `trash_assets` to remove the photo entirely.
 func (r *FaceService) Delete(ctx context.Context, faceID string, body FaceDeleteParams, opts ...option.RequestOption) (res *FaceDeleteResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if faceID == "" {

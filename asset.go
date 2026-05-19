@@ -156,8 +156,15 @@ func (r *AssetService) CheckExistence(ctx context.Context, params AssetCheckExis
 	return res, err
 }
 
-// Returns asset counts grouped by time period. Supports optional filtering by
-// album, person, or date range. Results are ordered by time bucket descending.
+// Counts assets bucketed by time period — use this to summarize a library (or a
+// filtered slice) without paging through the full timeline. Returns one row per
+// bucket, ordered most-recent-first, with optional filtering by album, person,
+// date range, or trash state.
+//
+// To list the actual assets within a bucket, call `list_assets` with the same
+// filters and a `local_datetime_after` / `local_datetime_before` window matching
+// the bucket. Does not filter by image content or location; for content-based
+// search use `search_assets`.
 //
 // **Pagination:** When `has_more` is true, pass the last `time_bucket` value from
 // `data` as `local_datetime_before` to fetch the next page.
@@ -195,7 +202,8 @@ func (r *AssetService) EmptyTrash(ctx context.Context, body AssetEmptyTrashParam
 // Idempotent — assets that are already live are silently skipped.
 //
 // Pairs with `trash_assets`: assets soft-deleted there can be brought back here
-// within the retention window.
+// within the retention window. To restore a whole trashed library, use
+// `restore_library`.
 func (r *AssetService) Restore(ctx context.Context, params AssetRestoreParams, opts ...option.RequestOption) (res *AssetRestoreResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/assets/restore"
@@ -207,9 +215,9 @@ func (r *AssetService) Restore(ctx context.Context, params AssetRestoreParams, o
 // list/search results and are purged after the configured retention window.
 // **Reversible** via `restore_assets` until purge.
 //
-// Use this for the user's standard 'delete' action. To delete forever in one step,
-// use `permanently_delete_assets` instead — but prefer trash so the user can
-// recover from accidental deletes.
+// Use this for the user's standard 'delete' action — there is no MCP-exposed
+// permanent-delete tool, so trash is the only path. To trash an entire library at
+// once instead of enumerating asset IDs, use `trash_library`.
 func (r *AssetService) Trash(ctx context.Context, params AssetTrashParams, opts ...option.RequestOption) (res *AssetTrashResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/assets/trash"
@@ -227,6 +235,11 @@ func (r *AssetService) Trash(ctx context.Context, params AssetTrashParams, opts 
 // Setting or clearing GPS coordinates re-enqueues reverse geocoding so location
 // names refresh against the new effective coordinates. Setting the datetime moves
 // the asset in the timeline (`list_assets` ordering).
+//
+// Does not change album membership, face assignments, or person clusters. Use
+// `add_assets_to_album` / `remove_assets_from_album` for album changes,
+// `update_face` to reassign a face to a person, and `trash_assets` to soft-delete
+// the asset itself.
 func (r *AssetService) UpdateAsset(ctx context.Context, assetID string, body AssetUpdateAssetParams, opts ...option.RequestOption) (res *AssetResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if assetID == "" {
@@ -695,10 +708,13 @@ type AssetCountsParams struct {
 	LocalDatetimeBefore param.Opt[time.Time] `query:"local_datetime_before,omitzero" format:"date-time" json:"-"`
 	// Filter by assets associated with a specific person ID
 	PersonID param.Opt[string] `query:"person_id,omitzero" json:"-"`
-	// Time period to group counts by. Currently only 'month' is supported.
-	GroupBy param.Opt[string] `query:"group_by,omitzero" json:"-"`
 	// Maximum number of time buckets to return (1-200)
 	Limit param.Opt[int64] `query:"limit,omitzero" json:"-"`
+	// Time period to group counts by. Only `month` is supported; other values
+	// return 422.
+	//
+	// Any of "month".
+	GroupBy AssetCountsParamsGroupBy `query:"group_by,omitzero" json:"-"`
 	// Which set of assets to count: `live` (default — excludes trashed assets),
 	// `trashed` (only trashed assets), or `all` (both live and trashed).
 	//
@@ -714,6 +730,14 @@ func (r AssetCountsParams) URLQuery() (v url.Values, err error) {
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
 }
+
+// Time period to group counts by. Only `month` is supported; other values
+// return 422.
+type AssetCountsParamsGroupBy string
+
+const (
+	AssetCountsParamsGroupByMonth AssetCountsParamsGroupBy = "month"
+)
 
 // Which set of assets to count: `live` (default — excludes trashed assets),
 // `trashed` (only trashed assets), or `all` (both live and trashed).

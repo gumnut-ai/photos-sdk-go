@@ -368,8 +368,9 @@ type AssetResponse struct {
 	OriginalFileName string `json:"original_file_name" api:"required"`
 	// When this asset record was last updated
 	UpdatedAt time.Time `json:"updated_at" api:"required" format:"date-time"`
-	// Named asset variants: 'original', 'thumbnail', 'preview', 'fullsize' for images;
-	// 'original' only for videos
+	// Named asset variants. Images: 'original', 'thumbnail', 'preview', 'fullsize'.
+	// Videos: 'original' always, plus 'thumbnail_image', 'preview_image',
+	// 'fullsize_image' once a still has been extracted.
 	AssetURLs map[string]shared.AssetVariant `json:"asset_urls" api:"nullable"`
 	// Base64-encoded SHA-1 hash for Immich client compatibility. May be null for older
 	// assets.

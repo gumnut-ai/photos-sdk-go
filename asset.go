@@ -151,19 +151,9 @@ func (r *AssetService) Delete(ctx context.Context, assetID string, opts ...optio
 // on different assets in the same request. Atomic: any per-item validation failure
 // or unknown / cross-user id rejects the whole batch and writes nothing.
 //
-// Use this when the caller already holds the new per-asset values — importing
-// metadata from another photo manager, per-camera time-offset correction, GPS
-// correction from re-extracted EXIF, captioning output. The tool does not derive
-// new values from the existing asset (no relative-shift mode); each item's new
-// values are taken verbatim from the request.
-//
 // Up to 100 items per request; over-cap requests return 422. For a single-asset
 // edit, prefer `update_asset` — semantically identical but slightly more concise
 // at the call site.
-//
-// Does not change album membership (use `add_assets_to_album` /
-// `remove_assets_from_album`), trash or delete assets (use `trash_assets`), or
-// modify faces or people.
 func (r *AssetService) BulkUpdateAssets(ctx context.Context, body AssetBulkUpdateAssetsParams, opts ...option.RequestOption) (res *AssetBulkUpdateAssetsResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/assets/bulk-update"

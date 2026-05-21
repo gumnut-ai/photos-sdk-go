@@ -146,6 +146,31 @@ func (r *AssetService) Delete(ctx context.Context, assetID string, opts ...optio
 	return res, err
 }
 
+// Updates metadata on multiple assets in one transactional call. Each item carries
+// the target asset id and the per-asset change — different fields can be changed
+// on different assets in the same request. Atomic: any per-item validation failure
+// or unknown / cross-user id rejects the whole batch and writes nothing.
+//
+// Use this when the caller already holds the new per-asset values — importing
+// metadata from another photo manager, per-camera time-offset correction, GPS
+// correction from re-extracted EXIF, captioning output. The tool does not derive
+// new values from the existing asset (no relative-shift mode); each item's new
+// values are taken verbatim from the request.
+//
+// Up to 100 items per request; over-cap requests return 422. For a single-asset
+// edit, prefer `update_asset` — semantically identical but slightly more concise
+// at the call site.
+//
+// Does not change album membership (use `add_assets_to_album` /
+// `remove_assets_from_album`), trash or delete assets (use `trash_assets`), or
+// modify faces or people.
+func (r *AssetService) BulkUpdateAssets(ctx context.Context, body AssetBulkUpdateAssetsParams, opts ...option.RequestOption) (res *AssetBulkUpdateAssetsResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "api/assets/bulk-update"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return res, err
+}
+
 // Checks which assets exist in the user's library based on checksums or device
 // identifiers. Provide exactly one of: checksums, checksum_sha1s, or (deviceId AND
 // deviceAssetIds). List parameters are limited to 5000 items.
@@ -553,6 +578,8 @@ func (r *MetadataResponse) UnmarshalJSON(data []byte) error {
 
 type AssetDeleteResponse = any
 
+type AssetBulkUpdateAssetsResponse = any
+
 type AssetDeleteListResponse = any
 
 type AssetEmptyTrashResponse = any
@@ -654,6 +681,85 @@ const (
 	AssetListParamsStateTrashed AssetListParamsState = "trashed"
 	AssetListParamsStateAll     AssetListParamsState = "all"
 )
+
+type AssetBulkUpdateAssetsParams struct {
+	// List of per-asset updates. Each item carries the target asset id and the change
+	// to apply to it; different fields can be changed on different assets in the same
+	// request. Up to 100 items per request.
+	Updates []AssetBulkUpdateAssetsParamsUpdate `json:"updates,omitzero" api:"required"`
+	paramObj
+}
+
+func (r AssetBulkUpdateAssetsParams) MarshalJSON() (data []byte, err error) {
+	type shadow AssetBulkUpdateAssetsParams
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AssetBulkUpdateAssetsParams) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// One item in a bulk-update request.
+//
+// Names the target asset and carries the per-asset change to apply. The `change`
+// object is exactly the body shape that the single-asset
+// `PATCH /api/assets/{asset_id}` endpoint accepts; the wrapper exists so
+// operation-level metadata (`id`, future `if_match` / idempotency-key fields)
+// stays in a namespace disjoint from the entity-field changes.
+//
+// The properties ID, Change are required.
+type AssetBulkUpdateAssetsParamsUpdate struct {
+	// Asset ID (with the `asset_` prefix) to apply this change to. Obtain from
+	// `list_assets`, `search_assets`, or `list_album_assets`.
+	ID string `json:"id" api:"required"`
+	// The change to apply to this asset. Same shape as the body of the single-asset
+	// `update_asset` endpoint — same fields, same validation, same
+	// null-clears-the-override semantics.
+	Change AssetBulkUpdateAssetsParamsUpdateChange `json:"change,omitzero" api:"required"`
+	paramObj
+}
+
+func (r AssetBulkUpdateAssetsParamsUpdate) MarshalJSON() (data []byte, err error) {
+	type shadow AssetBulkUpdateAssetsParamsUpdate
+	return param.MarshalObject(r, (*shadow)(&r))
+}
+func (r *AssetBulkUpdateAssetsParamsUpdate) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// The change to apply to this asset. Same shape as the body of the single-asset
+// `update_asset` endpoint — same fields, same validation, same
+// null-clears-the-override semantics.
+type AssetBulkUpdateAssetsParamsUpdateChange struct {
+	// User-set description for the asset. Pass `null` to remove a previously-set value
+	// (the response then falls back to the description embedded in the file, if any).
+	// Omit to leave unchanged. Distinct from the AI-generated `description` field on
+	// the response — this writes to `metadata.description`.
+	Description param.Opt[string] `json:"description,omitzero"`
+	// GPS latitude in decimal degrees, `[-90, 90]`. Must be set together with
+	// `longitude`. Pass `null` (along with `longitude=null`) to remove a
+	// previously-set value; omit to leave unchanged.
+	Latitude param.Opt[float64] `json:"latitude,omitzero"`
+	// GPS longitude in decimal degrees, `[-180, 180]`. Must be set together with
+	// `latitude`. Pass `null` (along with `latitude=null`) to remove a previously-set
+	// value; omit to leave unchanged.
+	Longitude param.Opt[float64] `json:"longitude,omitzero"`
+	// When the asset was originally captured. Aware values store the offset from
+	// `utcoffset()` alongside; naive values store NULL offset. Pass `null` to remove a
+	// previously-set value — the response then falls back to the datetime embedded in
+	// the file when present, otherwise to the file's upload timestamp. Omit to leave
+	// unchanged.
+	OriginalDatetime param.Opt[time.Time] `json:"original_datetime,omitzero" format:"date-time"`
+	ExtraFields      map[string]any       `json:"-"`
+	paramObj
+}
+
+func (r AssetBulkUpdateAssetsParamsUpdateChange) MarshalJSON() (data []byte, err error) {
+	type shadow AssetBulkUpdateAssetsParamsUpdateChange
+	return param.MarshalWithExtras(r, (*shadow)(&r), r.ExtraFields)
+}
+func (r *AssetBulkUpdateAssetsParamsUpdateChange) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
 
 type AssetCheckExistenceParams struct {
 	// Library to check assets in (optional)

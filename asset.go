@@ -391,6 +391,9 @@ type AssetResponse struct {
 	// refused to describe the asset. Distinct from metadata.description
 	// (camera-embedded EXIF metadata).
 	Description string `json:"description" api:"nullable"`
+	// Video length in seconds. `null` for images and for videos whose duration has not
+	// been extracted yet.
+	Duration float64 `json:"duration" api:"nullable"`
 	// All faces detected in this asset
 	Faces []FaceResponse `json:"faces"`
 	// File size of the asset in bytes
@@ -425,6 +428,7 @@ type AssetResponse struct {
 		AssetURLs        respjson.Field
 		ChecksumSha1     respjson.Field
 		Description      respjson.Field
+		Duration         respjson.Field
 		Faces            respjson.Field
 		FileSizeBytes    respjson.Field
 		Height           respjson.Field

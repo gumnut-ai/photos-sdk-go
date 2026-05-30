@@ -406,6 +406,10 @@ type AssetResponse struct {
 	Metrics map[string]float64 `json:"metrics" api:"nullable"`
 	// All unique people identified in this asset (deduplicated from faces)
 	People []PersonResponse `json:"people"`
+	// Base64-encoded ThumbHash placeholder (~28 chars). Clients decode with the
+	// `thumbhash` library (JS / Swift / Kotlin) to render an instant blurred preview
+	// before the CDN thumbnail arrives. `null` while generation is pending.
+	Thumbhash string `json:"thumbhash" api:"nullable"`
 	// When this asset was moved to trash (ISO 8601, UTC). `null` for live assets.
 	// Trashed assets are excluded from default list/search results and are purged
 	// after the configured retention window.
@@ -435,6 +439,7 @@ type AssetResponse struct {
 		Metadata         respjson.Field
 		Metrics          respjson.Field
 		People           respjson.Field
+		Thumbhash        respjson.Field
 		TrashedAt        respjson.Field
 		Width            respjson.Field
 		ExtraFields      map[string]respjson.Field

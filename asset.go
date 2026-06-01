@@ -59,14 +59,14 @@ func (r *AssetService) New(ctx context.Context, body AssetNewParams, opts ...opt
 // have a specific asset ID (e.g., from `list_assets`, `search_assets`, or
 // `list_album_assets`) and need its full details. For bulk fetch of multiple known
 // IDs, prefer `list_assets` with the `ids` parameter to avoid N round trips.
-func (r *AssetService) Get(ctx context.Context, assetID string, opts ...option.RequestOption) (res *AssetResponse, err error) {
+func (r *AssetService) Get(ctx context.Context, assetID string, query AssetGetParams, opts ...option.RequestOption) (res *AssetResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if assetID == "" {
 		err = errors.New("missing required asset_id parameter")
 		return nil, err
 	}
 	path := fmt.Sprintf("api/assets/%s", assetID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return res, err
 }
 
@@ -358,19 +358,8 @@ func (r *AssetLiteResponse) UnmarshalJSON(data []byte) error {
 type AssetResponse struct {
 	// Unique asset identifier with 'asset\_' prefix
 	ID string `json:"id" api:"required"`
-	// Base64-encoded SHA-256 hash of the asset contents for duplicate detection and
-	// integrity
-	Checksum string `json:"checksum" api:"required"`
 	// When this asset record was created in the database
 	CreatedAt time.Time `json:"created_at" api:"required" format:"date-time"`
-	// Original asset identifier from the device that uploaded this asset
-	DeviceAssetID string `json:"device_asset_id" api:"required"`
-	// Identifier of the device that uploaded this asset
-	DeviceID string `json:"device_id" api:"required"`
-	// When the file was created on the uploading device
-	FileCreatedAt time.Time `json:"file_created_at" api:"required" format:"date-time"`
-	// When the file was last modified on the uploading device
-	FileModifiedAt time.Time `json:"file_modified_at" api:"required" format:"date-time"`
 	// When the photo/video was taken, in the device's local timezone
 	LocalDatetime time.Time `json:"local_datetime" api:"required" format:"date-time"`
 	// MIME type of the file (e.g., 'image/jpeg', 'video/mp4')
@@ -383,29 +372,67 @@ type AssetResponse struct {
 	// Videos: 'original' always, plus 'thumbnail_image', 'preview_image',
 	// 'fullsize_image' once a still has been extracted.
 	AssetURLs map[string]shared.AssetVariant `json:"asset_urls" api:"nullable"`
-	// Base64-encoded SHA-1 hash for Immich client compatibility. May be null for older
-	// assets.
+	// Base64-encoded SHA-256 hash of the asset contents for duplicate detection and
+	// integrity. Part of the `file_data` group — `null` when not requested via
+	// `include=file_data`. Superseded by `file_data.checksum`.
+	Checksum string `json:"checksum" api:"nullable"`
+	// Base64-encoded SHA-1 hash for Immich client compatibility. Part of the
+	// `file_data` group. `null` either when not requested via `include=file_data` or,
+	// when requested, for older assets that have no SHA-1 (a consumer distinguishes
+	// the two by whether it passed the token). Superseded by `file_data.checksum_sha1`
+	// (see `file_data`).
 	ChecksumSha1 string `json:"checksum_sha1" api:"nullable"`
 	// AI-generated description of the asset's content, quality, and composition. null
 	// means description generation has not yet run; empty string means the model
 	// refused to describe the asset. Distinct from metadata.description
 	// (camera-embedded EXIF metadata).
 	Description string `json:"description" api:"nullable"`
+	// Original asset identifier from the device that uploaded this asset. Part of the
+	// `file_data` group — `null` when not requested via `include=file_data`.
+	// Superseded by `file_data.device_asset_id`.
+	DeviceAssetID string `json:"device_asset_id" api:"nullable"`
+	// Identifier of the device that uploaded this asset. Part of the `file_data` group
+	// — `null` when not requested via `include=file_data`. Superseded by
+	// `file_data.device_id`.
+	DeviceID string `json:"device_id" api:"nullable"`
 	// Video length in seconds. `null` for images and for videos whose duration has not
 	// been extracted yet.
 	Duration float64 `json:"duration" api:"nullable"`
-	// All faces detected in this asset
-	Faces []FaceResponse `json:"faces"`
-	// File size of the asset in bytes
-	FileSizeBytes int64 `json:"file_size_bytes"`
+	// All faces detected in this asset. `null` when not requested via `include=faces`;
+	// `[]` when requested but the asset has no faces.
+	Faces []FaceResponse `json:"faces" api:"nullable"`
+	// When the file was created on the uploading device. Part of the `file_data` group
+	// — `null` when not requested via `include=file_data`. Superseded by
+	// `file_data.file_created_at`.
+	FileCreatedAt time.Time `json:"file_created_at" api:"nullable" format:"date-time"`
+	// File/provenance scalars describing the uploaded _file_ (not its content).
+	//
+	// Returned only when requested via `include=file_data`; the whole object is `null`
+	// otherwise. When present, every field carries its real value — `checksum_sha1` is
+	// the lone exception (`null` for legacy rows that never had a SHA-1). This nested
+	// object is the preferred home for the file/provenance group; the equivalent
+	// top-level `AssetResponse` fields are retained for backwards compatibility until
+	// clients migrate, and populated under the same `include=file_data` gate.
+	FileData AssetResponseFileData `json:"file_data" api:"nullable"`
+	// When the file was last modified on the uploading device. Part of the `file_data`
+	// group — `null` when not requested via `include=file_data`. Superseded by
+	// `file_data.file_modified_at`.
+	FileModifiedAt time.Time `json:"file_modified_at" api:"nullable" format:"date-time"`
+	// File size of the asset in bytes. Part of the `file_data` group — `null` when not
+	// requested via `include=file_data` (distinct from a real zero-byte file).
+	// Superseded by `file_data.file_size_bytes`.
+	FileSizeBytes int64 `json:"file_size_bytes" api:"nullable"`
 	// Height of the asset in pixels
 	Height int64 `json:"height"`
 	// Metadata for an asset — camera/EXIF fields, GPS, and location names.
 	Metadata MetadataResponse `json:"metadata" api:"nullable"`
-	// ML-generated quality scores and other metrics
+	// ML-generated quality scores and other metrics. `null` when not requested via
+	// `include=metrics`.
 	Metrics map[string]float64 `json:"metrics" api:"nullable"`
-	// All unique people identified in this asset (deduplicated from faces)
-	People []PersonResponse `json:"people"`
+	// All unique people identified in this asset (deduplicated from faces). `null`
+	// when not requested via `include=people`; `[]` when requested but none are
+	// identified.
+	People []PersonResponse `json:"people" api:"nullable"`
 	// Base64-encoded ThumbHash placeholder (~28 chars). Clients decode with the
 	// `thumbhash` library (JS / Swift / Kotlin) to render an instant blurred preview
 	// before the CDN thumbnail arrives. `null` while generation is pending.
@@ -419,21 +446,22 @@ type AssetResponse struct {
 	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
 	JSON struct {
 		ID               respjson.Field
-		Checksum         respjson.Field
 		CreatedAt        respjson.Field
-		DeviceAssetID    respjson.Field
-		DeviceID         respjson.Field
-		FileCreatedAt    respjson.Field
-		FileModifiedAt   respjson.Field
 		LocalDatetime    respjson.Field
 		MimeType         respjson.Field
 		OriginalFileName respjson.Field
 		UpdatedAt        respjson.Field
 		AssetURLs        respjson.Field
+		Checksum         respjson.Field
 		ChecksumSha1     respjson.Field
 		Description      respjson.Field
+		DeviceAssetID    respjson.Field
+		DeviceID         respjson.Field
 		Duration         respjson.Field
 		Faces            respjson.Field
+		FileCreatedAt    respjson.Field
+		FileData         respjson.Field
+		FileModifiedAt   respjson.Field
 		FileSizeBytes    respjson.Field
 		Height           respjson.Field
 		Metadata         respjson.Field
@@ -450,6 +478,51 @@ type AssetResponse struct {
 // Returns the unmodified JSON received from the API
 func (r AssetResponse) RawJSON() string { return r.JSON.raw }
 func (r *AssetResponse) UnmarshalJSON(data []byte) error {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+// File/provenance scalars describing the uploaded _file_ (not its content).
+//
+// Returned only when requested via `include=file_data`; the whole object is `null`
+// otherwise. When present, every field carries its real value — `checksum_sha1` is
+// the lone exception (`null` for legacy rows that never had a SHA-1). This nested
+// object is the preferred home for the file/provenance group; the equivalent
+// top-level `AssetResponse` fields are retained for backwards compatibility until
+// clients migrate, and populated under the same `include=file_data` gate.
+type AssetResponseFileData struct {
+	// Base64-encoded SHA-256 hash of the asset contents for duplicate detection and
+	// integrity.
+	Checksum string `json:"checksum" api:"required"`
+	// Original asset identifier from the device that uploaded this asset.
+	DeviceAssetID string `json:"device_asset_id" api:"required"`
+	// Identifier of the device that uploaded this asset.
+	DeviceID string `json:"device_id" api:"required"`
+	// When the file was created on the uploading device.
+	FileCreatedAt time.Time `json:"file_created_at" api:"required" format:"date-time"`
+	// When the file was last modified on the uploading device.
+	FileModifiedAt time.Time `json:"file_modified_at" api:"required" format:"date-time"`
+	// File size of the asset in bytes.
+	FileSizeBytes int64 `json:"file_size_bytes" api:"required"`
+	// Base64-encoded SHA-1 hash for Immich client compatibility. `null` for older
+	// assets that have no SHA-1.
+	ChecksumSha1 string `json:"checksum_sha1" api:"nullable"`
+	// JSON contains metadata for fields, check presence with [respjson.Field.Valid].
+	JSON struct {
+		Checksum       respjson.Field
+		DeviceAssetID  respjson.Field
+		DeviceID       respjson.Field
+		FileCreatedAt  respjson.Field
+		FileModifiedAt respjson.Field
+		FileSizeBytes  respjson.Field
+		ChecksumSha1   respjson.Field
+		ExtraFields    map[string]respjson.Field
+		raw            string
+	} `json:"-"`
+}
+
+// Returns the unmodified JSON received from the API
+func (r AssetResponseFileData) RawJSON() string { return r.JSON.raw }
+func (r *AssetResponseFileData) UnmarshalJSON(data []byte) error {
 	return apijson.UnmarshalRoot(data, r)
 }
 
@@ -617,6 +690,26 @@ func (r AssetNewParams) MarshalMultipart() (data []byte, contentType string, err
 	return buf.Bytes(), writer.FormDataContentType(), nil
 }
 
+type AssetGetParams struct {
+	// Opt-in expansion fields. Supported values: `metadata` (camera/EXIF/GPS and
+	// location names), `faces`, `people`, `metrics` (ML quality scores), and
+	// `file_data` (a group token gating the file/provenance scalars `device_asset_id`,
+	// `device_id`, `file_created_at`, `file_modified_at`, `checksum`, `checksum_sha1`,
+	// `file_size_bytes`). Accepts multiple `include=` query params or a single
+	// comma-delimited value (e.g. `include=faces,people`). Unknown values return 422.
+	// When omitted, all fields are returned (transition default).
+	Include []string `query:"include,omitzero" json:"-"`
+	paramObj
+}
+
+// URLQuery serializes [AssetGetParams]'s query parameters as `url.Values`.
+func (r AssetGetParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
 type AssetListParams struct {
 	// Return only assets that are in the album with this ID. Equivalent to calling
 	// `list_album_assets` with `album_id` and then fetching each asset — prefer this
@@ -653,6 +746,14 @@ type AssetListParams struct {
 	// `ids=asset_1,asset_2`). Combines with other filters (album_id, person_id,
 	// datetime range) using AND logic — the result is the intersection.
 	IDs []string `query:"ids,omitzero" json:"-"`
+	// Opt-in expansion fields. Supported values: `metadata` (camera/EXIF/GPS and
+	// location names), `faces`, `people`, `metrics` (ML quality scores), and
+	// `file_data` (a group token gating the file/provenance scalars `device_asset_id`,
+	// `device_id`, `file_created_at`, `file_modified_at`, `checksum`, `checksum_sha1`,
+	// `file_size_bytes`). Accepts multiple `include=` query params or a single
+	// comma-delimited value (e.g. `include=faces,people`). Unknown values return 422.
+	// When omitted, all fields are returned (transition default).
+	Include []string `query:"include,omitzero" json:"-"`
 	// Which set of assets to read from: `live` (default — only assets that are not
 	// trashed), `trashed` (only trashed assets, ordered by most recently trashed), or
 	// `all` (both live and trashed, ordered by capture time like `live`).

@@ -71,10 +71,10 @@ func (r *SearchService) Search(ctx context.Context, query SearchSearchParams, op
 // Searches for assets using semantic similarity and/or metadata filters. Results
 // include asset metadata, faces, and people. At least one search criterion must be
 // provided. Can search by text query, uploaded image, or both combined.
-func (r *SearchService) SearchAssets(ctx context.Context, body SearchSearchAssetsParams, opts ...option.RequestOption) (res *SearchResponse, err error) {
+func (r *SearchService) SearchAssets(ctx context.Context, params SearchSearchAssetsParams, opts ...option.RequestOption) (res *SearchResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "api/search"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return res, err
 }
 
@@ -150,6 +150,14 @@ type SearchSearchParams struct {
 	// high-precision queries, 0.9 for exploratory searches. **Note:** this is inverted
 	// from the usual 'similarity score' convention where higher means more similar.
 	Threshold param.Opt[float64] `query:"threshold,omitzero" json:"-"`
+	// Opt-in expansion fields. Supported values: `metadata` (camera/EXIF/GPS and
+	// location names), `faces`, `people`, `metrics` (ML quality scores), and
+	// `file_data` (a group token gating the file/provenance scalars `device_asset_id`,
+	// `device_id`, `file_created_at`, `file_modified_at`, `checksum`, `checksum_sha1`,
+	// `file_size_bytes`). Accepts multiple `include=` query params or a single
+	// comma-delimited value (e.g. `include=faces,people`). Unknown values return 422.
+	// When omitted, all fields are returned (transition default).
+	Include []string `query:"include,omitzero" json:"-"`
 	// Filter to assets containing ALL of these person IDs (intersection, not union).
 	// Accepts multiple `person_ids=` query params or a single comma-delimited value
 	// (e.g., `person_123,person_abc`). Get person IDs from `list_people`. Plural on
@@ -184,6 +192,14 @@ type SearchSearchAssetsParams struct {
 	Page param.Opt[int64] `json:"page,omitzero"`
 	// Similarity threshold (lower means more similar)
 	Threshold param.Opt[float64] `json:"threshold,omitzero"`
+	// Opt-in expansion fields. Supported values: `metadata` (camera/EXIF/GPS and
+	// location names), `faces`, `people`, `metrics` (ML quality scores), and
+	// `file_data` (a group token gating the file/provenance scalars `device_asset_id`,
+	// `device_id`, `file_created_at`, `file_modified_at`, `checksum`, `checksum_sha1`,
+	// `file_size_bytes`). Accepts multiple `include=` query params or a single
+	// comma-delimited value (e.g. `include=faces,people`). Unknown values return 422.
+	// When omitted, all fields are returned (transition default).
+	Include []string `query:"include,omitzero" json:"-"`
 	// Image file to search for similar assets. Can be combined with text query.
 	Image io.Reader `json:"image,omitzero" format:"binary"`
 	// Filter to assets containing ALL of these person IDs (intersection, not union).
@@ -209,4 +225,13 @@ func (r SearchSearchAssetsParams) MarshalMultipart() (data []byte, contentType s
 		return nil, "", err
 	}
 	return buf.Bytes(), writer.FormDataContentType(), nil
+}
+
+// URLQuery serializes [SearchSearchAssetsParams]'s query parameters as
+// `url.Values`.
+func (r SearchSearchAssetsParams) URLQuery() (v url.Values, err error) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatRepeat,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
 }

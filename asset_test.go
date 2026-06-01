@@ -46,7 +46,7 @@ func TestAssetNewWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestAssetGet(t *testing.T) {
+func TestAssetGetWithOptionalParams(t *testing.T) {
 	t.Skip("Mock server tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -59,7 +59,13 @@ func TestAssetGet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 		option.WithAPIKey("My API Key"),
 	)
-	_, err := client.Assets.Get(context.TODO(), "asset_id")
+	_, err := client.Assets.Get(
+		context.TODO(),
+		"asset_id",
+		photos.AssetGetParams{
+			Include: []string{"string", "string"},
+		},
+	)
 	if err != nil {
 		var apierr *photos.Error
 		if errors.As(err, &apierr) {
@@ -85,6 +91,7 @@ func TestAssetListWithOptionalParams(t *testing.T) {
 	_, err := client.Assets.List(context.TODO(), photos.AssetListParams{
 		AlbumID:             photos.String("album_id"),
 		IDs:                 []string{"string", "string"},
+		Include:             []string{"string", "string"},
 		LibraryID:           photos.String("library_id"),
 		Limit:               photos.Int(1),
 		LocalDatetimeAfter:  photos.Time(time.Now()),

@@ -32,6 +32,7 @@ func TestSearchSearchWithOptionalParams(t *testing.T) {
 	_, err := client.Search.Search(context.TODO(), photos.SearchSearchParams{
 		CapturedAfter:  photos.Time(time.Now()),
 		CapturedBefore: photos.Time(time.Now()),
+		Include:        []string{"string", "string"},
 		LibraryID:      photos.String("library_id"),
 		Limit:          photos.Int(1),
 		Page:           photos.Int(1),
@@ -62,6 +63,7 @@ func TestSearchSearchAssetsWithOptionalParams(t *testing.T) {
 		option.WithAPIKey("My API Key"),
 	)
 	_, err := client.Search.SearchAssets(context.TODO(), photos.SearchSearchAssetsParams{
+		Include:        []string{"string", "string"},
 		CapturedAfter:  photos.Time(time.Now()),
 		CapturedBefore: photos.Time(time.Now()),
 		Image:          io.Reader(bytes.NewBuffer([]byte("Example data"))),
